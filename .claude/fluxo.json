@@ -1,5 +1,5 @@
 {
   "versao_fluxo": 1,
   "projeto": "Rocruzta Hub",
-  "validacao": []
+  "validacao": ["npm test"]
 }

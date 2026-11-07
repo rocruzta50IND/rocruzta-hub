@@ -1,0 +1,15 @@
+{
+  "name": "rocruzta-hub",
+  "productName": "Rocruzta Hub",
+  "version": "0.1.0",
+  "description": "Centro de navegação dos apps da Rocruzta",
+  "private": true,
+  "main": "src/main/main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test"
+  },
+  "devDependencies": {
+    "electron": "45.2.3"
+  }
+}

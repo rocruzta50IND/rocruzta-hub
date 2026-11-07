@@ -22,18 +22,6 @@ _Nenhuma no momento._
 
 Ordem de execução da v1. Pegue a primeira cujas dependências estejam concluídas.
 
-### TASK-002 — Esqueleto do app Electron (Windows)
-
-- **Responsável:** DEV1
-- **Status:** PRONTA
-- **Prioridade:** Alta
-- **Depende de:** nada
-- **Objetivo:** projeto Electron que abre uma janela sem moldura com barra de título própria e controles por IPC.
-- **Critérios de aceite:**
-  - `package.json`, estrutura `src/main`, `src/renderer`, `src/preload`, `contextIsolation` ligado e sem `nodeIntegration`.
-  - Instância única, identificador `com.rocruzta.hub`, dados em `%APPDATA%\Rocruzta Hub`.
-  - Scripts `start` e `test` (e lint, se couber) funcionando, e `validacao` preenchida em `.claude/fluxo.json`.
-
 ### TASK-003 — Tokens de design e componentes base
 
 - **Responsável:** DEV1
@@ -193,6 +181,19 @@ Fora da v1. O DEV1 promove para "Prontas" quando decidir.
 - **Objetivo:** experimento descartável, só se o usuário voltar a querer isso. Motivos do descarte atual em `docs/DECISOES.md`.
 
 ## Concluídas
+
+### TASK-002 — Esqueleto do app Electron (Windows)
+
+- **Responsável:** DEV1
+- **Status:** CONCLUÍDA
+- **Prioridade:** Alta
+- **Depende de:** nada
+- **Objetivo:** projeto Electron que abre uma janela sem moldura com barra de título própria e controles por IPC.
+- **Critérios de aceite:**
+  - `package.json`, estrutura `src/main`, `src/renderer`, `src/preload`, `contextIsolation` ligado e sem `nodeIntegration`.
+  - Instância única, identificador `com.rocruzta.hub`, dados em `%APPDATA%\Rocruzta Hub`.
+  - Scripts `start` e `test` (e lint, se couber) funcionando, e `validacao` preenchida em `.claude/fluxo.json`.
+- **Concluída em:** 2026-11-07
 
 ### TASK-001 — Reescrever docs/ARQUITETURA.md para o modelo lançador
 
