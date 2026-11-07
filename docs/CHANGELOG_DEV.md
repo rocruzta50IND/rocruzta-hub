@@ -8,6 +8,15 @@ Histórico legível do que foi desenvolvido, alterado ou corrigido. Uma entrada 
 
 ## 2026-11-07
 
+**TASK-005 — Tela Início (exemplo)** (DEV1)
+
+- Tela Início em `src/renderer/inicio.js` e `inicio.css`: comunicados, notícias em alta, apps por grupo, equipe e agenda, no layout de `base/index.html`. Links e cartões levam à seção; o bloco do Termix só avisa que abrir vem na próxima etapa e os apps "Em breve" não respondem.
+- Dados de exemplo isolados em `exemplos.js` (equipe, comunicados, agenda, categorias e 12 notícias, já no formato que as APIs das TASK-018 e 019 vão devolver) e capas geradas por categoria em `capas.js`; as duas serão reaproveitadas nas TASK-006 e 007. Ícones novos em `icons.js`.
+- Selo "Dados de exemplo" em cada bloco que não é real (comunicados, notícias, equipe, agenda). O bloco Apps vem do catálogo e não leva o selo; os cinco apps sem instalação mostram "Em breve".
+- Diferenças da referência, de propósito: sem saudação com nome, contadores ("3 de 5 pessoas online", "2 novos"), versões dos apps, perfil na sidebar e "sincronizado", por serem dados fingidos; sem caixa-alta mono nos títulos de bloco, sem setas nos links e sem pontos do meio no texto (regras do `DESIGN.md`). Título da tela continua "Início", com a data real embaixo.
+- Corrigido durante a conferência visual: a descrição longa do Termix alargava a coluna e empurrava o Workflow para fora do bloco; o fundo dos blocos de app ficava cinza no tema claro. A descrição saiu do bloco e as colunas ganharam largura fixa.
+- Validado: `npm test` (36 testes, 7 novos) e `node tools/verificar-app.js` (37 verificações no app real, 9 novas: blocos, selos, contagens, cores, rolagem horizontal, links e cliques nos apps). Screenshots escuro e claro conferidos contra `base/index.html`. Não verificado: tela estreita (menos de 1180 px, onde as colunas empilham) e o clique no Termix abrindo de fato (TASK-010).
+
 **TASK-004 — Casca do Hub e navegação interna** (DEV1)
 
 - Casca em `src/renderer/`: barra de título (logo, seletor de app, tema, notificações "em breve" e controles da janela), sidebar de vidro (Início, Notícias, Comunicados, Equipe e apps por grupo), painel central e barra de status. Arquivos: `shell.css`, `shell.js`, `icons.js`, `catalogo.js` (provisório até a TASK-008), `atalhos.js`; `renderer.js` virou o ponto de entrada.

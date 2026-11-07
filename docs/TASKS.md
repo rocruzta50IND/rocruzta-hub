@@ -22,15 +22,6 @@ _Nenhuma no momento._
 
 Ordem de execução da v1. Pegue a primeira cujas dependências estejam concluídas.
 
-### TASK-005 — Tela Início (exemplo)
-
-- **Responsável:** DEV1
-- **Status:** PRONTA
-- **Prioridade:** Média
-- **Depende de:** TASK-004
-- **Objetivo:** Início como em `base/index.html`, com dados de exemplo marcados.
-- **Critérios de aceite:** comunicados, notícias em alta, apps, equipe e agenda, todos com o selo adequado.
-
 ### TASK-006 — Tela Notícias (exemplo)
 
 - **Responsável:** DEV1
@@ -159,6 +150,16 @@ Fora da v1. O DEV1 promove para "Prontas" quando decidir.
 - **Objetivo:** experimento descartável, só se o usuário voltar a querer isso. Motivos do descarte atual em `docs/DECISOES.md`.
 
 ## Concluídas
+
+### TASK-005 — Tela Início (exemplo)
+
+- **Responsável:** DEV1
+- **Status:** CONCLUÍDA
+- **Prioridade:** Média
+- **Depende de:** TASK-004
+- **Objetivo:** Início como em `base/index.html`, com dados de exemplo marcados.
+- **Critérios de aceite:** comunicados, notícias em alta, apps, equipe e agenda, todos com o selo adequado.
+- **Concluída em:** 2026-11-07
 
 ### TASK-004 — Casca do Hub e navegação interna
 

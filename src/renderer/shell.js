@@ -93,12 +93,25 @@ function iniciarShell() {
     if (app) clicarApp(app.dataset.app);
   });
 
+  // Cliques dentro das telas: links e cartões de seção (data-sec) e blocos de app (data-app).
+  $('#hmain').addEventListener('click', (e) => {
+    const sec = e.target.closest('[data-sec]');
+    if (sec) return irParaSecao(sec.dataset.sec);
+    const app = e.target.closest('[data-app]');
+    if (app) clicarApp(app.dataset.app);
+  });
+
   // ---- Telas (conteúdo de exemplo chega nas TASK-005 a 007) ----
   function renderTela() {
     const s = SECOES.find((x) => x.id === secaoAtual);
-    $('#hmain').innerHTML = `<div class="page">
-      <div class="p-head"><div><h1>${s.nome}</h1><p>${s.desc}</p></div><span class="selo selo-exemplo">Dados de exemplo</span></div>
-      <div class="vazio">O conteúdo de exemplo desta tela chega nas próximas etapas.</div></div>`;
+    if (secaoAtual === 'inicio') {
+      $('#hmain').innerHTML = htmlInicio();
+    } else {
+      $('#hmain').innerHTML = `<div class="page">
+        <div class="p-head"><div><h1>${s.nome}</h1><p>${s.desc}</p></div><span class="selo selo-exemplo">Dados de exemplo</span></div>
+        <div class="vazio">O conteúdo de exemplo desta tela chega nas próximas etapas.</div></div>`;
+    }
+    aplicarCores($('#hmain'));
     $('#hmain').scrollTop = 0;
     $('#st-mid').textContent = `Hub · ${s.nome}`;
   }
