@@ -22,17 +22,6 @@ _Nenhuma no momento._
 
 Ordem de execução da v1. Pegue a primeira cujas dependências estejam concluídas.
 
-### TASK-003 — Tokens de design e componentes base
-
-- **Responsável:** DEV1
-- **Status:** PRONTA
-- **Prioridade:** Alta
-- **Depende de:** TASK-002
-- **Objetivo:** levar o visual de `base/index.html` para arquivos CSS reutilizáveis.
-- **Critérios de aceite:**
-  - Variáveis CSS (escuro e claro), vidro, Inter embutida, botões, listas agrupadas e o componente "Em breve" / "Dados de exemplo".
-  - Aparência fiel à referência, conferida por screenshot.
-
 ### TASK-004 — Casca do Hub e navegação interna
 
 - **Responsável:** DEV1
@@ -181,6 +170,18 @@ Fora da v1. O DEV1 promove para "Prontas" quando decidir.
 - **Objetivo:** experimento descartável, só se o usuário voltar a querer isso. Motivos do descarte atual em `docs/DECISOES.md`.
 
 ## Concluídas
+
+### TASK-003 — Tokens de design e componentes base
+
+- **Responsável:** DEV1
+- **Status:** CONCLUÍDA
+- **Prioridade:** Alta
+- **Depende de:** TASK-002
+- **Objetivo:** levar o visual de `base/index.html` para arquivos CSS reutilizáveis.
+- **Critérios de aceite:**
+  - Variáveis CSS (escuro e claro), vidro, Inter embutida, botões, listas agrupadas e o componente "Em breve" / "Dados de exemplo".
+  - Aparência fiel à referência, conferida por screenshot.
+- **Concluída em:** 2026-11-07
 
 ### TASK-002 — Esqueleto do app Electron (Windows)
 

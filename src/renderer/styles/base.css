@@ -1,0 +1,51 @@
+/* Base: reset, tipografia, fundo da janela e utilitários globais. */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { height: 100%; background: var(--wall-base); }
+
+body {
+  height: 100%;
+  font-family: var(--sans);
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text);
+  background: transparent;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Fundo atrás do vidro: só tons de azul-marinho, bem baixos, para o vidro ficar neutro. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--wall), var(--wall-base);
+}
+
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; text-align: left; }
+input { font: inherit; color: inherit; background: none; border: 0; outline: 0; }
+
+:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; border-radius: var(--r-s); }
+
+svg.i {
+  width: 16px; height: 16px; flex: none;
+  fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round;
+}
+
+kbd {
+  font-family: var(--mono); font-size: 10.5px; line-height: 17px; padding: 0 5px;
+  color: var(--text-3); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 4px;
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb {
+  background: var(--line-strong); border-radius: 10px;
+  border: 3px solid transparent; background-clip: content-box;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}

@@ -1,0 +1,117 @@
+/* Componentes base. Nomes e medidas seguem base/index.html. */
+
+/* ---- Botões ---- */
+.btn {
+  display: inline-flex; align-items: center; gap: 7px; height: 30px; padding: 0 12px;
+  font-weight: 500; font-size: 12.5px;
+  background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--r-m);
+  box-shadow: inset 0 1px 0 var(--edge);
+}
+.btn:hover { background: var(--surface-2); }
+.btn.pri { background: var(--text); color: var(--bg); border-color: var(--text); }
+.btn svg { width: 14px; height: 14px; }
+.btn[disabled], .btn[aria-disabled="true"] { opacity: .5; cursor: default; pointer-events: none; }
+
+/* Botão de ícone (barra de título, abas). */
+.tb-btn {
+  width: 30px; height: 30px; border-radius: var(--r-s); display: grid; place-items: center;
+  color: var(--text-3); position: relative;
+}
+.tb-btn:hover { background: var(--hover); color: var(--text); }
+
+/* ---- Campo de busca ---- */
+.search {
+  display: flex; align-items: center; gap: 8px; height: 34px; width: 300px; padding: 0 10px;
+  color: var(--text-3); background: var(--surface);
+  border: 1px solid var(--line-strong); border-radius: var(--r-m);
+  box-shadow: inset 0 1px 0 var(--edge);
+}
+.search:focus-within { border-color: var(--brand); }
+.search input { flex: 1; color: var(--text); }
+
+/* ---- Chips, segmentado, tags ---- */
+.chip {
+  display: inline-flex; align-items: center; gap: 7px; height: 30px; padding: 0 11px;
+  color: var(--text-2); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 999px;
+  box-shadow: inset 0 1px 0 var(--edge); transition: .12s;
+}
+.chip:hover { border-color: var(--line-strong); color: var(--text); }
+.chip svg { width: 14px; height: 14px; }
+.chip em { font-style: normal; font-family: var(--mono); font-size: 10.5px; color: var(--text-3); }
+.chip.on { background: var(--text); color: var(--bg); border-color: var(--text); box-shadow: none; }
+.chip.on em { color: inherit; opacity: .6; }
+
+.seg {
+  display: inline-flex; padding: 2px; background: var(--surface);
+  border: 1px solid var(--line); border-radius: var(--r-m); box-shadow: inset 0 1px 0 var(--edge);
+}
+.seg button { height: 26px; padding: 0 12px; display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text-2); border-radius: 6px; }
+.seg button.on { background: var(--surface-2); color: var(--text); box-shadow: inset 0 0 0 1px var(--line-strong); }
+.seg svg { width: 13px; height: 13px; }
+
+.tag { font-size: 11.5px; padding: 2px 9px; color: var(--text-2); border: 1px solid var(--line); border-radius: 999px; }
+.tag:hover { color: var(--text); border-color: var(--line-strong); }
+
+/* Etiqueta colorida (--c) para categoria e comunicado. */
+.pill {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .04em; text-transform: uppercase;
+  padding: 0 6px; line-height: 17px; color: var(--c); border-radius: 4px;
+  border: 1px solid color-mix(in srgb, var(--c) 35%, var(--line));
+  background: color-mix(in srgb, var(--c) 10%, transparent);
+}
+
+/* Contador (ex.: 2 posts para revisar) e indicador de notificação. */
+.nb { font-family: var(--mono); font-size: 10px; font-weight: 600; line-height: 16px; padding: 0 6px; color: #fff; background: var(--brand); border-radius: 999px; }
+.pip { position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; border-radius: 50%; background: var(--brand); box-shadow: 0 0 0 2px var(--ring); }
+
+/* ---- Ícone de app (glyph) e avatar: cor própria em --c ---- */
+.glyph {
+  width: 20px; height: 20px; flex: none; display: grid; place-items: center; border-radius: 5px;
+  color: var(--c, var(--text-2));
+  background: color-mix(in srgb, var(--c, #888) 13%, var(--surface-2));
+  border: 1px solid color-mix(in srgb, var(--c, #888) 26%, var(--line));
+}
+.glyph svg { width: 12px; height: 12px; }
+
+.ava {
+  width: 30px; height: 30px; flex: none; position: relative; display: grid; place-items: center;
+  font-weight: 600; font-size: 11px; color: var(--c); border-radius: 50%;
+  background: color-mix(in srgb, var(--c) 15%, var(--surface-2));
+  border: 1px solid color-mix(in srgb, var(--c) 30%, var(--line));
+}
+.ava.l { width: 56px; height: 56px; font-size: 18px; }
+.ava .st { position: absolute; right: -1px; bottom: -1px; width: 10px; height: 10px; border-radius: 50%; background: var(--text-3); border: 2px solid var(--ring-ava); }
+.ava .st.on { background: var(--ok); }
+.ava .st.aw { background: var(--warn); }
+
+/* Ponto de estado. */
+.dot { display: inline-block; flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--ok); }
+.dot.w { background: var(--warn); }
+.dot.m { background: var(--text-3); }
+
+/* ---- Caixa e listas agrupadas ---- */
+.box { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-l); box-shadow: inset 0 1px 0 var(--edge); }
+
+/* Lista agrupada: linhas separadas por filete dentro de um .box (comunicados, equipe, agenda). */
+.list > * { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-bottom: 1px solid var(--line); }
+.list > *:last-child { border-bottom: 0; }
+.list > a:hover, .list > button:hover, .list > .clickable:hover { background: var(--hover); cursor: pointer; }
+.list .t { flex: 1; min-width: 0; line-height: 1.25; }
+.list .t small { display: block; color: var(--text-3); font-size: 11.5px; }
+
+/* Título pequeno de grupo (ex.: "Operação", "Negócio"), sem caixa-alta mono. */
+.group-title { padding: 14px 8px 5px; font-size: 11.5px; font-weight: 500; color: var(--text-3); }
+
+/* ---- Selo "Em breve" / "Dados de exemplo" ----
+   Componente único para tudo que não é real. Uso: <span class="selo selo-breve">Em breve</span>
+   ou <span class="selo selo-exemplo">Dados de exemplo</span>. */
+.selo {
+  display: inline-flex; align-items: center; gap: 5px; flex: none; vertical-align: middle;
+  height: 18px; padding: 0 7px; white-space: nowrap;
+  font-size: 10.5px; font-weight: 500; line-height: 1; color: var(--text-2);
+  background: var(--surface-2); border: 1px solid var(--line-strong); border-radius: 999px;
+}
+.selo::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--text-3); }
+.selo-breve::before { background: var(--warn); }
+.selo-exemplo::before { background: var(--brand-2); }

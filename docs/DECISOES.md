@@ -65,3 +65,10 @@ Encerrar os processos de teste ao terminar e confirmar que nada ficou rodando.
 ## 8. Fora do escopo da v1
 
 Instalar ou atualizar apps pelo GitHub, login, backend, API real de notícias, abrir apps dentro da janela do Hub, mexer no Termix, repositórios privados, notificações vindas dos apps.
+
+## 9. CSS e CSP (TASK-003)
+
+- A CSP do renderer é `default-src 'self'; style-src 'self'; script-src 'self'; font-src 'self'`. Ela bloqueia `style="..."` e scripts inline. Cor por elemento (`--c`) vai em `data-c="#hex"` e `aplicarCores()` (`src/renderer/ui.js`) a aplica via CSSOM, que a CSP permite. Não relaxar para `'unsafe-inline'`.
+- Inter: subconjunto latin do `@fontsource-variable/inter` (OFL), copiado para `src/renderer/fonts/` e versionado. Atualizar a fonte é copiar o arquivo de novo.
+- Conferir visual: `npx electron tools/captura.js <html> <png> [claro|escuro]` e comparar com `base/index.html` (o vidro só é fiel no Electron).
+

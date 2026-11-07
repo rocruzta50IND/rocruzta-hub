@@ -1,0 +1,80 @@
+<!doctype html>
+<!-- Página de amostra dos componentes, só para desenvolvimento (o app não a abre).
+     Tema: ?theme=light. Conferência visual contra base/index.html. -->
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'; font-src 'self'">
+  <title>Componentes</title>
+  <link rel="stylesheet" href="styles/fonts.css">
+  <link rel="stylesheet" href="styles/tokens.css">
+  <link rel="stylesheet" href="styles/base.css">
+  <link rel="stylesheet" href="styles/glass.css">
+  <link rel="stylesheet" href="styles/components.css">
+  <link rel="stylesheet" href="componentes.css">
+</head>
+<body>
+  <div class="wrap">
+    <section class="glass-panel pad">
+      <h1>Componentes</h1>
+      <p class="sub">Tema escuro e claro vêm dos mesmos tokens.</p>
+
+      <h2>Botões e busca</h2>
+      <div class="row">
+        <button class="btn">Secundário</button>
+        <button class="btn pri">Primário</button>
+        <button class="btn" disabled>Desabilitado</button>
+        <button class="btn">Novo comunicado <span class="selo selo-breve">Em breve</span></button>
+        <label class="search"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input placeholder="Buscar notícias"><kbd>/</kbd></label>
+      </div>
+
+      <h2>Chips, segmentado e tags</h2>
+      <div class="row">
+        <span class="chip on">Todas <em>24</em></span>
+        <span class="chip">Tecnologia <em>8</em></span>
+        <span class="chip">Design <em>5</em></span>
+        <span class="seg"><button class="on">Recentes</button><button>Em alta</button><button>Salvas</button></span>
+        <span class="tag">ui</span><span class="tag">ux</span><span class="tag">negócios</span>
+      </div>
+
+      <h2>Selos</h2>
+      <div class="row">
+        <span class="selo selo-breve">Em breve</span>
+        <span class="selo selo-exemplo">Dados de exemplo</span>
+        <span class="pill" data-c="#3b82f6">Aviso</span>
+        <span class="pill" data-c="#e5a63b">Atenção</span>
+        <span class="nb">2</span>
+        <span class="tb-btn"><svg class="i" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg><i class="pip"></i></span>
+      </div>
+
+      <h2>Ícones de app, avatares e estados</h2>
+      <div class="row">
+        <span class="glyph" data-c="#3b82f6"><svg class="i" viewBox="0 0 24 24"><path d="m5 8 5 4-5 4M12 17h7"/></svg></span>
+        <span class="glyph" data-c="#4cc38a"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg></span>
+        <span class="ava" data-c="#3b82f6">AN<i class="st on"></i></span>
+        <span class="ava" data-c="#e5a63b">BR<i class="st aw"></i></span>
+        <span class="ava" data-c="#a78bfa">CA<i class="st"></i></span>
+        <span class="ava l" data-c="#4cc38a">DU</span>
+        <span class="dot"></span><span class="dot w"></span><span class="dot m"></span>
+      </div>
+
+      <h2>Lista agrupada</h2>
+      <div class="cols">
+        <div class="box list">
+          <div><span class="ava" data-c="#3b82f6">AN<i class="st on"></i></span><div class="t"><b>Ana Souza</b><small>Operação</small></div><span class="selo selo-exemplo">Dados de exemplo</span></div>
+          <div><span class="ava" data-c="#e5a63b">BR<i class="st aw"></i></span><div class="t"><b>Bruno Lima</b><small>Negócio</small></div></div>
+          <div><span class="ava" data-c="#a78bfa">CA<i class="st"></i></span><div class="t"><b>Carla Dias</b><small>Criação</small></div></div>
+        </div>
+        <div class="menu">
+          <div class="group-title">Operação</div>
+          <button class="menu-item cur"><span class="glyph" data-c="#3b82f6"><svg class="i" viewBox="0 0 24 24"><path d="m5 8 5 4-5 4M12 17h7"/></svg></span><span class="t">Termix<small>Em execução</small></span><span class="dot"></span></button>
+          <hr>
+          <button class="menu-item"><span class="glyph" data-c="#e5a63b"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg></span><span class="t">FinanPro<small>Não instalado</small></span><span class="selo selo-breve">Em breve</span></button>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script src="ui.js"></script>
+  <script src="componentes.js"></script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+/* Vidro: painéis translúcidos flutuantes com blur e saturação baixa (visual neutro). */
+.glass-panel {
+  background: var(--sheet);
+  border: 0;
+  border-radius: var(--r-xl);
+  backdrop-filter: blur(40px) saturate(1.1);
+  -webkit-backdrop-filter: blur(40px) saturate(1.1);
+  box-shadow: inset 0 1px 0 var(--edge), 0 0 0 .5px var(--line), var(--gshadow);
+}
+
+/* Variante mais clara, para barras laterais e docas. */
+.glass-panel.glass-side { background: var(--glass); }
+
+.glass-dock {
+  background: var(--glass);
+  border: 0;
+  border-radius: 10px;
+  backdrop-filter: blur(28px) saturate(1.1);
+  -webkit-backdrop-filter: blur(28px) saturate(1.1);
+  box-shadow: inset 0 1px 0 var(--edge), 0 0 0 .5px var(--line), var(--gshadow);
+}
+
+/* Menus e popups: mais opacos para manter o texto legível. */
+.menu {
+  padding: 4px;
+  background: var(--menu-bg);
+  border: 0;
+  border-radius: 10px;
+  backdrop-filter: blur(40px) saturate(1.2);
+  -webkit-backdrop-filter: blur(40px) saturate(1.2);
+  box-shadow: inset 0 1px 0 var(--edge), 0 0 0 .5px var(--line-strong), 0 24px 60px rgba(0, 0, 0, .5);
+}
+.menu hr { border: 0; border-top: 1px solid var(--line); margin: 4px; }
+.menu-item { display: flex; align-items: center; gap: 10px; width: 100%; padding: 6px 8px; border-radius: var(--r-s); }
+.menu-item:hover, .menu-item:focus-visible, .menu-item.cur { background: var(--hover); outline: 0; }
+.menu-item .t { flex: 1; min-width: 0; }
+.menu-item .t small {
+  display: block; color: var(--text-3); font-size: 11.5px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}

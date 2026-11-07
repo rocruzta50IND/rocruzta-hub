@@ -2,8 +2,13 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'; font-src 'self'">
   <title>Rocruzta Hub</title>
+  <link rel="stylesheet" href="styles/fonts.css">
+  <link rel="stylesheet" href="styles/tokens.css">
+  <link rel="stylesheet" href="styles/base.css">
+  <link rel="stylesheet" href="styles/glass.css">
+  <link rel="stylesheet" href="styles/components.css">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -15,10 +20,11 @@
       <button id="btn-close" class="close" title="Fechar" aria-label="Fechar">&#10005;</button>
     </div>
   </header>
-  <main>
+  <main class="glass-panel">
     <h1>Rocruzta Hub</h1>
     <p>Esqueleto do app. As telas chegam nas próximas tarefas.</p>
   </main>
+  <script src="ui.js"></script>
   <script src="renderer.js"></script>
 </body>
 </html>
