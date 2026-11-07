@@ -1,0 +1,87 @@
+/* Casca do Hub: barra de título, sidebar, painel central e barra de status.
+   Medidas e cores seguem base/index.html (bloco original + v8). */
+#app { position: relative; height: 100%; display: flex; flex-direction: column; }
+
+/* ---- Barra de título ---- */
+#titlebar {
+  position: relative; z-index: 30; flex: none; height: 44px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 8px 0 14px; user-select: none; -webkit-app-region: drag;
+}
+.tb-l, .tb-r { display: flex; align-items: center; gap: 8px; }
+.tb-l > *, .tb-r { -webkit-app-region: no-drag; }
+
+.mark {
+  width: 22px; height: 22px; display: grid; place-items: center; border-radius: var(--r-s);
+  font-weight: 600; font-size: 13px; letter-spacing: -.04em; color: #fff;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .22), rgba(255, 255, 255, 0) 60%), var(--brand);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 2px 8px rgba(59, 130, 246, .35);
+}
+.brand { padding: 4px 6px; font-weight: 500; font-size: 13px; letter-spacing: -.01em; border-radius: var(--r-s); }
+.brand:hover { background: var(--hover); }
+.slash { margin: 0 -2px; font-size: 16px; color: var(--line-strong); }
+
+.switch { position: relative; }
+.sw-btn {
+  display: flex; align-items: center; gap: 8px; height: 28px; padding: 0 8px 0 6px;
+  border: 1px solid transparent; border-radius: var(--r-m); transition: background .12s, border-color .12s;
+}
+.sw-btn:hover, .switch.open .sw-btn { background: var(--surface-2); }
+.sw-btn b { font-weight: 500; }
+.sw-btn .chev { width: 14px; height: 14px; color: var(--text-3); }
+
+.switch .menu {
+  position: absolute; top: 34px; left: 0; width: 300px;
+  opacity: 0; transform: translateY(-4px); pointer-events: none; transition: opacity .12s, transform .12s;
+}
+.switch.open .menu { opacity: 1; transform: none; pointer-events: auto; }
+
+.win { width: 40px; }
+.win.x:hover { background: var(--bad); color: #fff; }
+.tb-btn[aria-disabled="true"] { opacity: .55; cursor: default; }
+.tb-btn[aria-disabled="true"]:hover { background: none; color: var(--text-3); }
+
+/* ---- Área central ---- */
+#view { flex: 1; min-height: 0; padding: 0 10px; }
+#v-hub { display: flex; gap: 10px; height: 100%; }
+
+.side {
+  width: 236px; flex: none; display: flex; flex-direction: column;
+  padding: 12px 8px 10px 10px; overflow-y: auto;
+}
+.hmain { flex: 1; min-width: 0; overflow-y: auto; }
+
+.sub {
+  position: relative; display: flex; align-items: center; gap: 9px; width: 100%;
+  padding: 6px 8px; color: var(--text-2); border-radius: var(--r-s);
+}
+.sub:hover { background: var(--hover); color: var(--text); }
+.sub.act { background: var(--hover); color: var(--text); }
+.sub.act::before {
+  content: ""; position: absolute; left: -10px; top: 7px; bottom: 7px; width: 2px;
+  border-radius: 2px; background: var(--brand);
+}
+.sub > .nome, .sub > span:not(.glyph):not(.selo) { flex: 1; }
+.sub svg { width: 15px; height: 15px; }
+.sub .glyph svg { width: 11px; height: 11px; }
+.sub.off, .menu-item.off { cursor: default; }
+.sub.off:hover, .menu-item.off:hover { background: none; color: var(--text-2); }
+.sub.off .glyph, .sub.off .nome, .menu-item.off .glyph, .menu-item.off .nome { opacity: .5; }
+
+.page { max-width: 1200px; margin: 0 auto; padding: 30px 36px 56px; }
+.p-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; margin-bottom: 22px; }
+.p-head h1 { font-size: 24px; font-weight: 600; letter-spacing: -.025em; }
+.p-head p { margin-top: 4px; color: var(--text-2); }
+.vazio {
+  padding: 56px 0; text-align: center; color: var(--text-2);
+  border: 1px dashed var(--line-strong); border-radius: var(--r-l);
+}
+
+/* ---- Barra de status ---- */
+#status {
+  height: 26px; flex: none; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 14px; font-family: var(--mono); font-size: 10.5px; color: var(--text-3);
+}
+#status > span { display: flex; align-items: center; gap: 6px; min-width: 0; }
+#status > span:first-child, #status > span:last-child { flex: 1; }
+#status > span:last-child { justify-content: flex-end; }

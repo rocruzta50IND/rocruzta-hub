@@ -22,17 +22,6 @@ _Nenhuma no momento._
 
 Ordem de execução da v1. Pegue a primeira cujas dependências estejam concluídas.
 
-### TASK-004 — Casca do Hub e navegação interna
-
-- **Responsável:** DEV1
-- **Status:** PRONTA
-- **Prioridade:** Alta
-- **Depende de:** TASK-003
-- **Objetivo:** barra de título com o seletor de app, sidebar (Início, Notícias, Comunicados, Equipe e apps agrupados) e troca de telas.
-- **Critérios de aceite:**
-  - Seletor e sidebar listam os apps do catálogo, Termix ativo e os demais com "Em breve".
-  - Atalhos internos só com a janela em foco e fora de campos de texto.
-
 ### TASK-005 — Tela Início (exemplo)
 
 - **Responsável:** DEV1
@@ -170,6 +159,18 @@ Fora da v1. O DEV1 promove para "Prontas" quando decidir.
 - **Objetivo:** experimento descartável, só se o usuário voltar a querer isso. Motivos do descarte atual em `docs/DECISOES.md`.
 
 ## Concluídas
+
+### TASK-004 — Casca do Hub e navegação interna
+
+- **Responsável:** DEV1
+- **Status:** CONCLUÍDA
+- **Prioridade:** Alta
+- **Depende de:** TASK-003
+- **Objetivo:** barra de título com o seletor de app, sidebar (Início, Notícias, Comunicados, Equipe e apps agrupados) e troca de telas.
+- **Critérios de aceite:**
+  - Seletor e sidebar listam os apps do catálogo, Termix ativo e os demais com "Em breve".
+  - Atalhos internos só com a janela em foco e fora de campos de texto.
+- **Concluída em:** 2026-11-07
 
 ### TASK-003 — Tokens de design e componentes base
 

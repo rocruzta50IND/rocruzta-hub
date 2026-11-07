@@ -9,22 +9,48 @@
   <link rel="stylesheet" href="styles/base.css">
   <link rel="stylesheet" href="styles/glass.css">
   <link rel="stylesheet" href="styles/components.css">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="shell.css">
 </head>
 <body>
-  <header class="titlebar">
-    <span class="brand">Rocruzta Hub</span>
-    <div class="controls">
-      <button id="btn-min" title="Minimizar" aria-label="Minimizar">&#8211;</button>
-      <button id="btn-max" title="Maximizar" aria-label="Maximizar">&#9633;</button>
-      <button id="btn-close" class="close" title="Fechar" aria-label="Fechar">&#10005;</button>
+  <div id="app">
+    <header id="titlebar">
+      <div class="tb-l">
+        <div class="mark" aria-hidden="true">R</div>
+        <button class="brand" id="brand">Rocruzta Hub</button>
+        <span class="slash">/</span>
+        <div class="switch" id="switch">
+          <button class="sw-btn" id="sw-btn" aria-haspopup="menu" aria-expanded="false">
+            <span class="glyph" data-c="#3b82f6" id="cur-g"></span><b id="cur-name">Hub</b>
+            <svg class="i chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 15 5 5 5-5M7 9l5-5 5 5"/></svg>
+          </button>
+          <div class="menu" id="menu" role="menu"></div>
+        </div>
+      </div>
+      <div class="tb-r">
+        <button class="tb-btn" id="theme" title="Alternar tema" aria-label="Alternar tema"></button>
+        <button class="tb-btn" id="notif" title="Notificações: em breve" aria-label="Notificações (em breve)" aria-disabled="true"></button>
+        <button class="tb-btn win" id="btn-min" title="Minimizar" aria-label="Minimizar"></button>
+        <button class="tb-btn win" id="btn-max" title="Maximizar" aria-label="Maximizar"></button>
+        <button class="tb-btn win x" id="btn-close" title="Fechar" aria-label="Fechar"></button>
+      </div>
+    </header>
+    <div id="view">
+      <section id="v-hub">
+        <aside class="side glass-panel glass-side" id="side" aria-label="Navegação"></aside>
+        <main class="hmain glass-panel" id="hmain"></main>
+      </section>
     </div>
-  </header>
-  <main class="glass-panel">
-    <h1>Rocruzta Hub</h1>
-    <p>Esqueleto do app. As telas chegam nas próximas tarefas.</p>
-  </main>
+    <footer id="status">
+      <span><i class="dot"></i>Pronto <span id="st-aviso"></span></span>
+      <span id="st-mid"></span>
+      <span></span>
+    </footer>
+  </div>
+  <script src="icons.js"></script>
+  <script src="catalogo.js"></script>
+  <script src="atalhos.js"></script>
   <script src="ui.js"></script>
+  <script src="shell.js"></script>
   <script src="renderer.js"></script>
 </body>
 </html>

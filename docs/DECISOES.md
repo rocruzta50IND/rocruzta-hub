@@ -72,3 +72,10 @@ Instalar ou atualizar apps pelo GitHub, login, backend, API real de notícias, a
 - Inter: subconjunto latin do `@fontsource-variable/inter` (OFL), copiado para `src/renderer/fonts/` e versionado. Atualizar a fonte é copiar o arquivo de novo.
 - Conferir visual: `npx electron tools/captura.js <html> <png> [claro|escuro]` e comparar com `base/index.html` (o vidro só é fiel no Electron).
 
+## 10. Casca e atalhos internos (TASK-004)
+
+- `src/renderer/catalogo.js` é provisório: a TASK-008 o troca por `apps.json` mantendo os campos (id, nome, grupo, icone, cor, desc, estado).
+- Teclas internas: 1 a 4 trocam de tela (Início, Notícias, Comunicados, Equipe) e Esc fecha o seletor de app. Abrir app pelo teclado entra com a TASK-010/011. Não valem em campos de texto nem com Ctrl/Alt/Meta (AltGr no ABNT2).
+- Títulos de grupo na sidebar ficam em fonte sans (não mono em caixa-alta), conforme `docs/DESIGN.md`. Contadores e "sincronizado" da referência não entram enquanto não houver dado real.
+- Verificação ponta a ponta do app real: `node tools/verificar-app.js` (usa `--remote-debugging-port=9333`; o Electron não expõe `Browser.getWindowForTarget`, então o estado minimizado vem do Windows via `IsIconic`).
+

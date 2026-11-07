@@ -8,6 +8,15 @@ Histórico legível do que foi desenvolvido, alterado ou corrigido. Uma entrada 
 
 ## 2026-11-07
 
+**TASK-004 — Casca do Hub e navegação interna** (DEV1)
+
+- Casca em `src/renderer/`: barra de título (logo, seletor de app, tema, notificações "em breve" e controles da janela), sidebar de vidro (Início, Notícias, Comunicados, Equipe e apps por grupo), painel central e barra de status. Arquivos: `shell.css`, `shell.js`, `icons.js`, `catalogo.js` (provisório até a TASK-008), `atalhos.js`; `renderer.js` virou o ponto de entrada.
+- Seletor e sidebar vêm do catálogo: Termix ativo, os outros cinco desabilitados com "Em breve". Clicar no Termix só avisa que abrir vem na próxima etapa (a abertura real é a TASK-010).
+- Telas internas vazias com o selo "Dados de exemplo"; conteúdo nas TASK-005 a 007. Tema escuro/claro lembrado em `localStorage`.
+- Atalhos internos: 1 a 4 trocam de tela e Esc fecha o seletor, só fora de campos de texto e sem Ctrl/Alt/Meta. Nenhum atalho global.
+- Removido `styles.css` provisório; contadores e "sincronizado" da referência ficaram de fora por serem dados fingidos.
+- Validado: `npm test` (29 testes) e `node tools/verificar-app.js`, que dirige o app real (28 verificações: troca de telas, seletor, Esc, atalhos dentro e fora de campo, tema e os botões minimizar, maximizar e fechar da barra de título, que ficaram sem verificação na TASK-002). Screenshots escuro e claro conferidos contra `base/index.html`. Não verificado: o clique no Termix abrindo de fato (TASK-010).
+
 **TASK-003 — Tokens de design e componentes base** (DEV1)
 
 - CSS em `src/renderer/styles/`: `fonts.css` (Inter variável embutida, subconjunto latin, licença OFL em `fonts/`), `tokens.css` (escuro e claro, valores finais da referência), `base.css`, `glass.css` e `components.css` (botões, chips, segmentado, tags, avatares, glyphs, lista agrupada, menu e o selo único `.selo-breve` / `.selo-exemplo`).

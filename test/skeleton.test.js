@@ -11,7 +11,7 @@ const config = require('../src/main/config');
 
 test('estrutura de pastas e arquivos', () => {
   for (const f of ['src/main/main.js', 'src/preload/preload.js', 'src/renderer/index.html',
-    'src/renderer/renderer.js', 'src/renderer/styles.css']) {
+    'src/renderer/renderer.js', 'src/renderer/shell.css']) {
     assert.ok(fs.existsSync(path.join(root, f)), `falta ${f}`);
   }
 });
