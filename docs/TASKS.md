@@ -151,6 +151,15 @@ Fora da v1. O DEV1 promove para "Prontas" quando decidir.
 
 ## Concluídas
 
+### TASK-021 — Ícone do app (pétalas)
+
+- **Responsável:** DEV1
+- **Status:** CONCLUÍDA
+- **Prioridade:** Média
+- **Objetivo:** trocar o ícone padrão do Electron pelo ícone das pétalas na janela e na barra de tarefas.
+- **Critérios de aceite:** `assets/icone.png` (1024 px) usado pela janela; arquivo `.ico` para o instalador fica na TASK-014.
+- **Concluída em:** 2026-11-07
+
 ### TASK-005 — Tela Início (exemplo)
 
 - **Responsável:** DEV1

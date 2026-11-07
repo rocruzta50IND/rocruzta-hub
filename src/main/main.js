@@ -2,7 +2,7 @@
 
 const path = require('node:path');
 const { app, BrowserWindow, ipcMain } = require('electron');
-const { APP_ID, APP_NAME, WINDOW, CHANNELS, userDataDir } = require('./config');
+const { APP_ID, APP_NAME, ICON, WINDOW, CHANNELS, userDataDir } = require('./config');
 
 // Dados do usuário em %APPDATA%\Rocruzta Hub (antes de qualquer outro uso do app).
 app.setPath('userData', userDataDir(app.getPath('appData')));
@@ -14,6 +14,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     ...WINDOW,
     title: APP_NAME,
+    icon: ICON,
     frame: false,
     show: false,
     backgroundColor: '#0d0d0e',

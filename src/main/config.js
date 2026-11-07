@@ -6,6 +6,8 @@ const path = require('node:path');
 module.exports = {
   APP_ID: 'com.rocruzta.hub',
   APP_NAME: 'Rocruzta Hub',
+  // Ícone da janela e da barra de tarefas (PNG 1024x1024, pétalas azuis).
+  ICON: path.join(__dirname, '..', '..', 'assets', 'icone.png'),
   // Pasta de dados em %APPDATA%\Rocruzta Hub (appData do Windows + nome do app).
   userDataDir: (appData) => path.join(appData, 'Rocruzta Hub'),
   WINDOW: { width: 1180, height: 760, minWidth: 880, minHeight: 560 },

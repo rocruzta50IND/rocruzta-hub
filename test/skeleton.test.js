@@ -56,3 +56,12 @@ test('renderer: CSP restritiva e sem script inline', () => {
   assert.match(html, /Content-Security-Policy/);
   assert.doesNotMatch(html, /<script(?![^>]*\bsrc=)[^>]*>/);
 });
+
+test('ícone do app: PNG 1024x1024 em assets/ e usado pela janela', () => {
+  const png = fs.readFileSync(path.join(root, 'assets', 'icone.png'));
+  assert.equal(png.subarray(1, 4).toString(), 'PNG');
+  assert.equal(png.readUInt32BE(16), 1024);
+  assert.equal(png.readUInt32BE(20), 1024);
+  assert.equal(require('../src/main/config').ICON, path.join(root, 'assets', 'icone.png'));
+  assert.match(read('src/main/main.js'), /icon: ICON/);
+});

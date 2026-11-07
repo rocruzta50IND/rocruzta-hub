@@ -8,6 +8,12 @@ Histórico legível do que foi desenvolvido, alterado ou corrigido. Uma entrada 
 
 ## 2026-11-07
 
+**TASK-021 — Ícone do app (pétalas)** (DEV1)
+
+- `assets/icone.png` (1024x1024, vindo de `hub-petalas-preview.png`) passa a ser o ícone da janela e da barra de tarefas, no lugar do padrão do Electron (`ICON` em `src/main/config.js`, `icon` na `BrowserWindow`).
+- Fora do escopo: a marca "R" da barra de título continua como estava (aprovada em `base/index.html`); o `.ico` multitamanho para o executável e o instalador fica para a TASK-014.
+- Validado: `npm test` e execução real do app. Não verificado: como o ícone aparece na barra de tarefas (conferência visual do usuário).
+
 **TASK-005 — Tela Início (exemplo)** (DEV1)
 
 - Tela Início em `src/renderer/inicio.js` e `inicio.css`: comunicados, notícias em alta, apps por grupo, equipe e agenda, no layout de `base/index.html`. Links e cartões levam à seção; o bloco do Termix só avisa que abrir vem na próxima etapa e os apps "Em breve" não respondem.
