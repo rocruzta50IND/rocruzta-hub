@@ -1,0 +1,13 @@
+# CLAUDE.local.md — papel desta máquina NESTE repositório
+#
+# Criado por /fluxo:papel. Vale somente para este repositório: o mesmo
+# desenvolvedor pode ter outro papel em outros projetos.
+# NUNCA deve ser commitado (listado no .gitignore).
+
+usuario:
+  nome: ""
+  email: ""
+
+papel: ""          # DEV1 | DEV2 | GERENTE
+
+branch_padrao: ""  # dev1 (DEV1) | dev2 (DEV2) | vazio (GERENTE)

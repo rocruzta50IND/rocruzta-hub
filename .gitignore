@@ -1,0 +1,18 @@
+# fluxo: papel local por máquina, nunca versionar
+CLAUDE.local.md
+
+# Claude Code (configurações locais)
+.claude/settings.local.json
+
+# Iterações antigas do design e arquivos descartados (ficam só no disco)
+_historico/
+
+# Node / Electron
+node_modules/
+dist/
+out/
+*.log
+
+# Sistema
+Thumbs.db
+.DS_Store
