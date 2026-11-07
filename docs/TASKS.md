@@ -22,18 +22,6 @@ _Nenhuma no momento._
 
 Ordem de execução da v1. Pegue a primeira cujas dependências estejam concluídas.
 
-### TASK-001 — Reescrever docs/ARQUITETURA.md para o modelo lançador
-
-- **Responsável:** DEV1
-- **Status:** PRONTA
-- **Prioridade:** Alta
-- **Depende de:** nada
-- **Objetivo:** substituir o documento antigo (módulos, `hubApi`, registro, janela embutida, Termix open source) pelo modelo decidido em `docs/DECISOES.md`.
-- **Critérios de aceite:**
-  - Descreve o Hub como centro e lançador, apps independentes, catálogo, detectar, abrir e focar, seletor global e bandeja.
-  - Não menciona módulos, `hubApi` nem registro de versões, e identifica o Termix correto.
-  - Traz o plano em fases (v1 e depois) e fica curto, sem repetir o `DECISOES.md`.
-
 ### TASK-002 — Esqueleto do app Electron (Windows)
 
 - **Responsável:** DEV1
@@ -205,6 +193,19 @@ Fora da v1. O DEV1 promove para "Prontas" quando decidir.
 - **Objetivo:** experimento descartável, só se o usuário voltar a querer isso. Motivos do descarte atual em `docs/DECISOES.md`.
 
 ## Concluídas
+
+### TASK-001 — Reescrever docs/ARQUITETURA.md para o modelo lançador
+
+- **Responsável:** DEV1
+- **Status:** CONCLUÍDA
+- **Prioridade:** Alta
+- **Depende de:** nada
+- **Objetivo:** substituir o documento antigo (módulos, `hubApi`, registro, janela embutida, Termix open source) pelo modelo decidido em `docs/DECISOES.md`.
+- **Critérios de aceite:**
+  - Descreve o Hub como centro e lançador, apps independentes, catálogo, detectar, abrir e focar, seletor global e bandeja.
+  - Não menciona módulos, `hubApi` nem registro de versões, e identifica o Termix correto.
+  - Traz o plano em fases (v1 e depois) e fica curto, sem repetir o `DECISOES.md`.
+- **Concluída em:** 2026-11-07
 
 ### TASK-000 — Adotar o fluxo DEV2 → DEV1 → MAIN
 

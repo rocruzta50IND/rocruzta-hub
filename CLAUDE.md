@@ -41,7 +41,7 @@ Este projeto segue o fluxo da Rocruzta, definido em `WORKFLOW.md`. Estas regras 
 - `docs/TASKS.md`: tarefas. `docs/CHANGELOG_DEV.md`: histórico.
 - `docs/DECISOES.md`: modelo, decisões, fatos do Termix, aprendizados dos testes e critérios de validação.
 - `docs/DESIGN.md`: identidade visual e regras de design.
-- `docs/ARQUITETURA.md`: **desatualizado**, será reescrito na TASK-001.
+- `docs/ARQUITETURA.md`: visão técnica do modelo lançador.
 - `base/index.html`: referência visual aprovada. `base/referencia-launcher-v9.html`: referência da tela Apps e do estado "Em execução" (só visual, fora do escopo da v1).
 - `_historico/`: iterações antigas do design, fora do git. Ignore.
 - Protótipo de teste de navegação (fora deste repo): `D:\Termix\rocruzta-hub-lab`.
