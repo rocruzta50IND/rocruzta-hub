@@ -2,6 +2,7 @@
 
 const path = require('node:path');
 const { app, BrowserWindow, ipcMain } = require('electron');
+const { carregarCatalogo } = require('./apps');
 const { APP_ID, APP_NAME, ICON, WINDOW, CHANNELS, userDataDir } = require('./config');
 
 // Dados do usuário em %APPDATA%\Rocruzta Hub (antes de qualquer outro uso do app).
@@ -52,6 +53,7 @@ ipcMain.on(CHANNELS.toggleMaximize, (e) => {
 });
 ipcMain.on(CHANNELS.close, (e) => windowFrom(e)?.close());
 ipcMain.handle(CHANNELS.isMaximized, (e) => windowFrom(e)?.isMaximized() ?? false);
+ipcMain.handle(CHANNELS.apps, (e) => (windowFrom(e) ? carregarCatalogo() : null));
 
 // Instância única: abrir de novo traz a janela existente para a frente.
 if (!app.requestSingleInstanceLock()) {

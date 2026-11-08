@@ -10,6 +10,7 @@ const CH = {
   close: 'win:close',
   isMaximized: 'win:is-maximized',
   maximizedChanged: 'win:maximized-changed',
+  apps: 'apps:list',
 };
 
 contextBridge.exposeInMainWorld('hub', {
@@ -17,6 +18,7 @@ contextBridge.exposeInMainWorld('hub', {
   toggleMaximize: () => ipcRenderer.send(CH.toggleMaximize),
   close: () => ipcRenderer.send(CH.close),
   isMaximized: () => ipcRenderer.invoke(CH.isMaximized),
+  apps: () => ipcRenderer.invoke(CH.apps),
   onMaximizedChange: (cb) => {
     const listener = (_e, value) => cb(Boolean(value));
     ipcRenderer.on(CH.maximizedChanged, listener);

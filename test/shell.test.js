@@ -7,7 +7,10 @@ const path = require('node:path');
 
 const renderer = path.join(__dirname, '..', 'src', 'renderer');
 const read = (f) => fs.readFileSync(path.join(renderer, f), 'utf8');
-const { GRUPOS, HUB, APPS, SECOES } = require('../src/renderer/catalogo');
+const { GRUPOS, HUB, APPS, SECOES, definirCatalogo } = require('../src/renderer/catalogo');
+const { carregarCatalogo } = require('../src/main/apps');
+
+definirCatalogo(carregarCatalogo());
 const { resolverAtalho, ehCampoDeTexto } = require('../src/renderer/atalhos');
 const { ICONES } = require('../src/renderer/icons');
 

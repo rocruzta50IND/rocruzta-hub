@@ -40,15 +40,6 @@ Ordem de execução da v1. Pegue a primeira cujas dependências estejam concluí
 - **Objetivo:** as duas telas com dados reais do backend. Até lá mostram o estado vazio.
 - **Critérios de aceite:** nenhuma ação finge funcionar; nada de dados de exemplo.
 
-### TASK-008 — Catálogo de apps
-
-- **Responsável:** DEV1
-- **Status:** PRONTA
-- **Prioridade:** Alta
-- **Depende de:** TASK-004
-- **Objetivo:** `apps.json` com id, nome, grupo, cor, ícone, repositório do GitHub e dicas de detecção; estados dos apps na interface.
-- **Critérios de aceite:** só o Termix está no catálogo; adicionar um app novo é só editar o JSON, quando ele existir (ver `docs/DECISOES.md`, seção 11); nada de apps "Em breve".
-
 ### TASK-009 — Detectar a instalação do Termix
 
 - **Responsável:** DEV1
@@ -150,6 +141,17 @@ Fora da v1. O DEV1 promove para "Prontas" quando decidir.
 - **Objetivo:** experimento descartável, só se o usuário voltar a querer isso. Motivos do descarte atual em `docs/DECISOES.md`.
 
 ## Concluídas
+
+### TASK-008 — Catálogo de apps
+
+- **Responsável:** DEV1
+- **Status:** CONCLUÍDA
+- **Prioridade:** Alta
+- **Depende de:** TASK-004
+- **Objetivo:** `src/apps.json` com id, nome, grupo, cor, ícone, repositório do GitHub e dicas de detecção, lido e validado pelo processo principal.
+- **Critérios de aceite:** só o Termix no catálogo; adicionar app é só editar o JSON (`docs/DECISOES.md`, seção 11); nada de "Em breve".
+- **Concluída em:** 2026-11-08
+- **Fora do escopo:** estados instalado, não instalado e em execução na interface vêm das TASK-009 e 010 (dependem da detecção).
 
 ### TASK-022 — Tirar "Em breve" e dados de exemplo; só o que é real
 

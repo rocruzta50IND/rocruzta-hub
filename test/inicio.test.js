@@ -8,12 +8,15 @@ const vm = require('node:vm');
 
 const renderer = path.join(__dirname, '..', 'src', 'renderer');
 const read = (f) => fs.readFileSync(path.join(renderer, f), 'utf8');
-const { APPS, SECOES } = require('../src/renderer/catalogo');
+const { APPS, SECOES, definirCatalogo } = require('../src/renderer/catalogo');
+const { carregarCatalogo } = require('../src/main/apps');
+
+definirCatalogo(carregarCatalogo());
 
 // Carrega os scripts do renderer na ordem do index.html e devolve o HTML da tela Início.
 function htmlInicio() {
   const ordem = ['icons.js', 'catalogo.js', 'inicio.js'];
-  return vm.runInNewContext(`${ordem.map(read).join('\n')}\nhtmlInicio(new Date(2026, 10, 7, 12));`);
+  return vm.runInNewContext(`${ordem.map(read).join('\n')}\ndefinirCatalogo(${JSON.stringify(carregarCatalogo())});\nhtmlInicio(new Date(2026, 10, 7, 12));`);
 }
 
 test('Início: mostra só os apps do catálogo, sem selos nem dados fingidos', () => {

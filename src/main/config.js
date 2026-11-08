@@ -17,5 +17,6 @@ module.exports = {
     close: 'win:close',
     isMaximized: 'win:is-maximized',
     maximizedChanged: 'win:maximized-changed',
+    apps: 'apps:list',
   },
 };

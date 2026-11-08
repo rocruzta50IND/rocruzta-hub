@@ -8,6 +8,14 @@ Histórico legível do que foi desenvolvido, alterado ou corrigido. Uma entrada 
 
 ## 2026-11-08
 
+**TASK-008 — Catálogo de apps** (DEV1)
+
+- Novo `src/apps.json` (grupos e apps) com, para o Termix: id, nome, grupo, ícone, cor, descrição, repositório `rocruzta50IND/termix` e dicas de detecção (nome no registro "Termix", `Termix.exe`, `com.termix.app`), para a TASK-009.
+- `src/main/apps.js` lê e valida o JSON (campos, id único, grupo existente, cor e repositório) e falha com mensagem clara. O processo principal entrega o catálogo à janela pelo canal `apps:list` (`hub.apps()` no preload); o renderer só inicia a casca depois de recebê-lo, e mostra uma mensagem se falhar.
+- `catalogo.js` deixou de ter a lista de apps: `GRUPOS` e `APPS` são preenchidos por `definirCatalogo()`. Adicionar um app é só editar o `apps.json`; grupo novo aparece sozinho.
+- Validado: `npm test` (38 testes, 5 novos em `test/apps.test.js`) e `node tools/verificar-app.js` (31 verificações no app real, com o catálogo vindo do IPC). Não verificado: mensagem de erro com `apps.json` quebrado na janela.
+- Os estados instalado, não instalado e em execução ficam para as TASK-009 e 010.
+
 **TASK-022 — Tirar "Em breve" e dados de exemplo; só o que é real** (DEV1)
 
 - Removidos `exemplos.js` e `capas.js` (equipe, comunicados, agenda, notícias e capas inventados) e os ícones que só eles usavam. O catálogo (`catalogo.js`) ficou só com o Termix; sidebar e seletor mostram só grupos que têm app.

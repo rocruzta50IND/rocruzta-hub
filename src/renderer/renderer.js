@@ -16,4 +16,11 @@ document.getElementById('btn-close').addEventListener('click', () => window.hub.
 document.getElementById('cur-g').innerHTML = ic(HUB.icone);
 aplicarCores(document.getElementById('titlebar'));
 
-iniciarShell();
+// O catálogo vem do apps.json pelo processo principal; a casca só inicia com ele carregado.
+window.hub.apps().then((dados) => {
+  definirCatalogo(dados);
+  iniciarShell();
+}).catch((erro) => {
+  console.error('Falha ao carregar apps.json', erro);
+  document.getElementById('hmain').textContent = 'Não foi possível carregar o catálogo de apps.';
+});

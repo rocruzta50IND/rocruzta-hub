@@ -1,15 +1,19 @@
 'use strict';
 
-// Catálogo PROVISÓRIO de apps e telas do Hub (a TASK-008 troca APPS por um apps.json).
-// Só entra aqui o que existe de verdade: hoje, o Termix. Os apps previstos e como entrarão estão em
-// docs/DECISOES.md (seção 11). Nada fingido na interface.
-const GRUPOS = ['Operação', 'Negócio', 'Criação'];
+// Catálogo de apps e telas do Hub. GRUPOS e APPS vêm do src/apps.json (lido pelo processo principal,
+// validado em src/main/apps.js) e são preenchidos por definirCatalogo() antes de a casca iniciar.
+// Só entra no apps.json o que existe de verdade; como um app entra: docs/DECISOES.md, seção 11.
+const GRUPOS = [];
 
 const HUB = { id: 'hub', nome: 'Hub', icone: 'home', cor: '#3b82f6' };
 
-const APPS = [
-  { id: 'termix', nome: 'Termix', grupo: 'Operação', icone: 'terminal', cor: '#3b82f6', desc: 'Central de sessões de agentes de programação' },
-];
+const APPS = [];
+
+// Preenche GRUPOS e APPS no lugar (os outros scripts guardam a referência dos arrays).
+function definirCatalogo(dados) {
+  GRUPOS.splice(0, GRUPOS.length, ...dados.grupos);
+  APPS.splice(0, APPS.length, ...dados.apps);
+}
 
 // Telas internas do Hub. `tecla` é o atalho interno (só com a janela em foco).
 const SECOES = [
@@ -19,4 +23,4 @@ const SECOES = [
   { id: 'equipe', nome: 'Equipe', icone: 'users', tecla: '4', desc: 'Quem é quem na Rocruzta.', vazio: 'Ainda não há ninguém cadastrado.' },
 ];
 
-if (typeof module !== 'undefined') module.exports = { GRUPOS, HUB, APPS, SECOES };
+if (typeof module !== 'undefined') module.exports = { GRUPOS, HUB, APPS, SECOES, definirCatalogo };

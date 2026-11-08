@@ -1,0 +1,19 @@
+{
+  "grupos": ["Operação", "Negócio", "Criação"],
+  "apps": [
+    {
+      "id": "termix",
+      "nome": "Termix",
+      "grupo": "Operação",
+      "icone": "terminal",
+      "cor": "#3b82f6",
+      "desc": "Central de sessões de agentes de programação",
+      "repositorio": "rocruzta50IND/termix",
+      "deteccao": {
+        "registro": "Termix",
+        "executavel": "Termix.exe",
+        "appId": "com.termix.app"
+      }
+    }
+  ]
+}
