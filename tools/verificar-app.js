@@ -48,28 +48,12 @@ const check = (name, ok, extra = '') => { results.push(ok); console.log(`${ok ? 
     await ev(`document.querySelector('[data-sec="${s}"]').click()`);
     check(`clicar em ${nome} troca a tela`, (await sec()) === s && (await titulo()) === nome);
   }
-  // tela Início
-  check('Início: 5 blocos (comunicados, notícias, apps, equipe, agenda)', (await ev('document.querySelectorAll("#hmain section").length')) === 5);
-  check('Início: selo "Dados de exemplo" em 4 blocos (menos Apps)', (await ev('document.querySelectorAll("#hmain section .selo-exemplo").length')) === 4);
-  check('Início: 3 comunicados, 3 notícias em alta, 6 apps, 5 pessoas, 3 compromissos', await ev('[".ann", ".mini", ".tile", ".person", ".ev"].map((s) => document.querySelectorAll("#hmain " + s).length).join() === "3,3,6,5,3"'));
-  check('Início: cores aplicadas (--c nos glyphs e capas)', await ev('[...document.querySelectorAll("#hmain [data-c]")].every((e) => e.style.getPropertyValue("--c"))'));
-  check('Início: sem rolagem horizontal', await ev('document.querySelector("#hmain").scrollWidth <= document.querySelector("#hmain").clientWidth'));
-  await ev('document.querySelector("#hmain .link[data-sec=comunicados]").click()');
-  check('Início: "Ver todos" abre Comunicados', (await sec()) === 'comunicados');
-  await ev('document.querySelector("[data-sec=inicio]").click()');
-  await ev('document.querySelector("#hmain .mini").click()');
-  check('Início: clicar numa notícia abre Notícias', (await sec()) === 'noticias');
-  await ev('document.querySelector("[data-sec=inicio]").click()');
-  await ev('document.querySelector("#hmain .tile[data-app=workflow]").click()');
-  check('Início: bloco de app "Em breve" não faz nada', (await ev('document.querySelector("#st-aviso").textContent')) === '');
-  check('cada tela tem selo "Dados de exemplo"', await ev('document.querySelector("#hmain .selo-exemplo")?.textContent === "Dados de exemplo"'));
 
   // seletor de app
   check('menu começa fechado', !(await ev('document.querySelector("#switch").classList.contains("open")')));
   await ev('document.querySelector("#sw-btn").click()');
   check('clicar no seletor abre o menu', await ev('document.querySelector("#switch").classList.contains("open") && document.querySelector("#sw-btn").getAttribute("aria-expanded")==="true"'));
-  check('menu lista Hub + 6 apps', (await ev('document.querySelectorAll("#menu .menu-item").length')) === 7);
-  check('menu: Termix ativo, 5 apps com "Em breve"', await ev('document.querySelectorAll("#menu .menu-item.off .selo-breve").length === 5 && !document.querySelector("#menu [data-app=termix]").classList.contains("off")'));
+  check('menu lista Hub + Termix, sem apps que não existem', (await ev('document.querySelectorAll("#menu .menu-item").length')) === 2 && await ev('!!document.querySelector("#menu [data-app=termix]")'));
   await key('Escape');
   await sleep(150);
   check('Esc fecha o menu', !(await ev('document.querySelector("#switch").classList.contains("open")')));
@@ -78,14 +62,22 @@ const check = (name, ok, extra = '') => { results.push(ok); console.log(`${ok ? 
   check('clicar fora fecha o menu', !(await ev('document.querySelector("#switch").classList.contains("open")')));
 
   // abrir app não finge
-  await ev('document.querySelector("#side [data-app=workflow]").click()');
-  check('clicar em app "Em breve" não faz nada', (await ev('document.querySelector("#st-aviso").textContent')) === '');
   await ev('document.querySelector("#side [data-app=termix]").click()');
   check('clicar no Termix só avisa que abrir vem depois', (await ev('document.querySelector("#st-aviso").textContent')).includes('próxima etapa'));
-
+  await ev('document.querySelector("[data-sec=inicio]").click()');
   await ev('document.querySelector("#st-aviso").textContent = ""');
   await ev('document.querySelector("#hmain .tile[data-app=termix]").click()');
   check('Início: bloco do Termix só avisa que abrir vem depois', (await ev('document.querySelector("#st-aviso").textContent')).includes('próxima etapa'));
+
+  // tela Início: só o que é real
+  await ev('document.querySelector("[data-sec=inicio]").click()');
+  check('Início: só o bloco do Termix, sem selos nem dados fingidos', await ev('document.querySelectorAll("#hmain .tile").length === 1 && !document.querySelector("#hmain .selo") && !/Em breve|Dados de exemplo/.test(document.body.innerText)'));
+  check('Início: sem rolagem horizontal', await ev('document.querySelector("#hmain").scrollWidth <= document.querySelector("#hmain").clientWidth'));
+  for (const s of ['noticias', 'comunicados', 'equipe']) {
+    await ev(`document.querySelector('[data-sec="${s}"]').click()`);
+    check(`${s}: estado vazio honesto, sem selos`, await ev('document.querySelector("#hmain .vazio").textContent.startsWith("Ainda não há") && !document.querySelector(".selo") && !/Em breve|Dados de exemplo/.test(document.body.innerText)'));
+  }
+  await ev('document.querySelector("[data-sec=inicio]").click()');
 
   // atalhos
   await ev('document.activeElement && document.activeElement.blur()');

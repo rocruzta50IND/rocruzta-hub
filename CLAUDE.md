@@ -18,7 +18,7 @@ Este projeto segue o fluxo da Rocruzta, definido em `WORKFLOW.md`. Estas regras 
 
 ## Fase atual
 
-**v1:** Hub em Electron com telas de exemplo (marcadas "Em breve" ou "Dados de exemplo") e **navegação real entre apps**. Só o Termix é um app real. As tarefas estão em `docs/TASKS.md`; pegue a primeira da seção "Prontas" cujas dependências estejam concluídas.
+**v1:** Hub em Electron, **sem dados de exemplo** (telas vazias até haver fonte real), e **navegação real entre apps**. Só o Termix é um app real. As tarefas estão em `docs/TASKS.md`; pegue a primeira da seção "Prontas" cujas dependências estejam concluídas.
 
 ## Regras que valem sempre
 
@@ -26,7 +26,7 @@ Este projeto segue o fluxo da Rocruzta, definido em `WORKFLOW.md`. Estas regras 
 - **Nunca altere o Termix nem outro app.** Mudanças neles só como tarefa própria, aprovada pelo usuário.
 - **Só Windows.**
 - **Visual aprovado:** `base/index.html`. Não mude o look sem pedir (`docs/DESIGN.md`).
-- Tudo que não é real leva o selo "Em breve" ou "Dados de exemplo".
+- **Nada fingido na interface:** sem dados de exemplo, sem selos "Em breve" e sem apps que não existem (plano dos apps futuros em `docs/DECISOES.md`, seção 11).
 - Dúvida de escopo: pergunte em vez de supor.
 
 ## Contexto e tokens (o botão Clear do Termix depende disto)

@@ -25,7 +25,7 @@ O Hub é o **centro e o lançador** dos apps da Rocruzta. Ele só facilita a nav
 | Peça | O que faz |
 |---|---|
 | **Janela principal** | Sem moldura, com barra de título própria (controles por IPC), seletor de app, sidebar e troca de telas. |
-| **Telas** | Início, Notícias, Comunicados e Equipe. Na v1 são exemplo e levam o selo "Dados de exemplo" ou "Em breve". |
+| **Telas** | Início, Notícias, Comunicados e Equipe. Só mostram dados reais; Notícias, Comunicados e Equipe ficam com estado vazio até haver fonte (TASK-018 e 019). |
 | **Catálogo** | `apps.json`: id, nome, grupo, cor, ícone, repositório do GitHub e dicas de detecção. Adicionar um app é editar o JSON. |
 | **Detecção** | Procura a instalação no registro do Windows (HKLM e HKCU, Uninstall, incluindo WOW6432Node) e deduz a pasta do `UninstallString`. Sem achar: "Não instalado", com link para as releases. |
 | **Abrir e focar** | Abre o executável desvinculado do Hub. Abrir de novo traz a janela existente para a frente (trava de instância única do app). |
@@ -43,12 +43,12 @@ O Hub é o **centro e o lançador** dos apps da Rocruzta. Ele só facilita a nav
 ## 4. Apps
 
 - **Termix** é o único app real: o app Electron da Rocruzta (`rocruzta50IND/termix`), instalado em `D:\Termix` nesta máquina. Não é o projeto open source Termix SSH.
-- Os demais aparecem desabilitados com "Em breve".
+- Os demais apps só entram no catálogo quando existirem (ver `docs/DECISOES.md`, seção 11); não há apps "Em breve" nem exemplos.
 - O Hub não altera nenhum app. Mudanças neles só como tarefa própria, aprovada pelo usuário.
 
 ## 5. Plano em fases
 
 | Fase | Conteúdo | Tarefas |
 |---|---|---|
-| **v1** | Esqueleto, design, telas de exemplo, catálogo, detectar, abrir e focar o Termix, seletor global, bandeja e validação da troca entre apps. | TASK-002 a 013 |
+| **v1** | Esqueleto, design, casca com telas vazias, catálogo, detectar, abrir e focar o Termix, seletor global, bandeja e validação da troca entre apps. | TASK-002 a 013 |
 | **Depois** | Instalador do Hub, publicar no GitHub, instalar e atualizar apps pelas releases, notícias reais, backend e login único, extras no Termix. | Backlog |

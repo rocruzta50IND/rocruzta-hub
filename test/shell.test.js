@@ -11,12 +11,6 @@ const { GRUPOS, HUB, APPS, SECOES } = require('../src/renderer/catalogo');
 const { resolverAtalho, ehCampoDeTexto } = require('../src/renderer/atalhos');
 const { ICONES } = require('../src/renderer/icons');
 
-test('catálogo: só o Termix é ativo e os demais ficam "em breve"', () => {
-  assert.equal(APPS.length, 6);
-  assert.deepEqual(APPS.filter((a) => a.estado === 'ativo').map((a) => a.id), ['termix']);
-  for (const a of APPS.filter((x) => x.id !== 'termix')) assert.equal(a.estado, 'em-breve', a.id);
-});
-
 test('catálogo: ids únicos, grupos válidos, ícones e cores existentes', () => {
   const ids = APPS.map((a) => a.id);
   assert.equal(new Set(ids).size, ids.length);
@@ -68,16 +62,10 @@ test('não há atalho global na casca (globalShortcut é da TASK-011)', () => {
   assert.doesNotMatch(fs.readFileSync(path.join(__dirname, '..', 'src', 'main', 'main.js'), 'utf8'), /globalShortcut/);
 });
 
-test('casca: sidebar e seletor derivam do catálogo e marcam "Em breve"', () => {
+test('casca: sidebar e seletor derivam do catálogo', () => {
   const js = read('shell.js');
   assert.match(js, /APPS\.filter/);
-  assert.match(js, /GRUPOS\.map/);
-  assert.match(js, /selo selo-breve">Em breve</);
-  assert.match(js, /aria-disabled/);
-});
-
-test('casca: toda tela interna leva o selo "Dados de exemplo"', () => {
-  assert.match(read('shell.js'), /selo selo-exemplo">Dados de exemplo</);
+  assert.match(js, /gruposComApps\(\)\.map/);
 });
 
 test('casca: abrir app ainda não finge que abriu', () => {

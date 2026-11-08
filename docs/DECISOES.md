@@ -79,3 +79,26 @@ Instalar ou atualizar apps pelo GitHub, login, backend, API real de notícias, a
 - Títulos de grupo na sidebar ficam em fonte sans (não mono em caixa-alta), conforme `docs/DESIGN.md`. Contadores e "sincronizado" da referência não entram enquanto não houver dado real.
 - Verificação ponta a ponta do app real: `node tools/verificar-app.js` (usa `--remote-debugging-port=9333`; o Electron não expõe `Browser.getWindowForTarget`, então o estado minimizado vem do Windows via `IsIconic`).
 
+
+
+## 11. Só o que é real, e como os apps futuros entram (TASK-022, 2026-11-08)
+
+**Decisão do usuário:** o Hub não mostra nada fingido. Sem selos "Em breve" e "Dados de exemplo", sem comunicados, notícias, equipe e agenda inventados e sem apps que ainda não existem. Hoje o catálogo tem só o Termix. Notícias, Comunicados e Equipe mostram um estado vazio ("Ainda não há…") até haver fonte real (TASK-018 e 019). O componente de selo continua em `components.css` para uso futuro, mas nenhuma tela o usa.
+
+**Apps previstos** (nomes, grupos, cores e ícones do catálogo antigo, só para não se perder; nada disto está na interface):
+
+| App | Grupo | Cor | Ícone | Descrição |
+|---|---|---|---|---|
+| Workflow | Operação | `#4cc38a` | workflow | Fluxos, tarefas e automações |
+| FinanPro | Negócio | `#e5a63b` | wallet | Contas, fluxo de caixa e relatórios |
+| Lignum | Negócio | `#c08a5a` | tree | Estoque, pedidos e clientes |
+| Instamidia | Criação | `#ec6a8b` | camera | Conteúdo e publicações para redes sociais |
+| RocStudio | Criação | `#a78bfa` | film | Estúdio de criação: design e vídeo |
+
+**Como cada app entra, no futuro:**
+
+1. Um app só aparece no Hub quando existe de verdade: tem repositório próprio no GitHub e uma release instalável. Antes disso não há entrada, selo nem espaço reservado.
+2. Entrar é editar o `apps.json` (TASK-008): id, nome, grupo, cor, ícone, repositório e dicas de detecção. Seletor e sidebar já mostram só os grupos que têm app, então um grupo novo aparece sozinho.
+3. O estado vem de fatos, nunca de rótulo: **instalado** (achado no registro do Windows, TASK-009), **não instalado** (existe no `apps.json` mas não foi achado; oferece instalar pela release, TASK-016) e **em execução** (processo vivo, TASK-010). "Em breve" deixa de existir como estado.
+4. Cada app continua independente: repositório, processo, janela e atualização próprios. O Hub só detecta, abre, foca e, mais tarde, instala e atualiza.
+5. Mudanças dentro de um app (botão "← Hub", identificador comum) só como tarefa própria aprovada (TASK-017).

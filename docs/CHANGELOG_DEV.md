@@ -6,6 +6,15 @@ Histórico legível do que foi desenvolvido, alterado ou corrigido. Uma entrada 
 
 ---
 
+## 2026-11-08
+
+**TASK-022 — Tirar "Em breve" e dados de exemplo; só o que é real** (DEV1)
+
+- Removidos `exemplos.js` e `capas.js` (equipe, comunicados, agenda, notícias e capas inventados) e os ícones que só eles usavam. O catálogo (`catalogo.js`) ficou só com o Termix; sidebar e seletor mostram só grupos que têm app.
+- Início mostra só o bloco de apps (Termix, com a descrição) e a data real. Notícias, Comunicados e Equipe mostram estado vazio ("Ainda não há…"). Nenhum selo "Em breve" ou "Dados de exemplo" aparece em tela.
+- Plano dos apps futuros e de como entram (repositório e release próprios, `apps.json`, estados instalado, não instalado e em execução) em `docs/DECISOES.md`, seção 11. TASK-006, 007 e 008 reescritas; 006 e 007 agora dependem das APIs (TASK-018 e 019). `CLAUDE.md`, `ARQUITETURA.md` e `DESIGN.md` ajustados à regra nova.
+- Validado: `npm test` (33 testes) e `node tools/verificar-app.js` (31 verificações no app real: Início só com o Termix, telas vazias sem selos, menu com Hub e Termix, cliques, atalhos, tema e janela). Screenshot escuro conferido. Não verificado: tema claro. O ajuste de fundo em vidro que o usuário citou não está no repositório e não foi tocado.
+
 ## 2026-11-07
 
 **TASK-021 — Ícone do app (pétalas)** (DEV1)

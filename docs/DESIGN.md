@@ -24,7 +24,7 @@ Temas escuro e claro. Todas as cores são variáveis CSS em `:root`.
 
 ## Selo "Em breve" e "Dados de exemplo"
 
-Um componente único, discreto, aplicado a tudo que não é real: notícias, novo comunicado, mensagem, presença da equipe, agenda e todos os apps exceto o Termix.
+Desde a TASK-022 o Hub não mostra nada fingido, então nenhuma tela usa o selo. O componente único continua em `components.css` para o caso de aparecer algo provisório; se isso acontecer, deve ser discreto e marcar tudo que não é real.
 
 ## Regras para não cair no visual genérico de IA
 

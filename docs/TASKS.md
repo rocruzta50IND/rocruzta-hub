@@ -22,23 +22,23 @@ _Nenhuma no momento._
 
 Ordem de execução da v1. Pegue a primeira cujas dependências estejam concluídas.
 
-### TASK-006 — Tela Notícias (exemplo)
+### TASK-006 — Tela Notícias
 
 - **Responsável:** DEV1
 - **Status:** PRONTA
 - **Prioridade:** Média
-- **Depende de:** TASK-004
-- **Objetivo:** blog de notícias com destaque, grade, filtros por categoria, busca, "Em alta", tópicos e salvos.
-- **Critérios de aceite:** dados vindos de uma função `fetchNews()` isolada que devolve exemplos; o selo "Dados de exemplo" visível.
+- **Depende de:** TASK-018
+- **Objetivo:** blog de notícias com destaque, grade, filtros por categoria, busca, "Em alta", tópicos e salvos, só com dados reais (sem exemplos). Fica parada até haver uma fonte real (TASK-018); até lá a tela mostra o estado vazio.
+- **Critérios de aceite:** dados vindos de uma função isolada que lê a API; sem dados fingidos.
 
-### TASK-007 — Telas Comunicados e Equipe (exemplo)
+### TASK-007 — Telas Comunicados e Equipe
 
 - **Responsável:** DEV1
 - **Status:** PRONTA
 - **Prioridade:** Média
-- **Depende de:** TASK-004
-- **Objetivo:** as duas telas como na referência, com "Em breve" em novo comunicado, mensagem e presença.
-- **Critérios de aceite:** nenhuma ação finge funcionar; tudo que é exemplo está marcado.
+- **Depende de:** TASK-019
+- **Objetivo:** as duas telas com dados reais do backend. Até lá mostram o estado vazio.
+- **Critérios de aceite:** nenhuma ação finge funcionar; nada de dados de exemplo.
 
 ### TASK-008 — Catálogo de apps
 
@@ -47,7 +47,7 @@ Ordem de execução da v1. Pegue a primeira cujas dependências estejam concluí
 - **Prioridade:** Alta
 - **Depende de:** TASK-004
 - **Objetivo:** `apps.json` com id, nome, grupo, cor, ícone, repositório do GitHub e dicas de detecção; estados dos apps na interface.
-- **Critérios de aceite:** só o Termix é lançável; os demais aparecem desabilitados com "Em breve"; adicionar um app novo é só editar o JSON.
+- **Critérios de aceite:** só o Termix está no catálogo; adicionar um app novo é só editar o JSON, quando ele existir (ver `docs/DECISOES.md`, seção 11); nada de apps "Em breve".
 
 ### TASK-009 — Detectar a instalação do Termix
 
@@ -150,6 +150,16 @@ Fora da v1. O DEV1 promove para "Prontas" quando decidir.
 - **Objetivo:** experimento descartável, só se o usuário voltar a querer isso. Motivos do descarte atual em `docs/DECISOES.md`.
 
 ## Concluídas
+
+### TASK-022 — Tirar "Em breve" e dados de exemplo; só o que é real
+
+- **Responsável:** DEV1
+- **Status:** CONCLUÍDA
+- **Prioridade:** Alta
+- **Depende de:** TASK-005
+- **Objetivo:** o Hub não mostra nada fingido: sem selos "Em breve" e "Dados de exemplo", sem comunicados, notícias, equipe e agenda inventados, e só o Termix no catálogo. O plano para os apps futuros fica em `docs/DECISOES.md` (seção 11).
+- **Critérios de aceite:** Início mostra só os apps reais; Notícias, Comunicados e Equipe mostram estado vazio honesto; nenhum dado de exemplo no código; testes e verificação no app real passando.
+- **Concluída em:** 2026-11-08
 
 ### TASK-021 — Ícone do app (pétalas)
 
