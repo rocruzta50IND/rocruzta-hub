@@ -20,5 +20,6 @@ module.exports = {
     apps: 'apps:list',
     detectar: 'apps:detectar',
     releases: 'apps:releases',
+    abrir: 'apps:abrir',
   },
 };

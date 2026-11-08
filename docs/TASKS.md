@@ -40,15 +40,6 @@ Ordem de execução da v1. Pegue a primeira cujas dependências estejam concluí
 - **Objetivo:** as duas telas com dados reais do backend. Até lá mostram o estado vazio.
 - **Critérios de aceite:** nenhuma ação finge funcionar; nada de dados de exemplo.
 
-### TASK-010 — Abrir e focar o Termix, e estado "Em execução"
-
-- **Responsável:** DEV1
-- **Status:** PRONTA
-- **Prioridade:** Alta
-- **Depende de:** TASK-009
-- **Objetivo:** abrir o `Termix.exe` desvinculado do Hub; abrir de novo traz a janela existente para a frente (trava de instância única do Termix).
-- **Critérios de aceite:** sem processo duplicado; selo "Em execução" detectado pelo caminho do executável e atualizado em poucos segundos.
-
 ### TASK-011 — Seletor global por atalho
 
 - **Responsável:** DEV1
@@ -130,6 +121,16 @@ Fora da v1. O DEV1 promove para "Prontas" quando decidir.
 - **Objetivo:** experimento descartável, só se o usuário voltar a querer isso. Motivos do descarte atual em `docs/DECISOES.md`.
 
 ## Concluídas
+
+### TASK-010 — Abrir e focar o Termix, e estado "Em execução"
+
+- **Responsável:** DEV1
+- **Status:** CONCLUÍDA
+- **Prioridade:** Alta
+- **Depende de:** TASK-009
+- **Objetivo:** abrir o `Termix.exe` desvinculado do Hub; abrir de novo traz a janela existente para a frente (trava de instância única do Termix).
+- **Critérios de aceite:** sem processo duplicado; selo "Em execução" detectado pelo caminho do executável e atualizado em poucos segundos.
+- **Concluída em:** 2026-11-08
 
 ### TASK-009 — Detectar a instalação do Termix
 

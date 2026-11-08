@@ -13,7 +13,7 @@ function blocoApp(app) {
   }
   return `<button class="tile" data-app="${app.id}">
     <span class="glyph" data-c="${app.cor}">${ic(app.icone)}</span>
-    <span class="nome"><b>${app.nome}</b><small>${app.desc}</small></span></button>`;
+    <span class="nome"><b>${app.nome}</b>${emExecucao(app.id) ? '<small class="rodando"><i class="dot"></i>Em execução</small>' : `<small>${app.desc}</small>`}</span></button>`;
 }
 
 function htmlInicio(agora = new Date()) {

@@ -4,6 +4,7 @@
 // Depende de icons.js, catalogo.js, atalhos.js e ui.js (carregados antes, em index.html).
 
 const CHAVE_TEMA = 'rocruzta-hub:tema';
+const INTERVALO_ESTADOS = 4000;
 
 function iniciarShell() {
   const $ = (s) => document.querySelector(s);
@@ -26,7 +27,7 @@ function iniciarShell() {
   function itemApp(app) {
     return `<button class="menu-item" role="menuitem" data-app="${app.id}">
       <span class="glyph" data-c="${app.cor}">${ic(app.icone)}</span>
-      <span class="t nome">${app.nome}<small>${app.desc}</small></span></button>`;
+      <span class="t nome">${app.nome}<small>${emExecucao(app.id) ? 'Em execução' : app.desc}</small></span>${emExecucao(app.id) ? '<i class="dot"></i>' : ''}</button>`;
   }
 
   // Só mostra grupos que têm algum app.
@@ -47,13 +48,19 @@ function iniciarShell() {
   }
   const seletorAberto = () => seletor.classList.contains('open');
 
-  function clicarApp(id) {
+  async function clicarApp(id) {
     const app = APPS.find((a) => a.id === id);
     if (!app) return;
     definirSeletor(false);
     if (naoInstalado(id)) return avisar(`${app.nome} não está instalado neste computador.`);
-    // Abrir e focar o app é a TASK-010; aqui não finge que abriu.
-    avisar(`Abrir o ${app.nome} chega na próxima etapa.`);
+    avisar(`Abrindo o ${app.nome}...`);
+    const r = await window.hub.abrirApp(id).catch(() => ({ ok: false }));
+    if (!r.ok) {
+      avisar(r.motivo === 'nao-instalado' ? `${app.nome} não está instalado neste computador.` : `Não foi possível abrir o ${app.nome}.`);
+    } else {
+      avisar(`${app.nome} aberto.`);
+      setTimeout(atualizarEstados, 1500);
+    }
   }
 
   botaoSeletor.addEventListener('click', (e) => {
@@ -80,7 +87,7 @@ function iniciarShell() {
     const secoes = SECOES.map((s) => `<button class="sub${s.id === secaoAtual ? ' act' : ''}" data-sec="${s.id}"${s.id === secaoAtual ? ' aria-current="page"' : ''}>
       ${ic(s.icone)}<span>${s.nome}</span><kbd>${s.tecla}</kbd></button>`).join('');
     const apps = gruposComApps().map((g) => `<div class="group-title">${g}</div>${APPS.filter((a) => a.grupo === g).map((a) => `<button class="sub" data-app="${a.id}">
-      <span class="glyph" data-c="${a.cor}">${ic(a.icone)}</span><span class="nome">${a.nome}</span></button>`).join('')}`).join('');
+      <span class="glyph" data-c="${a.cor}">${ic(a.icone)}</span><span class="nome">${a.nome}</span>${emExecucao(a.id) ? '<i class="dot" title="Em execução"></i>' : ''}</button>`).join('')}`).join('');
     $('#side').innerHTML = secoes + apps;
     aplicarCores($('#side'));
   }
@@ -118,13 +125,22 @@ function iniciarShell() {
   }
 
   // Relê o registro do Windows e redesenha se algo mudou (ex.: o Termix foi instalado com o Hub aberto).
+  let consultando = false;
   async function atualizarEstados() {
-    const novos = await window.hub.detectarApps().catch(() => null);
-    if (!novos || JSON.stringify(novos) === JSON.stringify(ESTADOS)) return;
-    definirEstados(novos);
-    renderTela();
+    if (consultando) return;
+    consultando = true;
+    try {
+      const novos = await window.hub.detectarApps().catch(() => null);
+      if (!novos || JSON.stringify(novos) === JSON.stringify(ESTADOS)) return;
+      definirEstados(novos);
+      montarMenu();
+      montarSidebar();
+      renderTela();
+    } finally { consultando = false; }
   }
   window.addEventListener('focus', atualizarEstados);
+  // O selo "Em execução" acompanha a realidade: relê a cada poucos segundos enquanto a janela está visível.
+  setInterval(() => { if (document.visibilityState === 'visible') atualizarEstados(); }, INTERVALO_ESTADOS);
 
   function irParaSecao(id) {
     if (!SECOES.some((s) => s.id === id)) return;

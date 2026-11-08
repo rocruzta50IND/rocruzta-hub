@@ -71,9 +71,11 @@ test('casca: sidebar e seletor derivam do catálogo', () => {
   assert.match(js, /gruposComApps\(\)\.map/);
 });
 
-test('casca: abrir app ainda não finge que abriu', () => {
+test('casca: abrir app passa pela ponte e só diz "aberto" quando deu certo', () => {
   const js = read('shell.js');
-  assert.match(js, /chega na próxima etapa/);
+  assert.match(js, /window\.hub\.abrirApp\(id\)/);
+  assert.match(js, /if \(!r\.ok\)/);
+  assert.doesNotMatch(js, /chega na próxima etapa/);
   assert.doesNotMatch(js, /child_process|spawn|shell\.openPath/);
 });
 

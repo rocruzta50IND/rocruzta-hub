@@ -13,6 +13,7 @@ const APPS = [];
 // (ou se ela falhar): sem estado conhecido, o app aparece normal.
 const ESTADOS = {};
 const naoInstalado = (id) => ESTADOS[id]?.instalado === false;
+const emExecucao = (id) => ESTADOS[id]?.instalado === true && ESTADOS[id]?.rodando === true;
 
 function definirEstados(estados) {
   for (const k of Object.keys(ESTADOS)) delete ESTADOS[k];
@@ -33,4 +34,4 @@ const SECOES = [
   { id: 'equipe', nome: 'Equipe', icone: 'users', tecla: '4', desc: 'Quem é quem na Rocruzta.', vazio: 'Ainda não há ninguém cadastrado.' },
 ];
 
-if (typeof module !== 'undefined') module.exports = { GRUPOS, HUB, APPS, SECOES, ESTADOS, naoInstalado, definirCatalogo, definirEstados };
+if (typeof module !== 'undefined') module.exports = { GRUPOS, HUB, APPS, SECOES, ESTADOS, naoInstalado, emExecucao, definirCatalogo, definirEstados };

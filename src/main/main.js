@@ -4,6 +4,7 @@ const path = require('node:path');
 const { app, BrowserWindow, ipcMain, shell } = require('electron');
 const { carregarCatalogo, urlReleases } = require('./apps');
 const { detectarApps } = require('./deteccao');
+const { anexarExecucao, abrirApp } = require('./execucao');
 const { APP_ID, APP_NAME, ICON, WINDOW, CHANNELS, userDataDir } = require('./config');
 
 // Dados do usuário em %APPDATA%\Rocruzta Hub (antes de qualquer outro uso do app).
@@ -57,7 +58,19 @@ ipcMain.handle(CHANNELS.isMaximized, (e) => windowFrom(e)?.isMaximized() ?? fals
 ipcMain.handle(CHANNELS.apps, (e) => (windowFrom(e) ? carregarCatalogo() : null));
 ipcMain.handle(CHANNELS.detectar, async (e) => {
   if (!windowFrom(e)) return null;
-  try { return await detectarApps(carregarCatalogo().apps); } catch { return null; }
+  try {
+    const apps = carregarCatalogo().apps;
+    return await anexarExecucao(apps, await detectarApps(apps));
+  } catch { return null; }
+});
+// Abre pelo id do catálogo; o executável vem da detecção no registro, nunca da janela.
+ipcMain.handle(CHANNELS.abrir, async (e, id) => {
+  if (!windowFrom(e)) return { ok: false, motivo: 'janela' };
+  try {
+    const a = carregarCatalogo().apps.find((x) => x.id === id);
+    if (!a) return { ok: false, motivo: 'desconhecido' };
+    return await abrirApp((await detectarApps([a]))[a.id]);
+  } catch { return { ok: false, motivo: 'falha' }; }
 });
 // A página de releases sai do catálogo (repositório do app), nunca de um endereço vindo da janela.
 ipcMain.handle(CHANNELS.releases, async (e, id) => {

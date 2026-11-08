@@ -19,3 +19,4 @@
 .tile.nao-instalado { cursor: default; }
 .tile.nao-instalado .glyph { opacity: .55; }
 .tile.nao-instalado .btn { margin-left: auto; flex: none; }
+.tile small.rodando { display: flex; align-items: center; gap: 6px; color: var(--ok); }

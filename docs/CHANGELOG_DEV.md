@@ -8,6 +8,14 @@ Histórico legível do que foi desenvolvido, alterado ou corrigido. Uma entrada 
 
 ## 2026-11-08
 
+**TASK-010 — Abrir e focar o Termix, e estado "Em execução"** (DEV1)
+
+- `src/main/execucao.js`: `abrirApp` lança o executável detectado (TASK-009) com `spawn` desvinculado (`detached`, `stdio: ignore`, `unref`, pasta do app, ambiente sem `ELECTRON_*` e `NODE_OPTIONS`). Com o Termix aberto, o segundo processo cai na trava de instância única e só traz a janela existente para a frente. O Hub nunca encerra nem controla processos de apps.
+- "Em execução" = há processo com o mesmo caminho do executável instalado (`Get-Process -Name Termix`, comparando caminho, nunca só o nome). `apps:detectar` agora devolve também `rodando`; se a consulta falhar, nada é afirmado. Novo canal `apps:abrir` (`hub.abrirApp(id)`): o executável vem da detecção, nunca da janela.
+- Interface: clicar no app (Início, sidebar ou seletor) abre e avisa "Termix aberto" ou o motivo da falha. Selo "Em execução" (ponto verde) no bloco do Início, no seletor e na sidebar; a casca relê o estado a cada 4 s com a janela visível e ao ganhar foco, e redesenha só se mudou.
+- Validado: `npm test` (55 testes, 8 novos em `test/execucao.test.js`) e `node tools/verificar-app.js` (37 verificações no app real: clique real no Termix já aberto, contagem de processos antes e depois sem crescer, selo igual à realidade). Não verificado: abrir o Termix estando fechado (só testado com `spawn` simulado) e a janela do Termix subindo para a frente (conferência visual do usuário).
+- O check da barra de tarefas do Termix e o tempo exato de atualização do selo ao fechar o Termix não foram medidos; o intervalo é de 4 s.
+
 **TASK-009 — Detectar a instalação do Termix** (DEV1)
 
 - `src/main/deteccao.js`: lê o registro com `reg.exe query` (só leitura) em HKLM e HKCU, Uninstall e WOW6432Node. Acha a entrada pelo `registro` do `apps.json` ("Termix" ou "Termix <versão>"; no registro real o nome é "Termix 0.3.7"), tira a pasta do `InstallLocation` ou, vazio, do `UninstallString`, e só conta como instalado se o executável existir ali. Devolve `{ instalado, pasta, executavel, versao }`.

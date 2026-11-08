@@ -13,6 +13,7 @@ const CH = {
   apps: 'apps:list',
   detectar: 'apps:detectar',
   releases: 'apps:releases',
+  abrir: 'apps:abrir',
 };
 
 contextBridge.exposeInMainWorld('hub', {
@@ -22,6 +23,7 @@ contextBridge.exposeInMainWorld('hub', {
   isMaximized: () => ipcRenderer.invoke(CH.isMaximized),
   apps: () => ipcRenderer.invoke(CH.apps),
   detectarApps: () => ipcRenderer.invoke(CH.detectar),
+  abrirApp: (id) => ipcRenderer.invoke(CH.abrir, String(id)),
   abrirReleases: (id) => ipcRenderer.invoke(CH.releases, String(id)),
   onMaximizedChange: (cb) => {
     const listener = (_e, value) => cb(Boolean(value));

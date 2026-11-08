@@ -63,13 +63,24 @@ const check = (name, ok, extra = '') => { results.push(ok); console.log(`${ok ? 
   await ev('document.body.click()');
   check('clicar fora fecha o menu', !(await ev('document.querySelector("#switch").classList.contains("open")')));
 
-  // abrir app não finge
+  // abrir o Termix de verdade (TASK-010): com ele já aberto, a trava de instância única só traz a janela para a frente
+  const contar = () => Number(ps("(Get-Process -Name Termix -ErrorAction SilentlyContinue | Measure-Object).Count"));
+  const antes = contar();
   await ev('document.querySelector("#side [data-app=termix]").click()');
-  check('clicar no Termix só avisa que abrir vem depois', (await ev('document.querySelector("#st-aviso").textContent')).includes('próxima etapa'));
+  await sleep(1200);
+  const aviso = await ev('document.querySelector("#st-aviso").textContent');
+  check('clicar no Termix abre pela ponte e avisa', /Termix aberto/.test(aviso));
+  await sleep(3300);
+  console.log(`   (processos Termix antes: ${antes}, depois: ${contar()})`);
+  if (antes > 0) check('sem processo duplicado: a contagem de processos do Termix não cresceu', contar() <= antes);
   await ev('document.querySelector("[data-sec=inicio]").click()');
-  await ev('document.querySelector("#st-aviso").textContent = ""');
-  await ev('document.querySelector("#hmain .tile[data-app=termix]").click()');
-  check('Início: bloco do Termix só avisa que abrir vem depois', (await ev('document.querySelector("#st-aviso").textContent')).includes('próxima etapa'));
+  await sleep(500);
+  const rodando = await ev('window.hub.detectarApps().then((d) => d.termix.rodando)');
+  check('estado "Em execução" bate com a realidade', rodando === (contar() > 0));
+  await ev('window.dispatchEvent(new Event("focus"))');
+  await sleep(2500);
+  check('selo "Em execução" no Início segue o estado', (await ev('!!document.querySelector("#hmain .tile .rodando")')) === rodando);
+  check('selo "Em execução" no seletor e na sidebar segue o estado', (await ev('!!document.querySelector("#side .dot")')) === rodando);
 
   // tela Início: só o que é real
   await ev('document.querySelector("[data-sec=inicio]").click()');
