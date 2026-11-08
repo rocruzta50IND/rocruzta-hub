@@ -51,6 +51,7 @@ function iniciarShell() {
     const app = APPS.find((a) => a.id === id);
     if (!app) return;
     definirSeletor(false);
+    if (naoInstalado(id)) return avisar(`${app.nome} não está instalado neste computador.`);
     // Abrir e focar o app é a TASK-010; aqui não finge que abriu.
     avisar(`Abrir o ${app.nome} chega na próxima etapa.`);
   }
@@ -93,6 +94,8 @@ function iniciarShell() {
 
   // Cliques dentro das telas: links e cartões de seção (data-sec) e blocos de app (data-app).
   $('#hmain').addEventListener('click', (e) => {
+    const rel = e.target.closest('[data-releases]');
+    if (rel) return window.hub.abrirReleases(rel.dataset.releases);
     const sec = e.target.closest('[data-sec]');
     if (sec) return irParaSecao(sec.dataset.sec);
     const app = e.target.closest('[data-app]');
@@ -113,6 +116,15 @@ function iniciarShell() {
     $('#hmain').scrollTop = 0;
     $('#st-mid').textContent = `Hub · ${s.nome}`;
   }
+
+  // Relê o registro do Windows e redesenha se algo mudou (ex.: o Termix foi instalado com o Hub aberto).
+  async function atualizarEstados() {
+    const novos = await window.hub.detectarApps().catch(() => null);
+    if (!novos || JSON.stringify(novos) === JSON.stringify(ESTADOS)) return;
+    definirEstados(novos);
+    renderTela();
+  }
+  window.addEventListener('focus', atualizarEstados);
 
   function irParaSecao(id) {
     if (!SECOES.some((s) => s.id === id)) return;

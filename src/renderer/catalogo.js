@@ -9,6 +9,16 @@ const HUB = { id: 'hub', nome: 'Hub', icone: 'home', cor: '#3b82f6' };
 
 const APPS = [];
 
+// Estado de cada app detectado no Windows: { [id]: { instalado, versao? } }. Vazio até a detecção responder
+// (ou se ela falhar): sem estado conhecido, o app aparece normal.
+const ESTADOS = {};
+const naoInstalado = (id) => ESTADOS[id]?.instalado === false;
+
+function definirEstados(estados) {
+  for (const k of Object.keys(ESTADOS)) delete ESTADOS[k];
+  Object.assign(ESTADOS, estados || {});
+}
+
 // Preenche GRUPOS e APPS no lugar (os outros scripts guardam a referência dos arrays).
 function definirCatalogo(dados) {
   GRUPOS.splice(0, GRUPOS.length, ...dados.grupos);
@@ -23,4 +33,4 @@ const SECOES = [
   { id: 'equipe', nome: 'Equipe', icone: 'users', tecla: '4', desc: 'Quem é quem na Rocruzta.', vazio: 'Ainda não há ninguém cadastrado.' },
 ];
 
-if (typeof module !== 'undefined') module.exports = { GRUPOS, HUB, APPS, SECOES, definirCatalogo };
+if (typeof module !== 'undefined') module.exports = { GRUPOS, HUB, APPS, SECOES, ESTADOS, naoInstalado, definirCatalogo, definirEstados };

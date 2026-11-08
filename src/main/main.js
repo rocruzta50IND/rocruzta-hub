@@ -1,8 +1,9 @@
 'use strict';
 
 const path = require('node:path');
-const { app, BrowserWindow, ipcMain } = require('electron');
-const { carregarCatalogo } = require('./apps');
+const { app, BrowserWindow, ipcMain, shell } = require('electron');
+const { carregarCatalogo, urlReleases } = require('./apps');
+const { detectarApps } = require('./deteccao');
 const { APP_ID, APP_NAME, ICON, WINDOW, CHANNELS, userDataDir } = require('./config');
 
 // Dados do usuário em %APPDATA%\Rocruzta Hub (antes de qualquer outro uso do app).
@@ -54,6 +55,18 @@ ipcMain.on(CHANNELS.toggleMaximize, (e) => {
 ipcMain.on(CHANNELS.close, (e) => windowFrom(e)?.close());
 ipcMain.handle(CHANNELS.isMaximized, (e) => windowFrom(e)?.isMaximized() ?? false);
 ipcMain.handle(CHANNELS.apps, (e) => (windowFrom(e) ? carregarCatalogo() : null));
+ipcMain.handle(CHANNELS.detectar, async (e) => {
+  if (!windowFrom(e)) return null;
+  try { return await detectarApps(carregarCatalogo().apps); } catch { return null; }
+});
+// A página de releases sai do catálogo (repositório do app), nunca de um endereço vindo da janela.
+ipcMain.handle(CHANNELS.releases, async (e, id) => {
+  if (!windowFrom(e)) return false;
+  const a = carregarCatalogo().apps.find((x) => x.id === id);
+  if (!a) return false;
+  await shell.openExternal(urlReleases(a));
+  return true;
+});
 
 // Instância única: abrir de novo traz a janela existente para a frente.
 if (!app.requestSingleInstanceLock()) {

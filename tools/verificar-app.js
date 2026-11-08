@@ -39,6 +39,8 @@ const check = (name, ok, extra = '') => { results.push(ok); console.log(`${ok ? 
   const titulo = () => ev("document.querySelector('#hmain h1').textContent");
 
   await sleep(1500);
+  // a casca só inicia depois do catálogo e da detecção chegarem do processo principal
+  for (let i = 0; i < 40 && !(await ev('!!document.querySelector(".sub.act")')); i++) await sleep(250);
   check('preload expõe window.hub', await ev('typeof window.hub === "object" && typeof window.hub.minimize === "function"'));
   check('sem Node no renderer', await ev('typeof require === "undefined" && typeof process === "undefined"'));
   check('Inter carregada', await ev('document.fonts.check("13px Inter")'));
@@ -73,6 +75,14 @@ const check = (name, ok, extra = '') => { results.push(ok); console.log(`${ok ? 
   await ev('document.querySelector("[data-sec=inicio]").click()');
   check('Início: só o bloco do Termix, sem selos nem dados fingidos', await ev('document.querySelectorAll("#hmain .tile").length === 1 && !document.querySelector("#hmain .selo") && !/Em breve|Dados de exemplo/.test(document.body.innerText)'));
   check('Início: sem rolagem horizontal', await ev('document.querySelector("#hmain").scrollWidth <= document.querySelector("#hmain").clientWidth'));
+  // detecção do Termix no registro do Windows (TASK-009)
+  const det = await ev('window.hub.detectarApps()');
+  check('detecção devolve um estado para o Termix', det && typeof det.termix?.instalado === 'boolean');
+  console.log(`   (Termix ${det?.termix?.instalado ? `instalado em ${det.termix.pasta}, v${det.termix.versao}` : 'não instalado'})`);
+  check('Início reflete a detecção real', await ev(`!!document.querySelector('#hmain .tile .nome') && (${Boolean(det?.termix?.instalado)} === !document.querySelector('#hmain .nao-instalado'))`));
+  await ev('definirEstados({ termix: { instalado: false } }); document.querySelector("#hmain").innerHTML = htmlInicio();');
+  check('Não instalado: bloco informa e oferece "Ver releases"', await ev('!!document.querySelector("#hmain .nao-instalado [data-releases=termix]") && /Não instalado/.test(document.querySelector("#hmain").innerText)'));
+  await ev('definirEstados(' + JSON.stringify(det) + '); document.querySelector("#hmain").innerHTML = htmlInicio();');
   for (const s of ['noticias', 'comunicados', 'equipe']) {
     await ev(`document.querySelector('[data-sec="${s}"]').click()`);
     check(`${s}: estado vazio honesto, sem selos`, await ev('document.querySelector("#hmain .vazio").textContent.startsWith("Ainda não há") && !document.querySelector(".selo") && !/Em breve|Dados de exemplo/.test(document.body.innerText)'));

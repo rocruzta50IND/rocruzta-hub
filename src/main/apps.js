@@ -39,4 +39,6 @@ function carregarCatalogo(arquivo = ARQUIVO) {
   return dados;
 }
 
-module.exports = { ARQUIVO, validarCatalogo, carregarCatalogo };
+const urlReleases = (app) => `https://github.com/${app.repositorio}/releases`;
+
+module.exports = { ARQUIVO, validarCatalogo, carregarCatalogo, urlReleases };

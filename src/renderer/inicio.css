@@ -16,3 +16,6 @@
 .tile .nome { min-width: 0; }
 .tile b { display: block; font-weight: 500; line-height: 1.2; }
 .tile small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-3); font-size: 11.5px; }
+.tile.nao-instalado { cursor: default; }
+.tile.nao-instalado .glyph { opacity: .55; }
+.tile.nao-instalado .btn { margin-left: auto; flex: none; }

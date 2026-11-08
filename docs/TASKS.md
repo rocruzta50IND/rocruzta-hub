@@ -40,17 +40,6 @@ Ordem de execução da v1. Pegue a primeira cujas dependências estejam concluí
 - **Objetivo:** as duas telas com dados reais do backend. Até lá mostram o estado vazio.
 - **Critérios de aceite:** nenhuma ação finge funcionar; nada de dados de exemplo.
 
-### TASK-009 — Detectar a instalação do Termix
-
-- **Responsável:** DEV1
-- **Status:** PRONTA
-- **Prioridade:** Alta
-- **Depende de:** TASK-008
-- **Objetivo:** achar o Termix pelo registro do Windows.
-- **Critérios de aceite:**
-  - Procura em HKLM e HKCU (Uninstall, incluindo WOW6432Node) a entrada com DisplayName "Termix" e deduz a pasta do `UninstallString` (`InstallLocation` vem vazio nesta máquina, instalado em `D:\Termix`).
-  - Sem achar: estado "Não instalado" com botão que abre a página de releases; nada é instalado.
-
 ### TASK-010 — Abrir e focar o Termix, e estado "Em execução"
 
 - **Responsável:** DEV1
@@ -141,6 +130,17 @@ Fora da v1. O DEV1 promove para "Prontas" quando decidir.
 - **Objetivo:** experimento descartável, só se o usuário voltar a querer isso. Motivos do descarte atual em `docs/DECISOES.md`.
 
 ## Concluídas
+
+### TASK-009 — Detectar a instalação do Termix
+
+- **Responsável:** DEV1
+- **Status:** CONCLUÍDA
+- **Prioridade:** Alta
+- **Depende de:** TASK-008
+- **Objetivo:** achar o Termix pelo registro do Windows (HKLM e HKCU, Uninstall e WOW6432Node), deduzindo a pasta do `UninstallString`.
+- **Critérios de aceite:** instalado: estado com pasta, executável e versão; sem achar: "Não instalado" com botão que abre a página de releases; nada é instalado.
+- **Concluída em:** 2026-11-08
+- **Fora do escopo:** abrir o app e o estado "Em execução" (TASK-010).
 
 ### TASK-008 — Catálogo de apps
 

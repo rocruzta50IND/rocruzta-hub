@@ -8,6 +8,14 @@ Histórico legível do que foi desenvolvido, alterado ou corrigido. Uma entrada 
 
 ## 2026-11-08
 
+**TASK-009 — Detectar a instalação do Termix** (DEV1)
+
+- `src/main/deteccao.js`: lê o registro com `reg.exe query` (só leitura) em HKLM e HKCU, Uninstall e WOW6432Node. Acha a entrada pelo `registro` do `apps.json` ("Termix" ou "Termix <versão>"; no registro real o nome é "Termix 0.3.7"), tira a pasta do `InstallLocation` ou, vazio, do `UninstallString`, e só conta como instalado se o executável existir ali. Devolve `{ instalado, pasta, executavel, versao }`.
+- IPC `apps:detectar` e `apps:releases` (`hub.detectarApps()` e `hub.abrirReleases(id)` no preload). A página de releases sai do repositório do catálogo, nunca de um endereço vindo da janela.
+- Interface: se a detecção disser "não instalado", o bloco do app no Início mostra "Não instalado" e o botão "Ver releases"; clicar no app só avisa. A detecção roda ao abrir e a cada foco da janela (redesenha só se mudou). Se ela falhar, nenhum estado é inventado e o app aparece normal.
+- Validado: `npm test` (47 testes, 9 novos em `test/deteccao.test.js`) e `node tools/verificar-app.js` no app real; no registro desta máquina o Termix foi achado em `D:\Termix`, v0.3.7. O harness agora espera a casca iniciar. Não verificado: o clique em "Ver releases" abrindo o navegador, e a detecção numa máquina sem o Termix (só simulada nos testes).
+- Acentos em caminhos: a saída do `reg.exe` vem na página de código do console; um caminho com acento pode não bater com o disco e cair em "Não instalado". Não ocorre em `D:\Termix`.
+
 **TASK-008 — Catálogo de apps** (DEV1)
 
 - Novo `src/apps.json` (grupos e apps) com, para o Termix: id, nome, grupo, ícone, cor, descrição, repositório `rocruzta50IND/termix` e dicas de detecção (nome no registro "Termix", `Termix.exe`, `com.termix.app`), para a TASK-009.

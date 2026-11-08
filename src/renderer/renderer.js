@@ -17,8 +17,10 @@ document.getElementById('cur-g').innerHTML = ic(HUB.icone);
 aplicarCores(document.getElementById('titlebar'));
 
 // O catálogo vem do apps.json pelo processo principal; a casca só inicia com ele carregado.
-window.hub.apps().then((dados) => {
+window.hub.apps().then(async (dados) => {
   definirCatalogo(dados);
+  // Sem resposta da detecção, nenhum estado é inventado: os apps aparecem normais.
+  definirEstados(await window.hub.detectarApps().catch(() => null));
   iniciarShell();
 }).catch((erro) => {
   console.error('Falha ao carregar apps.json', erro);
