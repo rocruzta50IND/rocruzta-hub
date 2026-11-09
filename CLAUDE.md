@@ -1,6 +1,6 @@
 # Rocruzta Hub
 
-Centro de navegação dos apps da Rocruzta (empresa de 5 pessoas): notícias, comunicados, equipe e um jeito rápido de abrir e alternar entre os apps. App desktop Windows (Electron). Repositório próprio desde o início, ainda sem GitHub (o `origin` é um repositório local, ver `docs/DECISOES.md`).
+Centro de navegação dos apps da Rocruzta (empresa de 5 pessoas): notícias, comunicados, equipe e um jeito rápido de abrir e alternar entre os apps. App desktop Windows (Electron). Repositório próprio desde o início, no GitHub (privado): `rocruzta50IND/rocruzta-hub` (ver `docs/DECISOES.md`).
 
 <!-- fluxo:inicio — seção mantida pelo plugin fluxo; atualize com /fluxo:init -->
 ## Fluxo de desenvolvimento (DEV2 → DEV1 → MAIN)

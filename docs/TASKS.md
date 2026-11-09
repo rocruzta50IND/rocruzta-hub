@@ -78,13 +78,6 @@ Fora da v1. O DEV1 promove para "Prontas" quando decidir.
 - **Prioridade:** Média
 - **Objetivo:** instalador do Windows por usuário (sem administrador) com atualização do próprio Hub.
 
-### TASK-015 — Publicar o repositório no GitHub
-
-- **Responsável:** DEV1
-- **Status:** BACKLOG
-- **Prioridade:** Média
-- **Objetivo:** criar o repo no GitHub depois que o app estiver pronto para testar com o Termix e trocar o `origin` local por ele (`git remote set-url origin <url>`).
-
 ### TASK-016 — Instalar e atualizar apps pelas releases do GitHub
 
 - **Responsável:** A definir
@@ -121,6 +114,15 @@ Fora da v1. O DEV1 promove para "Prontas" quando decidir.
 - **Objetivo:** experimento descartável, só se o usuário voltar a querer isso. Motivos do descarte atual em `docs/DECISOES.md`.
 
 ## Concluídas
+
+### TASK-015 — Publicar o repositório no GitHub
+
+- **Responsável:** DEV1
+- **Status:** CONCLUÍDA
+- **Prioridade:** Média
+- **Objetivo:** criar o repo no GitHub e trocar o `origin` local por ele.
+- **Critérios de aceite:** repositório privado `rocruzta50IND/rocruzta-hub` com `main`, `dev1` e `dev2` e o `origin` apontando para ele.
+- **Concluída em:** 2026-11-09 (antecipada a pedido do usuário, para continuar em outra máquina)
 
 ### TASK-010 — Abrir e focar o Termix, e estado "Em execução"
 

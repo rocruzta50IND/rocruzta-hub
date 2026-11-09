@@ -14,7 +14,7 @@ Registro do que foi decidido e do que se sabe. Leia só a seção que a tarefa e
 ## 2. Repositório
 
 - O Hub tem repositório próprio desde o início, com o fluxo DEV2 → DEV1 → MAIN (`WORKFLOW.md`).
-- **Ainda sem GitHub.** O `origin` é um repositório local em `D:\Termix\_origins\rocruzta-hub.git`, só para o fluxo (push das tarefas) funcionar e servir de backup. Quando for publicar: criar o repo no GitHub e rodar `git remote set-url origin <url>` (TASK no Backlog).
+- **No GitHub desde 2026-11-09 (TASK-015).** `origin` = `https://github.com/rocruzta50IND/rocruzta-hub` (privado, conta `rocruzta50IND`), com as branches `main`, `dev1` e `dev2`. Antes disso o `origin` era um repositório local em `D:\Termix\_origins\rocruzta-hub.git` (agora só um backup antigo). Em outra máquina: `git clone` do endereço acima, `npm install` e `/fluxo:papel` para criar o `CLAUDE.local.md`, que não é versionado.
 - Identidade de commit local: `Rocruzta DEV1 <dev1@rocruzta.com.br>` (trocar com `git config --local` se quiser outro nome).
 
 ## 3. Termix (primeiro app)

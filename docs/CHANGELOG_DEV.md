@@ -6,6 +6,14 @@ Histórico legível do que foi desenvolvido, alterado ou corrigido. Uma entrada 
 
 ---
 
+## 2026-11-09
+
+**TASK-015 — Publicar o repositório no GitHub** (DEV1)
+
+- Criado o repositório privado `rocruzta50IND/rocruzta-hub` e enviadas as branches `main`, `dev1` e `dev2` (com `docs/TASKS.md`, `docs/CHANGELOG_DEV.md` e todo o histórico). `origin` agora é `https://github.com/rocruzta50IND/rocruzta-hub.git`; o repositório local em `D:\Termix\_origins` deixa de ser usado.
+- Feito antes da hora (estava no Backlog) a pedido do usuário, que vai continuar em outra máquina. Retomada lá: `git clone`, `npm install` e `/fluxo:papel` (o `CLAUDE.local.md` não é versionado).
+- Validado: `git push -u` das três branches e `git branch -vv` com todas rastreando `origin`. Não alterado: código do app. Não verificado: clone limpo em outra máquina. O repositório é privado, então a outra máquina precisa estar logada no GitHub com acesso a ele. A TASK-016 (releases) e o botão "Ver releases" do Termix usam o repositório do Termix, não este.
+
 ## 2026-11-08
 
 **TASK-010 — Abrir e focar o Termix, e estado "Em execução"** (DEV1)
