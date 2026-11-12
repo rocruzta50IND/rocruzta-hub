@@ -3,6 +3,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { execFile } = require('node:child_process');
+const { compararVersoes } = require('./atualizacoes');
 
 // Detecção de apps instalados pelo registro do Windows (TASK-009). Só lê; nunca instala nem altera nada.
 // O Termix aparece em HKLM\...\Uninstall como "Termix 0.3.7" e com InstallLocation vazio:
@@ -58,8 +59,24 @@ const nomeBate = (displayName, registro) => {
   return nome === base || nome.startsWith(`${base} `);
 };
 
+// Versão do código que está em disco (resources/app/package.json de um app Electron empacotado), ou null.
+// O app se atualiza por cima dos arquivos e não corrige o DisplayVersion do registro (TASK-029); quem manda é o código.
+function lerVersaoPacote(pasta) {
+  try {
+    const v = JSON.parse(fs.readFileSync(path.win32.join(pasta, 'resources', 'app', 'package.json'), 'utf8')).version;
+    return /^\d+\.\d+\.\d+/.test(String(v)) ? String(v) : null;
+  } catch { return null; }
+}
+
+// A versão em disco só vale quando é maior que a do registro (ou o registro não tem versão): nunca rebaixa.
+function versaoReal(versaoRegistro, versaoDisco) {
+  if (!versaoDisco) return versaoRegistro || null;
+  if (!versaoRegistro) return versaoDisco;
+  return compararVersoes(versaoDisco, versaoRegistro) > 0 ? versaoDisco : versaoRegistro;
+}
+
 // Procura o app entre as entradas do registro. `existe` confere o executável na pasta deduzida.
-function acharApp(entradas, deteccao, existe = fs.existsSync) {
+function acharApp(entradas, deteccao, existe = fs.existsSync, lerPacote = lerVersaoPacote) {
   for (const { valores: v } of entradas) {
     if (!nomeBate(v.DisplayName, deteccao.registro)) continue;
     const pasta = (v.InstallLocation && v.InstallLocation.trim()) || pastaDoComando(v.UninstallString);
@@ -67,7 +84,7 @@ function acharApp(entradas, deteccao, existe = fs.existsSync) {
     const executavel = path.win32.join(pasta, deteccao.executavel);
     if (!existe(executavel)) continue;
     const desinstalador = comandoDesinstalar(v.UninstallString, pasta);
-    return { instalado: true, pasta, executavel, versao: v.DisplayVersion || null, ...(desinstalador ? { desinstalador } : {}) };
+    return { instalado: true, pasta, executavel, versao: versaoReal(v.DisplayVersion || null, lerPacote(pasta)), ...(desinstalador ? { desinstalador } : {}) };
   }
   return { instalado: false };
 }
@@ -87,9 +104,9 @@ async function lerRegistro() {
 }
 
 // Estado de cada app do catálogo: { [id]: { instalado, pasta?, executavel?, versao? } }.
-async function detectarApps(apps, ler = lerRegistro, existe = fs.existsSync) {
+async function detectarApps(apps, ler = lerRegistro, existe = fs.existsSync, lerPacote = lerVersaoPacote) {
   const entradas = await ler();
-  return Object.fromEntries(apps.map((a) => [a.id, acharApp(entradas, a.deteccao, existe)]));
+  return Object.fromEntries(apps.map((a) => [a.id, acharApp(entradas, a.deteccao, existe, lerPacote)]));
 }
 
-module.exports = { CHAVES, lerSaidaReg, pastaDoComando, comandoDesinstalar, acharApp, detectarApps };
+module.exports = { CHAVES, lerSaidaReg, pastaDoComando, comandoDesinstalar, versaoReal, lerVersaoPacote, acharApp, detectarApps };

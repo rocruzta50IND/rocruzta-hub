@@ -5,7 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const { lerSaidaReg, pastaDoComando, comandoDesinstalar, acharApp, detectarApps } = require('../src/main/deteccao');
+const { lerSaidaReg, pastaDoComando, comandoDesinstalar, versaoReal, lerVersaoPacote, acharApp, detectarApps } = require('../src/main/deteccao');
 const { carregarCatalogo, urlReleases } = require('../src/main/apps');
 
 const SAIDA = [
@@ -104,4 +104,30 @@ test('comandoDesinstalar: só .exe dentro da pasta do app e só /allusers ou /cu
   assert.equal(comandoDesinstalar(`"${un}" /allusers & calc`, pasta), null);
   assert.equal(comandoDesinstalar('"D:\\Termix2\\u.exe"', pasta), null, 'pasta parecida não conta');
   assert.equal(comandoDesinstalar('', pasta), null);
+});
+
+test('versaoReal: o código em disco manda quando é mais novo, e nunca rebaixa', () => {
+  assert.equal(versaoReal('0.2.7', '0.7.0'), '0.7.0');
+  assert.equal(versaoReal('0.7.0', '0.2.7'), '0.7.0');
+  assert.equal(versaoReal('0.7.0', null), '0.7.0');
+  assert.equal(versaoReal(null, '0.7.0'), '0.7.0');
+  assert.equal(versaoReal(null, null), null);
+  assert.equal(versaoReal('0.7.0', 'lixo'), '0.7.0');
+});
+
+test('acharApp: registro desatualizado (0.3.7) e código em disco 0.7.0 vira 0.7.0', () => {
+  assert.equal(acharApp(lerSaidaReg(SAIDA), det, () => true, () => '0.7.0').versao, '0.7.0');
+  assert.equal(acharApp(lerSaidaReg(SAIDA), det, () => true, () => null).versao, '0.3.7');
+});
+
+test('lerVersaoPacote: lê resources/app/package.json e ignora pasta sem ele', () => {
+  const pasta = fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'hub-det-'));
+  try {
+    assert.equal(lerVersaoPacote(pasta), null);
+    fs.mkdirSync(path.join(pasta, 'resources', 'app'), { recursive: true });
+    fs.writeFileSync(path.join(pasta, 'resources', 'app', 'package.json'), '{"version":"0.7.0"}');
+    assert.equal(lerVersaoPacote(pasta), '0.7.0');
+    fs.writeFileSync(path.join(pasta, 'resources', 'app', 'package.json'), 'quebrado');
+    assert.equal(lerVersaoPacote(pasta), null);
+  } finally { fs.rmSync(pasta, { recursive: true, force: true }); }
 });

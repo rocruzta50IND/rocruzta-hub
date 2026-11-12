@@ -47,6 +47,12 @@ _Nenhuma no momento._
 - **Feito:** o catálogo ganhou `embutirDesde` (primeira versão do app com `--embed`; Termix: 0.7.0). `embutivelDe` (`src/main/main.js`): a pasta de desenvolvimento (`HUB_TERMIX_DEV`, padrão `C:/Termix/termix`) tem prioridade; sem ela, o Hub usa o Termix instalado se a versão for >= `embutirDesde` (`localizarInstalado`, `argumentosInstalado` em `src/main/embutido.js`). Versão antiga ou sem o Termix: abre o app instalado em janela, como antes. Termix 0.7.0 publicado no repositório do Termix (TASK-134).
 - **Em outra máquina:** `git pull` do Hub + `npm install` + `npm start`; atualizar o Termix para a 0.7.0 (atualização automática dele ou instalador da release); o aviso do Hub mostra "Termix 0.7.0 disponível" enquanto não atualizar.
 
+### TASK-029 — Versão real do app instalado (registro desatualizado)
+
+- **Responsável:** DEV1
+- **Status:** VALIDADA EM DEV1 (testes automáticos e detecção real nesta máquina)
+- **Feito:** o Termix se atualiza por cima dos arquivos e não corrige o `DisplayVersion` do registro (aqui: registro 0.2.7, código 0.7.0), então o Hub achava o app "antigo" e não o embutia. `src/main/deteccao.js` agora lê `resources/app/package.json` da pasta instalada e usa essa versão quando for maior que a do registro (nunca rebaixa). Afeta a decisão de embutir (`embutirDesde`) e os avisos de atualização.
+
 ## Prontas
 
 Ordem de execução da v1. Pegue a primeira cujas dependências estejam concluídas.

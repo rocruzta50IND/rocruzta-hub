@@ -8,6 +8,12 @@ Histórico legível do que foi desenvolvido, alterado ou corrigido. Uma entrada 
 
 ## 2026-11-12
 
+**TASK-029 — Versão real do app instalado** (DEV1)
+
+- Causa: nesta máquina o registro do Windows dizia Termix 0.2.7 enquanto os arquivos eram da 0.7.0 (o app se atualiza sozinho e não corrige o registro). O Hub lê a versão do registro, achou o app abaixo de `embutirDesde` (0.7.0) e abria o Termix em janela solta em vez de embutir.
+- `src/main/deteccao.js`: `lerVersaoPacote` lê `resources/app/package.json` da pasta instalada e `versaoReal` usa a maior entre registro e disco (nunca rebaixa). `acharApp` e `detectarApps` aceitam a leitura injetável para teste.
+- Validado: `npm test` com 90 testes OK (3 novos em `test/deteccao.test.js`) e detecção real: versão 0.7.0 e `localizarInstalado` passa a devolver o Termix instalado. Não verificado: o Termix aparecendo dentro da janela do Hub, que precisa abrir o app pela interface.
+
 **TASK-024, 026, 027 e 028 — Termix dentro do Hub, loja de apps e avisos de atualização** (DEV1)
 
 - **Termix embutido (024/026):** o Termix aparece dentro da janela do Hub, sem janela própria, com layout encaixado, tema claro e escuro do Hub, notificações no sino (painel à direita que empurra a tela) e aviso do Windows. A tela do app nasce escondida e só aparece depois de carregar (corrigido um retângulo claro no canto). Barra lateral recolhível, ícones e engrenagem iguais aos do Termix, tema só pelo menu do usuário. Chat do Início com o Claude Code (Haiku), sem histórico.
