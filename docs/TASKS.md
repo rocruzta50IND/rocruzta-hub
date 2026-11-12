@@ -59,6 +59,12 @@ _Nenhuma no momento._
 - **Status:** VALIDADA EM DEV1 (testes e verificação no app real; falta a conferência sua com o teclado de verdade)
 - **Feito:** painel em tela cheia, estilo Alt+Tab, com um cartão por app instalado e miniatura da última tela. Ctrl+Espaço abre e avança (Shift volta), soltar o Ctrl confirma, Esc cancela; também setas, Enter, números e clique. Só com o Hub em foco, inclusive com o foco dentro do Termix embutido. Detalhes e armadilhas em `docs/DECISOES.md` §16.
 
+### TASK-031 — Voltar a um app já aberto sem "Abrindo..."
+
+- **Responsável:** DEV1
+- **Status:** VALIDADA EM DEV1 (verificação no app real; falta a sua conferência visual)
+- **Feito:** depois da primeira abertura, voltar ao Termix (barra lateral, seletor ou Ctrl+Espaço) não mostra mais a tela "Abrindo o Termix...": a tela escondida volta direto, com a última foto no lugar até reaparecer. Só a primeira abertura (ou depois de o app cair) mostra o carregamento.
+
 ## Prontas
 
 Ordem de execução da v1. Pegue a primeira cujas dependências estejam concluídas.

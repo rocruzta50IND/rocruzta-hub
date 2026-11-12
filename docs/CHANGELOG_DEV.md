@@ -8,6 +8,12 @@ Histórico legível do que foi desenvolvido, alterado ou corrigido. Uma entrada 
 
 ## 2026-11-12
 
+**TASK-031 — Voltar a um app já aberto sem "Abrindo..."** (DEV1)
+
+- Problema (relato do usuário): ao trocar entre o Hub e o Termix, depois do primeiro carregamento, ainda aparecia "Abrindo o Termix..." e um carregamento. Causa: `entrarApp` (`src/renderer/shell.js`) mostrava a mensagem e esperava um quadro a cada entrada, mesmo com a tela do app já carregada e só escondida.
+- Agora o renderer guarda os apps já mostrados que seguem rodando (`abertos`, limpo quando o app cai) e, para eles, vai direto à tela, com a última foto no lugar até a tela reaparecer (sem piscar).
+- Validado: `node tools/verificar-troca.js` 13/13 no app real com o Termix embutido; o novo passo (voltar pelo seletor do cabeçalho depois do primeiro uso, observando se `.app-msg` aparece) reprova com o código antigo e passa com o novo. `npm test` 97 OK. Não verificado: a sensação visual de rapidez (a foto da última tela pode estar um pouco defasada por uns 100 ms) e a primeira abertura, que continua mostrando "Abrindo...".
+
 **TASK-030 — Troca rápida entre apps (Ctrl+Espaço)** (DEV1)
 
 - Pedido do usuário: efeito do Alt+Tab/Visão de Tarefas do Windows para alternar entre os apps sem sair do Hub. O Alt+Tab em si é do Windows e o app não o recebe, então o atalho é Ctrl+Espaço (só com o Hub em foco).

@@ -75,6 +75,9 @@ const teclaEm = (main, quem, input) => main.ev(`(()=>{const w=process.mainModule
     await hubSoltar(); await sleep(900);
     check('soltar o Ctrl confirma: volta ao Hub', !(await aberto()) && (await atual()) === 'Hub' && (await hub.ev('document.querySelector("#v-app").hidden')), `painel aberto: ${await aberto()}, título: ${await atual()}`);
 
+    // Daqui em diante o Termix já foi aberto uma vez: voltar a ele não pode mostrar "Abrindo..." de novo.
+    await hub.ev('window.__abrindo = false; new MutationObserver(() => { if (document.querySelector("#v-app .app-msg")) window.__abrindo = true; }).observe(document.querySelector("#v-app"), { childList: true, subtree: true })');
+
     // 4) Do Hub: Ctrl+Espaço e soltar volta ao Termix (o app anterior), com miniatura no cartão.
     await hubCtrl(); await hubEspaco(); await sleep(700);
     check('painel aberto no Hub, anterior = Termix', (await aberto()) && (await sel()) === 'Termix');
@@ -88,6 +91,11 @@ const teclaEm = (main, quem, input) => main.ev(`(()=>{const w=process.mainModule
     check('segundo Ctrl+Espaço avança a seleção', (await sel()) === 'Termix', `selecionado: ${await sel()}`);
     await hubSoltar(); await sleep(900);
     check('confirmar o item atual só fecha o painel (continua no Termix)', !(await aberto()) && (await atual()) === 'Termix');
+
+    // 6) Pelo seletor do cabeçalho: Hub e de volta ao Termix, também sem "Abrindo...".
+    await hub.ev('document.querySelector("#menu [data-hub]").click()'); await sleep(700);
+    await hub.ev('document.querySelector("#menu [data-app=termix]").click()'); await sleep(1200);
+    check('voltar ao Termix já aberto não mostra "Abrindo o Termix..." de novo', (await atual()) === 'Termix' && !(await hub.ev('window.__abrindo')) && !(await hub.ev('document.querySelector("#v-app").hidden')));
   } catch (e) {
     console.log('ERRO', e.message); resultados.push(false);
   } finally {

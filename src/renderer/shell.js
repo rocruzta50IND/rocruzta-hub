@@ -92,6 +92,7 @@ function iniciarShell() {
   // ---- Troca rápida entre apps (Ctrl+Espaço): painel com um cartão por app, como o Alt+Tab (TASK-030) ----
   // As teclas chegam pelo processo principal (o foco costuma estar dentro do app). Soltar o Ctrl confirma.
   const painelTroca = $('#troca');
+  const abertos = new Set();  // apps embutidos cuja tela já foi mostrada e que seguem rodando
   let recentes = ['hub'];     // ids usados por último primeiro ('hub' ou id do app)
   const miniaturas = {};      // id -> foto (data URL) da última vez que o app foi visto
   let troca = null;           // { itens, sel, pronto, soltou } enquanto o painel está aberto
@@ -406,6 +407,7 @@ function iniciarShell() {
       const novos = await window.hub.detectarApps().catch(() => null);
       if (!novos || JSON.stringify(novos) === JSON.stringify(ESTADOS)) return;
       definirEstados(novos);
+      for (const id of [...abertos]) if (novos[id]?.embutido !== 'rodando') abertos.delete(id);
       montarMenu();
       montarSidebar();
       renderTela();
@@ -514,10 +516,20 @@ function iniciarShell() {
     appAtual = id; embutidoVisivel = true; seqSnap++; limparSnap();
     mostrarTela('app');
     definirTitulo();
-    mensagemApp(`Abrindo o ${app.nome}...`, '');
-    await new Promise((r) => { requestAnimationFrame(r); setTimeout(r, 100); }); // o layout da área precisa estar pronto para medir (o timeout cobre janela oculta, onde o quadro não vem)
+    // App que já foi aberto e segue rodando: volta direto, sem "Abrindo..." (a tela dele só estava escondida). Enquanto ela
+    // reaparece, a última foto ocupa o lugar, para não piscar.
+    const jaAberto = abertos.has(id) && ESTADOS[id]?.embutido === 'rodando';
+    if (jaAberto) {
+      areaApp.innerHTML = '';
+      if (miniaturas[id]) { const sn = $('#v-snap'); sn.src = miniaturas[id]; sn.hidden = false; }
+    } else {
+      mensagemApp(`Abrindo o ${app.nome}...`, '');
+      await new Promise((r) => { requestAnimationFrame(r); setTimeout(r, 100); }); // o layout da área precisa estar pronto para medir (o timeout cobre janela oculta, onde o quadro não vem)
+    }
     const r = await window.hub.mostrarEmbutido(id, retangulo()).catch(() => ({ ok: false }));
+    if (jaAberto && appAtual === id) setTimeout(() => { if (appAtual === id && embutidoVisivel) limparSnap(); }, 90);
     if (appAtual !== id) return;
+    if (r.ok) abertos.add(id); else abertos.delete(id);
     if (!r.ok) return mensagemApp(`Não foi possível abrir o ${app.nome} aqui dentro`, r.motivo === 'indisponivel' ? 'O modo embutido não está disponível neste computador.' : (r.detalhe || 'Falha ao iniciar.'), 'Tentar de novo');
     areaApp.innerHTML = '';
     atualizarEstados();
