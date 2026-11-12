@@ -10,9 +10,10 @@ const { ICONES } = require('../src/renderer/icons');
 
 const base = () => JSON.parse(fs.readFileSync(ARQUIVO, 'utf8'));
 
-test('apps.json: válido e só com o Termix', () => {
+test('apps.json: válido; só o Termix existe de verdade, o resto é "em breve"', () => {
   const dados = carregarCatalogo();
-  assert.deepEqual(dados.apps.map((a) => a.id), ['termix']);
+  assert.deepEqual(dados.apps.map((a) => a.id), ['termix', 'desk', 'midia', 'studio']);
+  assert.deepEqual(dados.apps.filter((a) => a.emBreve).map((a) => a.id), ['desk', 'midia', 'studio']);
   const t = dados.apps[0];
   assert.equal(t.repositorio, 'rocruzta50IND/termix');
   assert.equal(t.deteccao.registro, 'Termix');
@@ -43,7 +44,7 @@ test('adicionar um app é só editar o JSON: grupo novo e app novo aparecem no c
   assert.deepEqual(validarCatalogo(d), []);
   const tmp = path.join(require('node:os').tmpdir(), `apps-${process.pid}.json`);
   fs.writeFileSync(tmp, JSON.stringify(d));
-  try { assert.equal(carregarCatalogo(tmp).apps.length, 2); } finally { fs.unlinkSync(tmp); }
+  try { assert.equal(carregarCatalogo(tmp).apps.length, 5); } finally { fs.unlinkSync(tmp); }
   assert.throws(() => carregarCatalogo(path.join(__dirname, 'nao-existe.json')));
 });
 
@@ -58,4 +59,18 @@ test('definirCatalogo preenche GRUPOS e APPS no lugar', () => {
 test('não há lista de apps escrita no renderer nem apps fora do catálogo', () => {
   const js = fs.readFileSync(path.join(__dirname, '..', 'src', 'renderer', 'catalogo.js'), 'utf8');
   assert.doesNotMatch(js, /termix/i);
+});
+
+test('prévias: cada imagem citada no catálogo existe em src/previas e tem legenda; o validador recusa prévia ruim', () => {
+  for (const a of carregarCatalogo().apps) {
+    for (const v of a.previas || []) {
+      assert.ok(fs.existsSync(path.join(__dirname, '..', 'src', 'previas', v.arquivo)), `${a.id}: ${v.arquivo} não existe`);
+      assert.ok(v.legenda, `${a.id}: prévia sem legenda`);
+    }
+  }
+  const d = base();
+  d.apps[0].previas = [{ arquivo: '../fora.png', legenda: '' }];
+  const erros = validarCatalogo(d).join('\n');
+  assert.match(erros, /sem "arquivo" válido/);
+  assert.match(erros, /sem "legenda"/);
 });

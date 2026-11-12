@@ -4,20 +4,17 @@
 
 /* ---- Barra de título ---- */
 #titlebar {
-  position: relative; z-index: 30; flex: none; height: 44px;
+  position: relative; z-index: 30; flex: none; height: 38px;
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 8px 0 14px; user-select: none; -webkit-app-region: drag;
+  background: var(--bg); border-bottom: 1px solid var(--line);
 }
 .tb-l, .tb-r { display: flex; align-items: center; gap: 8px; }
 .tb-l > *, .tb-r { -webkit-app-region: no-drag; }
 
-.mark {
-  width: 22px; height: 22px; display: grid; place-items: center; border-radius: var(--r-s);
-  font-weight: 600; font-size: 13px; letter-spacing: -.04em; color: #fff;
-  background: linear-gradient(180deg, rgba(255, 255, 255, .22), rgba(255, 255, 255, 0) 60%), var(--brand);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 2px 8px rgba(59, 130, 246, .35);
-}
-.brand { padding: 4px 6px; font-weight: 500; font-size: 13px; letter-spacing: -.01em; border-radius: var(--r-s); }
+.wordmark { display: flex; align-items: baseline; } /* a base do logo (o "R") fica na mesma linha do texto */
+.mark { height: 15px; width: auto; flex: none; display: block; margin-right: 1px; } /* o logo é o "R" de Rocruzta: R(logo) + "ocruzta" */
+.brand { padding: 4px 6px 4px 0; font-weight: 600; font-size: 17px; letter-spacing: -.02em; border-radius: var(--r-s); }
 .brand:hover { background: var(--hover); }
 .slash { margin: 0 -2px; font-size: 16px; color: var(--line-strong); }
 
@@ -36,19 +33,40 @@
 }
 .switch.open .menu { opacity: 1; transform: none; pointer-events: auto; }
 
+/* ---- Sino de notificações (apps embutidos) ---- */
+.notif { position: relative; }
+.nbadge {
+  position: absolute; top: 1px; right: 0; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 99px;
+  display: grid; place-items: center; font-size: 10px; font-weight: 600; color: #fff; background: var(--brand); pointer-events: none;
+}
+.nbadge[hidden] { display: none; }
+/* Painel à direita: empurra a tela (Hub ou app) para a esquerda, como no Termix. */
+#v-notif { flex: none; width: 0; overflow: hidden; border-left: 1px solid transparent; background: var(--bg); transition: width .28s cubic-bezier(.22, .8, .24, 1), border-color .28s; }
+body.notif-aberto #v-notif { width: 340px; border-left-color: var(--line); }
+.notif-in { width: 339px; height: 100%; overflow-y: auto; padding: 10px 8px; }
+.notif-tit { padding: 4px 10px 8px; font-size: 12.5px; font-weight: 500; color: var(--text-2); }
+.n-vazio { padding: 18px 12px; text-align: center; color: var(--text-3); font-size: 12.5px; }
+.menu-item .nova { width: 6px; height: 6px; border-radius: 50%; background: var(--brand); flex: none; }
+.menu-item.n-item { align-items: flex-start; }
+.menu-item.n-item .t small { white-space: normal; }
+
 .win { width: 40px; }
 .win.x:hover { background: var(--bad); color: #fff; }
 .tb-btn[aria-disabled="true"] { opacity: .55; cursor: default; }
 .tb-btn[aria-disabled="true"]:hover { background: none; color: var(--text-3); }
 
 /* ---- Área central ---- */
-#view { flex: 1; min-height: 0; padding: 0 10px; }
-#v-hub { display: flex; gap: 10px; height: 100%; }
+#view { flex: 1; min-height: 0; padding: 0; display: flex; min-width: 0; }
+#v-hub { display: flex; gap: 0; height: 100%; flex: 1; min-width: 0; }
+#v-hub[hidden], #v-app[hidden] { display: none; }
+/* App embutido: esta área só marca onde a tela do app aparece (a tela é desenhada por cima, pelo processo principal). */
+#v-app { height: 100%; flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; }
+.app-msg { display: flex; flex-direction: column; align-items: center; gap: 10px; color: var(--text-2); text-align: center; }
+.app-msg b { color: var(--text); font-size: 15px; }
 
-.side {
-  width: 236px; flex: none; display: flex; flex-direction: column;
-  padding: 12px 8px 10px 10px; overflow-y: auto;
-}
+/* Coluna lateral: lista de telas/apps (rola) + rodapé com o usuário (fixo). */
+.side-col { width: 236px; flex: none; display: flex; flex-direction: column; min-height: 0; background: var(--glass); border-right: 1px solid var(--line); }
+.side { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 12px 8px 10px 10px; overflow-y: auto; }
 .hmain { flex: 1; min-width: 0; overflow-y: auto; }
 
 .sub {
@@ -58,12 +76,11 @@
 .sub:hover { background: var(--hover); color: var(--text); }
 .sub.act { background: var(--hover); color: var(--text); }
 .sub.act::before {
-  content: ""; position: absolute; left: -10px; top: 7px; bottom: 7px; width: 2px;
-  border-radius: 2px; background: var(--brand);
+  content: none;
 }
 .sub > .nome, .sub > span:not(.glyph):not(.selo) { flex: 1; }
 .sub svg { width: 15px; height: 15px; }
-.sub .glyph svg { width: 11px; height: 11px; }
+.sub .glyph svg { width: 13px; height: 13px; }
 .sub.off, .menu-item.off { cursor: default; }
 .sub.off:hover, .menu-item.off:hover { background: none; color: var(--text-2); }
 .sub.off .glyph, .sub.off .nome, .menu-item.off .glyph, .menu-item.off .nome { opacity: .5; }
@@ -81,7 +98,68 @@
 #status {
   height: 26px; flex: none; display: flex; align-items: center; justify-content: space-between;
   padding: 0 14px; font-family: var(--mono); font-size: 10.5px; color: var(--text-3);
+  background: var(--bg); border-top: 1px solid var(--line);
 }
 #status > span { display: flex; align-items: center; gap: 6px; min-width: 0; }
 #status > span:first-child, #status > span:last-child { flex: 1; }
 #status > span:last-child { justify-content: flex-end; }
+
+/* Segunda barra (abaixo da barra de título): grupo de navegação e título da tela, como a barra de abas do Termix. */
+#subbar { flex: none; height: 38px; display: flex; align-items: center; gap: 12px; padding: 0 10px; border-bottom: 1px solid var(--line); background: var(--bg); }
+.sb-titulo { font-size: 13px; font-weight: 500; color: var(--text-2); }
+body.app-aberto #subbar { display: none; }
+
+/* Grupo de navegação (barra lateral, voltar, avançar), como no Claude Desktop. */
+.tb-nav { display: flex; align-items: center; gap: 2px; }
+.tb-nav .tb-btn { width: 30px; height: 30px; }
+.tb-nav .tb-btn svg { width: 18px; height: 18px; }
+.tb-nav .tb-btn[aria-pressed="true"] { color: var(--text); }
+
+/* Barra lateral: fecha deslizando (a largura vai a zero e o conteúdo some sem refluir); o botão do cabeçalho a traz de volta. */
+#side-col { transition: width .32s cubic-bezier(.22, .8, .24, 1), border-color .32s; overflow-x: hidden; will-change: width; }
+#side-col > * { min-width: 234px; transition: opacity .2s ease, transform .32s cubic-bezier(.22, .8, .24, 1); }
+body.side-oculta #side-col { width: 0; border-right-color: transparent; }
+body.side-oculta #side-col > * { opacity: 0; transform: translateX(-12px); pointer-events: none; }
+
+.sb-acao { margin-left: auto; display: flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px 0 8px; font-size: 12.5px; color: var(--text-2); border: 1px solid var(--line-strong); border-radius: var(--r-m); }
+.sb-acao:hover { background: var(--hover); color: var(--text); }
+.sb-acao[hidden] { display: none; }
+.sb-acao svg { width: 14px; height: 14px; }
+
+/* Rodapé da barra lateral: usuário e menu (configurações, tema, fechar). */
+.usuario { position: relative; flex: none; padding: 8px; border-top: 1px solid var(--line); }
+.usuario-btn { display: flex; align-items: center; gap: 9px; width: 100%; padding: 6px 8px; border-radius: var(--r-m); }
+.usuario-btn:hover, .usuario.open .usuario-btn { background: var(--hover); }
+.usuario-av { width: 24px; height: 24px; flex: none; display: grid; place-items: center; font-size: 11px; font-weight: 600; color: #fff; background: var(--brand); border-radius: 50%; }
+.usuario-nome { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+.usuario .chev { width: 14px; height: 14px; color: var(--text-3); }
+.menu.menu-cima { position: absolute; left: 8px; right: 8px; bottom: calc(100% - 2px); opacity: 0; transform: translateY(4px); pointer-events: none; transition: opacity .12s, transform .12s; }
+.usuario.open .menu-cima { opacity: 1; transform: none; pointer-events: auto; }
+.menu-item svg { width: 15px; height: 15px; color: var(--text-2); }
+.menu-item.perigo { color: var(--bad); }
+
+/* Tela Configurações. */
+.cfg-bloco { max-width: 640px; margin-bottom: 22px; }
+.cfg-bloco h2 { margin-bottom: 8px; font-size: 12.5px; font-weight: 500; color: var(--text-2); }
+.cfg-bloco .box.list > * { justify-content: space-between; }
+.cfg-bloco .t b { font-weight: 500; }
+.cfg-valor { color: var(--text-2); text-align: right; max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cfg-valor.ok { color: var(--ok); }
+.cfg-valor.ruim { color: var(--warn); }
+
+/* Foto do app embutido enquanto um menu está aberto (a tela real é uma camada nativa e esconderia o menu). */
+#view { position: relative; }
+#v-snap { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+#v-snap[hidden] { display: none; }
+
+/* Aviso de atualização de app: faixa fina abaixo da barra de título (some em ~15 min) e bolinha em Apps na barra lateral. */
+.aviso-att { flex: none; display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 32px; padding: 0 12px; font-size: 12.5px; color: var(--text); background: var(--surface-2); border-bottom: 1px solid var(--line); }
+.aviso-att[hidden] { display: none; }
+.aa-ponto { width: 7px; height: 7px; border-radius: 50%; background: var(--brand); }
+.aa-ver { height: 22px; padding: 0 10px; font-weight: 500; font-size: 12px; border: 1px solid var(--line-strong); border-radius: var(--r-s); }
+.aa-ver:hover { background: var(--hover); }
+.aa-x { width: 22px; height: 22px; border-radius: var(--r-s); color: var(--text-3); position: relative; }
+.aa-x::before, .aa-x::after { content: ""; position: absolute; left: 5px; right: 5px; top: 10px; height: 1.5px; background: currentColor; transform: rotate(45deg); }
+.aa-x::after { transform: rotate(-45deg); }
+.aa-x:hover { background: var(--hover); color: var(--text); }
+.dot-att { flex: none; width: 7px; height: 7px; margin-left: auto; border-radius: 50%; background: var(--brand); }

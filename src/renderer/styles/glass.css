@@ -2,10 +2,7 @@
 .glass-panel {
   background: var(--sheet);
   border: 0;
-  border-radius: var(--r-xl);
-  backdrop-filter: blur(40px) saturate(1.1);
-  -webkit-backdrop-filter: blur(40px) saturate(1.1);
-  box-shadow: inset 0 1px 0 var(--edge), 0 0 0 .5px var(--line), var(--gshadow);
+  border-radius: 0; /* flat: painéis acoplados, separados por linhas de 1px (ver shell.css) */
 }
 
 /* Variante mais clara, para barras laterais e docas. */
@@ -14,27 +11,29 @@
 .glass-dock {
   background: var(--glass);
   border: 0;
-  border-radius: 10px;
-  backdrop-filter: blur(28px) saturate(1.1);
-  -webkit-backdrop-filter: blur(28px) saturate(1.1);
-  box-shadow: inset 0 1px 0 var(--edge), 0 0 0 .5px var(--line), var(--gshadow);
+  border-radius: 0;
+  border-top: 1px solid var(--line);
 }
 
-/* Menus e popups: mais opacos para manter o texto legível. */
+/* Menus e popups, no estilo do Claude Desktop: cartão opaco, borda fina, sombra curta, itens de uma linha com ícone,
+   fundo suave no hover e marca de seleção (check) à direita. */
 .menu {
-  padding: 4px;
+  padding: 6px;
   background: var(--menu-bg);
-  border: 0;
-  border-radius: 10px;
-  backdrop-filter: blur(40px) saturate(1.2);
-  -webkit-backdrop-filter: blur(40px) saturate(1.2);
-  box-shadow: inset 0 1px 0 var(--edge), 0 0 0 .5px var(--line-strong), 0 24px 60px rgba(0, 0, 0, .5);
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .12), 0 1px 3px rgba(0, 0, 0, .08);
 }
-.menu hr { border: 0; border-top: 1px solid var(--line); margin: 4px; }
-.menu-item { display: flex; align-items: center; gap: 10px; width: 100%; padding: 6px 8px; border-radius: var(--r-s); }
-.menu-item:hover, .menu-item:focus-visible, .menu-item.cur { background: var(--hover); outline: 0; }
-.menu-item .t { flex: 1; min-width: 0; }
+:root:not([data-theme="light"]) .menu { box-shadow: 0 8px 24px rgba(0, 0, 0, .45); }
+.menu hr { border: 0; border-top: 1px solid var(--line); margin: 6px 4px; }
+.menu .group-title { padding: 8px 10px 4px; font-size: 11.5px; font-weight: 500; color: var(--text-3); }
+.menu-item { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 34px; padding: 6px 10px; border-radius: 8px; }
+.menu-item:hover, .menu-item:focus-visible { background: var(--hover); outline: 0; }
+.menu-item.cur { background: none; }
+.menu-item.cur:hover { background: var(--hover); }
+.menu-item > svg:last-child:not(:first-child) { margin-left: auto; width: 15px; height: 15px; color: var(--text); flex: none; }
+.menu-item .t { flex: 1; min-width: 0; line-height: 1.25; }
 .menu-item .t small {
-  display: block; color: var(--text-3); font-size: 11.5px;
+  display: block; margin-top: 1px; color: var(--text-3); font-size: 11.5px;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }

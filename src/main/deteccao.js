@@ -38,6 +38,20 @@ function pastaDoComando(comando) {
   return caminho && path.win32.isAbsolute(caminho) ? path.win32.dirname(caminho) : null;
 }
 
+// Comando de desinstalação do registro (`"D:\\Termix\\Uninstall Termix.exe" /allusers`) em { exe, args }.
+// Só vale um .exe dentro da pasta do app e só as opções /allusers e /currentuser (nada de modo silencioso).
+function comandoDesinstalar(texto, pasta) {
+  if (!texto || !pasta) return null;
+  const c = String(texto).trim();
+  const m = c.startsWith('"') ? /^"([^"]+)"\s*(.*)$/.exec(c) : /^(.+?\.exe)\b\s*(.*)$/i.exec(c);
+  if (!m) return null;
+  const exe = m[1];
+  const args = m[2].trim() ? m[2].trim().split(/\s+/) : [];
+  const dentro = path.win32.isAbsolute(exe) && /\.exe$/i.test(exe) && path.win32.normalize(exe).toLowerCase().startsWith(path.win32.normalize(pasta).toLowerCase() + '\\');
+  if (!dentro || args.some((x) => !/^\/(allusers|currentuser)$/i.test(x))) return null;
+  return { exe, args };
+}
+
 const nomeBate = (displayName, registro) => {
   const nome = String(displayName || '').trim().toLowerCase();
   const base = registro.toLowerCase();
@@ -52,7 +66,8 @@ function acharApp(entradas, deteccao, existe = fs.existsSync) {
     if (!pasta) continue;
     const executavel = path.win32.join(pasta, deteccao.executavel);
     if (!existe(executavel)) continue;
-    return { instalado: true, pasta, executavel, versao: v.DisplayVersion || null };
+    const desinstalador = comandoDesinstalar(v.UninstallString, pasta);
+    return { instalado: true, pasta, executavel, versao: v.DisplayVersion || null, ...(desinstalador ? { desinstalador } : {}) };
   }
   return { instalado: false };
 }
@@ -77,4 +92,4 @@ async function detectarApps(apps, ler = lerRegistro, existe = fs.existsSync) {
   return Object.fromEntries(apps.map((a) => [a.id, acharApp(entradas, a.deteccao, existe)]));
 }
 
-module.exports = { CHAVES, lerSaidaReg, pastaDoComando, acharApp, detectarApps };
+module.exports = { CHAVES, lerSaidaReg, pastaDoComando, comandoDesinstalar, acharApp, detectarApps };

@@ -3,13 +3,17 @@ const { spawn } = require('child_process');
 const crypto = require('crypto'), fs = require('fs'), path = require('path'), http = require('http');
 const RAIZ = path.join(__dirname, '..');
 const REL = path.join(RAIZ, 'releases'), DADOS = path.join(RAIZ, 'data', 'apps');
-const NOMES = { 'ping-a': 'Ping A', 'ping-b': 'Ping B' };
+const NOMES = { 'ping-a': 'Ping A', 'ping-b': 'Ping B', termix: 'Termix (real)' };
+// TASK-024: o Termix real entra como app EXTERNO (já instalado em outra pasta; o Hub não o instala nem atualiza) e roda com --embed
+const TERMIX_DIR = process.env.TERMIX_DIR || 'C:/Termix/termix';
+const externo = (id) => id === 'termix';
+const termixVersao = () => { try { return JSON.parse(fs.readFileSync(path.join(TERMIX_DIR, 'package.json'), 'utf8')).version; } catch { return null; } };
 const procs = {};   // id -> {child, port, token, view, estado}
 let win, selecionado = null;
 const SIDE = 240;
 
 const versoes = (id) => fs.existsSync(path.join(REL, id)) ? fs.readdirSync(path.join(REL, id)).sort() : [];
-const instalada = (id) => { const d = path.join(DADOS, id); if (!fs.existsSync(d)) return null; const v = fs.readdirSync(d).sort(); return v.length ? v[v.length - 1] : null; };
+const instalada = (id) => { if (externo(id)) return termixVersao(); const d = path.join(DADOS, id); if (!fs.existsSync(d)) return null; const v = fs.readdirSync(d).sort(); return v.length ? v[v.length - 1] : null; };
 function instalar(id) { // release mais nova -> data/apps/<id>/<versao>; mantém a anterior para rollback
   const v = versoes(id).pop(); const dst = path.join(DADOS, id, v);
   fs.cpSync(path.join(REL, id, v), dst, { recursive: true });
@@ -21,7 +25,7 @@ async function parar(id) {
   if (p.child && p.child.exitCode === null) { p.child.kill(); await new Promise(r => p.child.once('exit', r)); }
   delete procs[id];
 }
-async function desinstalar(id) { await parar(id); fs.rmSync(path.join(DADOS, id), { recursive: true, force: true }); avisa(); }
+async function desinstalar(id) { if (externo(id)) return parar(id).then(avisa); await parar(id); fs.rmSync(path.join(DADOS, id), { recursive: true, force: true }); avisa(); }
 const avisa = () => { if (win && !win.isDestroyed()) win.webContents.send('mudou'); };
 
 function get(port, token, p, comToken = true) {
@@ -32,10 +36,18 @@ function get(port, token, p, comToken = true) {
 }
 function iniciar(id) {
   return new Promise((resolve, reject) => {
-    const v = instalada(id); const dir = path.join(DADOS, id, v);
-    const manifesto = JSON.parse(fs.readFileSync(path.join(dir, 'app.json')));
-    const token = crypto.randomBytes(16).toString('hex');
-    const child = spawn(process.execPath, [path.join(dir, manifesto.start)], { cwd: dir, env: { ELECTRON_RUN_AS_NODE: '1', HUB_TOKEN: token }, stdio: ['ignore', 'pipe', 'inherit'] });
+    const v = instalada(id); const token = crypto.randomBytes(16).toString('hex');
+    let child;
+    if (externo(id)) { // Electron do próprio Termix, sem janela; dados isolados do Termix instalado (copia o state.json uma vez, só leitura do original)
+      const ud = path.join(RAIZ, 'data', 'termix-userdata'); fs.mkdirSync(ud, { recursive: true });
+      const orig = path.join(process.env.APPDATA || '', 'Termix', 'state.json'), dst = path.join(ud, 'state.json');
+      if (!fs.existsSync(dst) && fs.existsSync(orig)) fs.copyFileSync(orig, dst);
+      const exe = path.join(TERMIX_DIR, 'node_modules', 'electron', 'dist', 'electron.exe');
+      child = spawn(fs.existsSync(exe) ? exe : process.execPath, [TERMIX_DIR, '--embed', '--user-data-dir=' + ud], { cwd: TERMIX_DIR, env: { ...process.env, HUB_TOKEN: token }, stdio: ['ignore', 'pipe', 'inherit'] });
+    } else {
+      const dir = path.join(DADOS, id, v); const manifesto = JSON.parse(fs.readFileSync(path.join(dir, 'app.json')));
+      child = spawn(process.execPath, [path.join(dir, manifesto.start)], { cwd: dir, env: { ELECTRON_RUN_AS_NODE: '1', HUB_TOKEN: token }, stdio: ['ignore', 'pipe', 'inherit'] });
+    }
     const p = { child, token, estado: 'subindo', versao: v }; procs[id] = p;
     child.stdout.on('data', async (b) => {
       const m = /HUB_READY (\d+)/.exec(b.toString()); if (!m || p.port) return; p.port = +m[1];
@@ -65,7 +77,7 @@ const lista = () => Object.keys(NOMES).map(id => ({ id, nome: NOMES[id], instala
 
 ipcMain.handle('lista', lista);
 ipcMain.handle('abrir', (_, id) => abrir(id));
-ipcMain.handle('instalar', async (_, id) => { const rodava = !!procs[id]; await parar(id); instalar(id); avisa(); if (rodava || selecionado === id) await abrir(id); });
+ipcMain.handle('instalar', async (_, id) => { if (externo(id)) return; const rodava = !!procs[id]; await parar(id); instalar(id); avisa(); if (rodava || selecionado === id) await abrir(id); });
 ipcMain.handle('desinstalar', (_, id) => desinstalar(id));
 ipcMain.handle('reiniciar', (_, id) => abrir(id));
 
@@ -75,6 +87,7 @@ app.whenReady().then(async () => {
   await win.loadFile(path.join(__dirname, 'shell.html'));
   win.on('resize', ajusta);
   if (process.argv.includes('--selftest')) return selftest();
+  if (process.argv.includes('--termix-check')) return termixCheck();
 });
 app.on('window-all-closed', async () => { for (const id of Object.keys(procs)) await parar(id); app.quit(); });
 
@@ -112,4 +125,23 @@ async function selftest() {
   await desinstalar('ping-b');
   const out = R.join('\n'); console.log('\n=== RESULTADO ===\n' + out); fs.writeFileSync(path.join(RAIZ, 'resultado.txt'), out);
   app.exit(R.some(x => x.startsWith('FALHA')) ? 1 : 0);
+}
+
+// TASK-024: abre o Termix real dentro do Hub, captura a tela e lista erros do console da interface embutida
+async function termixCheck() {
+  const esp = (ms) => new Promise(r => setTimeout(r, ms)); const out = [];
+  try {
+    await abrir('termix'); const v = procs.termix.view.webContents; const logs = [];
+    v.on('console-message', (e) => logs.push((e.level || '') + ' ' + (e.message || '')));
+    await esp(6000);
+    out.push('estado: ' + procs.termix.estado + ' porta ' + procs.termix.port);
+    out.push('window.termix: ' + await v.executeJavaScript("typeof window.termix + ' / ' + Object.keys(window.termix||{}).length + ' métodos'"));
+    out.push('versão via ponte: ' + await v.executeJavaScript('window.termix.appVersion()'));
+    out.push('título/texto: ' + (await v.executeJavaScript('document.body.innerText')).replace(/\s+/g, ' ').slice(0, 300));
+    out.push('console (' + logs.length + '): ' + logs.slice(0, 15).join(' | '));
+    const img = await v.capturePage(); fs.writeFileSync(path.join(RAIZ, 'termix-no-hub.png'), img.toPNG());
+    out.push('captura: lab/embed/termix-no-hub.png');
+  } catch (e) { out.push('ERRO: ' + (e && e.stack || e)); }
+  console.log('\n=== TERMIX NO HUB ===\n' + out.join('\n'));  fs.writeFileSync(path.join(RAIZ, 'resultado-termix.txt'), out.join('\n'));
+  for (const id of Object.keys(procs)) await parar(id); app.exit(0);
 }

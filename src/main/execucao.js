@@ -57,4 +57,22 @@ function abrirApp(estado, lancar = spawn, env = process.env) {
   });
 }
 
-module.exports = { lerProcessos, estaRodando, anexarExecucao, ambienteLimpo, abrirApp };
+// Desinstalar (pedido do usuário): abre o desinstalador do próprio app, com a janela e a permissão de administrador dele.
+// O Hub não apaga arquivo nenhum: só lança o desinstalador que o app registrou no Windows.
+function lancarElevado({ exe, args }) {
+  return new Promise((resolve) => {
+    const cmd = args.length ? 'Start-Process -FilePath $env:HUB_EXE -ArgumentList $env:HUB_ARGS -Verb RunAs' : 'Start-Process -FilePath $env:HUB_EXE -Verb RunAs';
+    execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', cmd],
+      { windowsHide: true, timeout: 60000, env: { ...process.env, HUB_EXE: exe, HUB_ARGS: args.join(' ') } },
+      (erro) => resolve(!erro));
+  });
+}
+
+async function desinstalarApp(estado, lancar = lancarElevado) {
+  if (!estado || !estado.instalado) return { ok: false, motivo: 'nao-instalado' };
+  if (!estado.desinstalador) return { ok: false, motivo: 'sem-desinstalador' };
+  if (estado.rodando) return { ok: false, motivo: 'em-execucao' };
+  return (await lancar(estado.desinstalador)) ? { ok: true } : { ok: false, motivo: 'cancelado' };
+}
+
+module.exports = { desinstalarApp, lerProcessos, estaRodando, anexarExecucao, ambienteLimpo, abrirApp };

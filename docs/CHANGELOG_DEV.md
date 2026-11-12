@@ -8,6 +8,16 @@ Histórico legível do que foi desenvolvido, alterado ou corrigido. Uma entrada 
 
 ## 2026-11-12
 
+**TASK-024, 026, 027 e 028 — Termix dentro do Hub, loja de apps e avisos de atualização** (DEV1)
+
+- **Termix embutido (024/026):** o Termix aparece dentro da janela do Hub, sem janela própria, com layout encaixado, tema claro e escuro do Hub, notificações no sino (painel à direita que empurra a tela) e aviso do Windows. A tela do app nasce escondida e só aparece depois de carregar (corrigido um retângulo claro no canto). Barra lateral recolhível, ícones e engrenagem iguais aos do Termix, tema só pelo menu do usuário. Chat do Início com o Claude Code (Haiku), sem histórico.
+- **Loja de apps (027):** tela Apps com destaque, busca, filtros, cartões por grupo e página do app (carrossel de capturas reais, "Sobre", "Novidades", informações e configurações). Desk, Midia e Studio aparecem como "Em breve" só na loja (revoga em parte a §11, ver §14). Aviso de atualização lendo as releases públicas do GitHub (faixa por 15 min, bolinha em Apps, selo, botão "Baixar vX"); botão Desinstalar que abre o desinstalador do próprio app (nunca executado de verdade). A versão comparada é a que o Hub realmente roda.
+- **Termix instalado (028):** `embutirDesde` no catálogo; sem a pasta de desenvolvimento, o Hub embute o Termix instalado se a versão for >= 0.7.0; senão abre em janela, como antes.
+- Validado: `npm test` com 87 testes; testes automáticos no Hub real; usuário aprovou o resultado ("ficou perfeito"). Não verificado: o Termix instalado em modo embutido numa máquina real, instalação e atualização pelo Hub, Desinstalar de verdade.
+- Retomar em outra máquina: `git clone`, `git checkout dev1`, `npm install`, `/fluxo:papel`, ler `docs/TASKS.md` e `docs/DECISOES.md` §12 a §14; atualizar o Termix para a 0.7.0.
+
+---
+
 **TASK-023 — Estudo: apps dentro da janela do Hub** (DEV1)
 
 - Pedido do usuário: o Hub deve montar o app dentro da própria janela (sem janela solta do Windows), com apps em repositório próprio e releases, instalados e atualizados pelo Hub. Reavaliação registrada em `docs/DECISOES.md` §12 (contrato proposto, caminhos, riscos, terminais na máquina do usuário). A §1 segue valendo até o usuário aprovar.

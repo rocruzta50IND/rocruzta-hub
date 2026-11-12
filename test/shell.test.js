@@ -26,16 +26,17 @@ test('catálogo: ids únicos, grupos válidos, ícones e cores existentes', () =
   for (const s of SECOES) assert.ok(ICONES[s.icone], `seção ${s.id}: ícone`);
 });
 
-test('seções: Início, Notícias, Comunicados e Equipe, com teclas 1 a 4', () => {
-  assert.deepEqual(SECOES.map((s) => s.id), ['inicio', 'noticias', 'comunicados', 'equipe']);
-  assert.deepEqual(SECOES.map((s) => s.tecla), ['1', '2', '3', '4']);
+test('seções: Início, Apps, Notícias, Comunicados e Equipe (teclas 1 a 5) + Configurações no rodapé, sem tecla', () => {
+  assert.deepEqual(SECOES.map((s) => s.id), ['inicio', 'apps', 'noticias', 'comunicados', 'equipe', 'config']);
+  assert.deepEqual(SECOES.map((s) => s.tecla), ['1', '2', '3', '4', '5', '']);
+  assert.deepEqual(SECOES.filter((s) => s.rodape).map((s) => s.id), ['config']);
 });
 
 const tecla = (key, extra = {}) => ({ key, target: { tagName: 'BODY' }, ...extra });
 
-test('atalhos: teclas 1 a 4 trocam de seção; 0, 5 e 6 não fazem nada', () => {
-  for (const s of SECOES) assert.deepEqual(resolverAtalho(tecla(s.tecla), {}, SECOES), { acao: 'secao', id: s.id });
-  for (const k of ['0', '5', '6', 'a', 'Enter']) assert.equal(resolverAtalho(tecla(k), {}, SECOES), null, k);
+test('atalhos: teclas 1 a 5 trocam de seção; 0, 6 e 7 não fazem nada', () => {
+  for (const s of SECOES.filter((x) => x.tecla)) assert.deepEqual(resolverAtalho(tecla(s.tecla), {}, SECOES), { acao: 'secao', id: s.id });
+  for (const k of ['0', '6', '7', 'a', 'Enter']) assert.equal(resolverAtalho(tecla(k), {}, SECOES), null, k);
 });
 
 test('atalhos: ignorados em campos de texto', () => {

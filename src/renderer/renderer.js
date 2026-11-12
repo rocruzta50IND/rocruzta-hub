@@ -1,7 +1,7 @@
 'use strict';
 
 // Ponto de entrada do renderer: ícones fixos da barra de título, controles da janela e a casca.
-const botoes = { 'btn-min': 'minus', 'btn-max': 'square', 'btn-close': 'x', notif: 'bell' };
+const botoes = { 'btn-side': 'panel', 'btn-back': 'back', 'btn-fwd': 'fwd', 'btn-min': 'minus', 'btn-max': 'square', 'btn-close': 'x', notif: 'bell' };
 for (const [id, icone] of Object.entries(botoes)) {
   document.getElementById(id).innerHTML = ic(icone);
 }
@@ -21,6 +21,7 @@ window.hub.apps().then(async (dados) => {
   definirCatalogo(dados);
   // Sem resposta da detecção, nenhum estado é inventado: os apps aparecem normais.
   definirEstados(await window.hub.detectarApps().catch(() => null));
+  definirAtualizacoes(await window.hub.atualizacoes().catch(() => null));
   iniciarShell();
 }).catch((erro) => {
   console.error('Falha ao carregar apps.json', erro);

@@ -20,7 +20,32 @@ _Nenhuma no momento._
 
 ## Validadas em DEV1
 
-_Nenhuma no momento._
+### TASK-024 — Terminal real no Hub embutido (Termix dentro da janela do Hub)
+
+- **Responsável:** DEV1
+- **Status:** VALIDADA EM DEV1 (o usuário testou no Hub real em 2026-11-12: "ficou perfeito")
+- **Feito:** o Termix roda sem janela e aparece dentro da janela do Hub (`src/main/embutido.js`, `WebContentsView`; contrato em `docs/DECISOES.md` §12 e §13), com layout encaixado, tema claro e escuro do Hub (`src/temas-apps/termix.css`), notificações no sino do Hub (painel à direita que empurra a tela) e aviso do Windows. A tela nasce escondida e só aparece depois de carregar.
+- **Verificado:** testes automáticos no Hub real e 87 testes do Hub.
+
+### TASK-026 — Estética do Termix (clean, flat) e casca do Hub
+
+- **Responsável:** DEV1
+- **Status:** VALIDADA EM DEV1 (usuário aprovou em 2026-11-12)
+- **Feito:** visual do Termix embutido no estilo do Claude Desktop (feito no repositório do Termix, TASK-134, só no modo embutido); no Hub: barra lateral recolhível, ícones e engrenagem iguais aos do Termix, tema escolhido só pelo menu do usuário, ícones dos apps minimalistas, painel de notificações à direita.
+
+### TASK-027 — Tela Apps como loja de apps, apps "Em breve" e avisos de atualização
+
+- **Responsável:** DEV1
+- **Status:** VALIDADA EM DEV1 (usuário aprovou em 2026-11-12)
+- **Feito:** loja estilo Store (destaque, busca, filtros, cartões por grupo, página do app em duas colunas com carrossel de capturas reais do Termix, "Sobre" e "Novidades" com a versão mais nova em destaque); Desk, Midia e Studio como "Em breve" só na loja; aviso de atualização (faixa no topo por 15 min, bolinha em Apps até ver o app, selo nos cartões, botão "Baixar vX" ao lado de "Abrir") lendo as releases públicas do GitHub; botão Desinstalar (nunca executado de verdade, só testado com lançador falso). Decisões em `docs/DECISOES.md` §14.
+- **Pendente:** instalar, atualizar e desinstalar pelo Hub; tela de configuração das conexões com o GitHub (repositórios privados).
+
+### TASK-028 — Hub embute o Termix instalado (qualquer máquina, sem pasta de código)
+
+- **Responsável:** DEV1
+- **Status:** VALIDADA EM DEV1 (testes automáticos; o caminho do instalado só se prova de fato numa máquina com o Termix 0.7.0 instalado)
+- **Feito:** o catálogo ganhou `embutirDesde` (primeira versão do app com `--embed`; Termix: 0.7.0). `embutivelDe` (`src/main/main.js`): a pasta de desenvolvimento (`HUB_TERMIX_DEV`, padrão `C:/Termix/termix`) tem prioridade; sem ela, o Hub usa o Termix instalado se a versão for >= `embutirDesde` (`localizarInstalado`, `argumentosInstalado` em `src/main/embutido.js`). Versão antiga ou sem o Termix: abre o app instalado em janela, como antes. Termix 0.7.0 publicado no repositório do Termix (TASK-134).
+- **Em outra máquina:** `git pull` do Hub + `npm install` + `npm start`; atualizar o Termix para a 0.7.0 (atualização automática dele ou instalador da release); o aviso do Hub mostra "Termix 0.7.0 disponível" enquanto não atualizar.
 
 ## Prontas
 
@@ -75,18 +100,10 @@ Ordem de execução da v1. Pegue a primeira cujas dependências estejam concluí
 
 Fora da v1. O DEV1 promove para "Prontas" quando decidir.
 
-### TASK-024 — Protótipo com terminal real no Hub embutido
-
-- **Responsável:** DEV1
-- **Status:** BACKLOG
-- **Prioridade:** Alta (se a direção da TASK-023 for aprovada)
-- **Depende de:** aprovação da TASK-023
-- **Objetivo:** estender `lab/embed/` com node-pty real via WebSocket e medir foco, Ctrl+C/V, IME, desempenho com vários terminais, reconexão com scrollback, backpressure e checagem de `Origin`/`Host`. Relatório do que passou, falhou e não deu para verificar.
-
 ### TASK-025 — Modo embutível do Termix (repositório do Termix)
 
 - **Responsável:** A definir
-- **Status:** BACKLOG
+- **Status:** FEITA no repositório do Termix como TASK-134 (versão 0.7.0, só o modo `--embed`; a camada `platform` completa segue no Backlog)
 - **Depende de:** TASK-024 e aprovação do usuário (mexe no Termix, tarefa própria no repositório dele)
 - **Objetivo:** transporte único (IPC ou WebSocket), camada `platform` e modo headless conforme `docs/DECISOES.md` §12. Estimativa ~2 a 3 semanas.
 

@@ -1,19 +1,68 @@
 {
-  "grupos": ["Operação", "Negócio", "Criação"],
+  "grupos": [
+    "Operação",
+    "Negócio",
+    "Criação"
+  ],
   "apps": [
     {
       "id": "termix",
       "nome": "Termix",
       "grupo": "Operação",
       "icone": "terminal",
-      "cor": "#3b82f6",
+      "cor": "#3570dc",
       "desc": "Central de sessões de agentes de programação",
       "repositorio": "rocruzta50IND/termix",
+      "embutir": "electron",
       "deteccao": {
         "registro": "Termix",
         "executavel": "Termix.exe",
         "appId": "com.termix.app"
-      }
+      },
+      "destaque": true,
+      "sobre": "O Termix reúne as conversas e os terminais do Claude Code em um só lugar. Cada projeto tem suas conversas, com as ferramentas que o Claude usa e os pedidos de permissão à vista, e o consumo dos limites de contexto, 5 horas e 7 dias aparece ao lado. Também organiza fluxos de trabalho (mutirão), conectores e a pasta de código de cada projeto.",
+      "previas": [
+        {
+          "arquivo": "termix/1-conversa-claro.png",
+          "legenda": "Conversas com o Claude Code, com as ferramentas usadas e o consumo ao lado"
+        },
+        {
+          "arquivo": "termix/2-conversa-escuro.png",
+          "legenda": "O mesmo, no tema escuro"
+        },
+        {
+          "arquivo": "termix/3-permissao-claro.png",
+          "legenda": "Pedidos de permissão: permitir uma vez, sempre no projeto, ou negar"
+        }
+      ],
+      "embutirDesde": "0.7.0"
+    },
+    {
+      "id": "desk",
+      "nome": "Desk",
+      "grupo": "Operação",
+      "icone": "desk",
+      "cor": "#4cc38a",
+      "desc": "Em desenvolvimento",
+      "emBreve": true
+    },
+    {
+      "id": "midia",
+      "nome": "Midia",
+      "grupo": "Criação",
+      "icone": "camera",
+      "cor": "#ec6a8b",
+      "desc": "Em desenvolvimento",
+      "emBreve": true
+    },
+    {
+      "id": "studio",
+      "nome": "Studio",
+      "grupo": "Criação",
+      "icone": "film",
+      "cor": "#a78bfa",
+      "desc": "Em desenvolvimento",
+      "emBreve": true
     }
   ]
 }

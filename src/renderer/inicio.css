@@ -1,5 +1,44 @@
 /* Tela Início: lista de apps. Medidas seguem base/index.html; sem caixa-alta mono (DESIGN.md). */
-.apps { max-width: 560px; }
+.page.loja { max-width: 1008px; }
+.page.loja .p-head { justify-content: center; text-align: center; }
+.page.loja .loja-barra { justify-content: center; margin-bottom: 4px; }
+.page.loja-det .cfg-bloco { max-width: none; }
+.page.loja-det { max-width: 960px; }
+
+/* Loja de apps (tela Apps). */
+.loja-barra { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.loja-busca { width: 240px; height: 30px; padding: 0 10px; font: inherit; color: var(--text); background: var(--field); border: 1px solid var(--line-strong); border-radius: var(--r-m); outline: 0; }
+.loja-busca:focus { border-color: var(--text-3); }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip { height: 28px; padding: 0 12px; font-size: 12.5px; color: var(--text-2); border: 1px solid var(--line); border-radius: 99px; transition: background .12s, color .12s; }
+.chip:hover { background: var(--hover); color: var(--text); }
+.chip.on { color: var(--text); background: var(--surface-2); border-color: var(--line-strong); }
+.loja-grade { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 12px; }
+.loja-card { display: flex; flex-direction: column; gap: 14px; padding: 14px; cursor: pointer; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-l); box-shadow: inset 0 1px 0 var(--edge); transition: background .12s, border-color .12s; }
+.loja-card:hover, .loja-card:focus-visible { background: var(--hover); border-color: var(--line-strong); outline: 0; }
+.lc-topo { display: flex; align-items: center; gap: 12px; }
+.lc-topo .glyph { width: 40px; height: 40px; border-radius: 10px; }
+.lc-topo .glyph svg { width: 21px; height: 21px; }
+.lc-nome { min-width: 0; }
+.lc-nome b { display: block; font-weight: 500; line-height: 1.2; }
+.lc-nome small { display: block; color: var(--text-3); font-size: 11.5px; }
+.lc-pe { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 28px; }
+.lc-estado { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: var(--text-3); }
+.lc-estado small.rodando { display: inline-flex; align-items: center; gap: 6px; color: var(--ok); }
+.loja-card.em-breve .glyph, .loja-card.nao-instalado .glyph { opacity: .6; }
+.loja-card .btn { flex: none; }
+
+/* Detalhe de um app da loja. */
+.loja-voltar { display: inline-flex; align-items: center; gap: 4px; margin: 0 0 18px -6px; padding: 4px 8px 4px 4px; font-size: 12.5px; color: var(--text-2); border-radius: var(--r-s); }
+.loja-voltar:hover { background: var(--hover); color: var(--text); }
+.loja-voltar svg { width: 16px; height: 16px; }
+.det-head { display: flex; align-items: center; gap: 16px; margin-bottom: 26px; }
+.det-head .glyph { width: 56px; height: 56px; border-radius: 14px; flex: none; }
+.det-head .glyph svg { width: 29px; height: 29px; }
+.det-nome { flex: 1; min-width: 0; }
+.det-nome h1 { font-size: 22px; font-weight: 600; letter-spacing: -.025em; }
+.det-nome p { margin-top: 2px; color: var(--text-2); }
+.det-acoes { flex: none; }
 .sec-t { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
 .sec-t h2 { flex: 1; font-size: 12.5px; font-weight: 500; color: var(--text-2); }
 .grp-l { margin: 14px 0 6px; font-size: 11.5px; color: var(--text-3); }
@@ -11,8 +50,8 @@
 .tile:nth-child(even) { border-left: 1px solid var(--line); }
 .tile:nth-child(n+3) { border-top: 1px solid var(--line); }
 .tile:hover { background: var(--hover); }
-.tile .glyph { width: 30px; height: 30px; border-radius: 8px; }
-.tile .glyph svg { width: 15px; height: 15px; }
+.tile .glyph { width: 32px; height: 32px; border-radius: 8px; }
+.tile .glyph svg { width: 17px; height: 17px; }
 .tile .nome { min-width: 0; }
 .tile b { display: block; font-weight: 500; line-height: 1.2; }
 .tile small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-3); font-size: 11.5px; }
@@ -20,3 +59,119 @@
 .tile.nao-instalado .glyph { opacity: .55; }
 .tile.nao-instalado .btn { margin-left: auto; flex: none; }
 .tile small.rodando { display: flex; align-items: center; gap: 6px; color: var(--ok); }
+
+/* Tela Início: chat no centro (estilo Claude Desktop). */
+.inicio-chat { min-height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 24px 24px 96px; }
+.ic-logo { height: 40px; width: auto; margin-bottom: 2px; }
+.inicio-chat h1 { font-size: 26px; font-weight: 600; letter-spacing: -.025em; text-align: center; }
+.composer { width: min(680px, 100%); display: flex; flex-direction: column; gap: 4px; padding: 14px 14px 10px 18px; background: var(--field); border: 1px solid var(--line-strong); border-radius: 16px; transition: border-color .12s; }
+.composer:focus-within { border-color: var(--text-3); }
+.composer textarea { width: 100%; min-height: 28px; max-height: 220px; resize: none; padding: 2px 0; font: inherit; font-size: 15px; line-height: 1.5; color: var(--text); background: none; border: 0; outline: 0; }
+.composer textarea::placeholder { color: var(--text-3); }
+.composer textarea:disabled { cursor: not-allowed; }
+.c-barra { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 30px; }
+.c-dest { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--text-3); }
+.c-dest svg { width: 14px; height: 14px; }
+.c-enviar { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; color: var(--bg); background: var(--text); transition: background .12s, color .12s, opacity .12s; }
+.c-enviar:disabled { color: var(--text-3); background: transparent; cursor: default; }
+.c-enviar svg { width: 16px; height: 16px; stroke-width: 2; }
+.c-dica { max-width: 560px; font-size: 12px; color: var(--text-3); text-align: center; }
+
+/* Conversa: fio de mensagens com rolagem e o campo fixo embaixo (estilo do chat do Termix, mas independente dele). */
+.chat-tela { height: 100%; display: flex; flex-direction: column; }
+.chat-rolagem { flex: 1; min-height: 0; overflow-y: auto; }
+.chat-fio { width: min(760px, 100%); margin: 0 auto; padding: 28px 24px 8px; display: flex; flex-direction: column; gap: 18px; }
+.chat-pe { flex: none; width: min(760px, 100%); margin: 0 auto; padding: 8px 24px 18px; }
+.chat-pe .composer { width: 100%; }
+.c-linha { display: flex; gap: 12px; align-items: flex-start; }
+.c-linha.eu { justify-content: flex-end; }
+.c-bolha { max-width: 80%; padding: 9px 14px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 14px; border-top-right-radius: 5px; line-height: 1.5; overflow-wrap: anywhere; }
+.c-avatar { width: 26px; height: 26px; flex: none; display: grid; place-items: center; }
+.c-avatar img { height: 20px; width: auto; }
+.c-texto { flex: 1; min-width: 0; line-height: 1.6; overflow-wrap: anywhere; user-select: text; }
+.c-texto p { margin: 0 0 .7em; }
+.c-texto p:last-child, .c-texto ul:last-child { margin-bottom: 0; }
+.c-texto ul { margin: 0 0 .7em 1.3em; }
+.c-texto code { padding: 1px 5px; font-family: var(--mono); font-size: 12px; background: var(--surface-2); border-radius: 4px; }
+.c-texto pre { margin: 0 0 .7em; padding: 10px 12px; overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-m); }
+.c-texto pre code { padding: 0; background: none; }
+.c-linha.erro .c-texto { color: var(--bad); }
+.c-pontos { display: inline-flex; gap: 4px; padding-top: 8px; }
+.c-pontos i { width: 6px; height: 6px; border-radius: 50%; background: var(--text-3); animation: c-pulso 1.2s ease-in-out infinite; }
+.c-pontos i:nth-child(2) { animation-delay: .15s; }
+.c-pontos i:nth-child(3) { animation-delay: .3s; }
+@keyframes c-pulso { 0%, 60%, 100% { opacity: .3; transform: none; } 30% { opacity: 1; transform: translateY(-2px); } }
+
+/* Destaque no topo da loja. */
+.loja-hero { display: flex; align-items: stretch; gap: 28px; margin: 6px 0 22px; padding: 26px 0 26px 30px; overflow: hidden; cursor: pointer; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; box-shadow: inset 0 1px 0 var(--edge); transition: border-color .12s; }
+.loja-hero:hover, .loja-hero:focus-visible { border-color: var(--line-strong); outline: 0; }
+.hero-txt { flex: 0 0 38%; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 12px; }
+.hero-sel { font-size: 11.5px; color: var(--text-3); }
+.hero-id { display: flex; align-items: center; gap: 12px; }
+.hero-id .glyph { width: 44px; height: 44px; border-radius: 11px; }
+.hero-id .glyph svg { width: 23px; height: 23px; }
+.hero-id h2 { font-size: 26px; font-weight: 600; letter-spacing: -.025em; }
+.hero-txt p { color: var(--text-2); line-height: 1.5; }
+.hero-acao { display: flex; align-items: center; gap: 12px; }
+.hero-estado { font-size: 12px; color: var(--text-3); }
+.hero-estado small.rodando { display: inline-flex; align-items: center; gap: 6px; color: var(--ok); }
+.hero-img { flex: 1; min-width: 0; height: 250px; object-fit: cover; object-position: left top; border-radius: 12px 0 0 12px; border: 1px solid var(--line); border-right: 0; box-shadow: 0 8px 24px rgba(0, 0, 0, .18); }
+
+/* Carrossel de imagens na página do app. */
+.car { position: relative; margin-bottom: 26px; }
+.car-faixa { display: flex; gap: 14px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; scrollbar-width: none; }
+.car-faixa::-webkit-scrollbar { display: none; }
+.car-item { flex: 0 0 82%; margin: 0; scroll-snap-align: start; }
+.car-item img { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; object-position: left top; border: 1px solid var(--line); border-radius: var(--r-l); background: var(--surface); }
+.car-item figcaption { margin-top: 8px; font-size: 12px; color: var(--text-3); }
+.car-nav { position: absolute; top: calc(50% - 28px); width: 36px; height: 36px; display: grid; place-items: center; color: var(--text); background: var(--surface); border: 1px solid var(--line-strong); border-radius: 50%; box-shadow: 0 2px 10px rgba(0, 0, 0, .2); }
+.car-nav:hover { background: var(--surface-2); }
+.car-nav.prev { left: 10px; }
+.car-nav.next { right: 10px; }
+.car-nav svg { width: 18px; height: 18px; }
+.det-sobre p { max-width: 720px; color: var(--text-2); line-height: 1.6; }
+
+/* Atualizações na loja. */
+.selo-att { flex: none; margin-left: auto; padding: 2px 8px; font-size: 11px; font-weight: 500; color: var(--brand); background: color-mix(in srgb, var(--brand) 14%, transparent); border-radius: 99px; }
+.hero-id .selo-att { margin-left: 4px; }
+.lc-topo .selo-att { align-self: flex-start; }
+.btn.att { color: #fff; background: var(--brand); border-color: var(--brand); }
+.btn.att:hover { background: color-mix(in srgb, var(--brand) 88%, #000); }
+.btn.ghost { color: var(--text-2); background: none; border-color: transparent; box-shadow: none; }
+.btn.ghost:hover { color: var(--bad); background: var(--hover); }
+.btn.perigo { color: #fff; background: var(--bad); border-color: var(--bad); }
+.det-acoes { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.des-pergunta { font-size: 12.5px; color: var(--text-2); }
+
+/* Página do app em duas colunas: sobre e novidades à esquerda; informações e configurações ao lado. */
+.det-cols { display: grid; grid-template-columns: minmax(0, 1fr) 270px; gap: 28px; align-items: start; }
+@media (max-width: 860px) { .det-cols { grid-template-columns: minmax(0, 1fr); } }
+.det-lado .cfg-bloco { margin-bottom: 18px; }
+
+.att-topo { display: flex; align-items: center; justify-content: space-between; }
+.att-checar { font-size: 12px; color: var(--text-2); padding: 3px 8px; border-radius: var(--r-s); }
+.att-checar:hover { background: var(--hover); color: var(--text); }
+.att-checar[disabled] { opacity: .6; cursor: default; }
+.att-dest { margin-bottom: 18px; padding: 16px 18px; background: var(--surface); border: 1px solid color-mix(in srgb, var(--brand) 35%, var(--line)); border-radius: var(--r-l); box-shadow: inset 0 1px 0 var(--edge); }
+.att-dest-topo { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.att-dest-topo b { font-size: 17px; font-weight: 600; letter-spacing: -.01em; }
+.att-sub { margin: 4px 0 8px; font-size: 11.5px; color: var(--text-3); }
+.att-lista { display: flex; flex-direction: column; gap: 6px; }
+.att-item { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-m); }
+.att-item[open] { border-color: var(--line-strong); }
+.att-item summary { display: flex; align-items: center; gap: 10px; padding: 9px 12px; cursor: pointer; list-style: none; }
+.att-item summary:hover { background: var(--hover); border-radius: var(--r-m); }
+.att-item summary::-webkit-details-marker { display: none; }
+.att-item summary b { flex: none; font-weight: 600; }
+.att-item .selo-att { margin-left: 0; }
+.att-previa { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12.5px; color: var(--text-3); }
+.att-atual { flex: none; font-size: 11px; color: var(--text-3); }
+.att-data { flex: none; margin-left: auto; font-size: 12px; color: var(--text-3); }
+.att-previa + .att-data { margin-left: 0; }
+.att-notas { color: var(--text-2); font-size: 13px; }
+.att-item .att-notas { padding: 0 14px 12px; }
+.att-sem { color: var(--text-3); }
+.att-dest-topo .selo-att { margin-left: 0; }
+.btn { white-space: nowrap; }
+.hero-acao { flex-wrap: wrap; row-gap: 8px; }
+.hero-estado { flex-basis: 100%; }

@@ -5,7 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const { lerSaidaReg, pastaDoComando, acharApp, detectarApps } = require('../src/main/deteccao');
+const { lerSaidaReg, pastaDoComando, comandoDesinstalar, acharApp, detectarApps } = require('../src/main/deteccao');
 const { carregarCatalogo, urlReleases } = require('../src/main/apps');
 
 const SAIDA = [
@@ -42,7 +42,7 @@ test('pastaDoComando: com aspas, sem aspas e inválidos', () => {
 
 test('acharApp: Termix com InstallLocation vazio, pasta deduzida do UninstallString', () => {
   const r = acharApp(lerSaidaReg(SAIDA), det, () => true);
-  assert.deepEqual(r, { instalado: true, pasta: 'D:\\Termix', executavel: 'D:\\Termix\\Termix.exe', versao: '0.3.7' });
+  assert.deepEqual(r, { instalado: true, pasta: 'D:\\Termix', executavel: 'D:\\Termix\\Termix.exe', versao: '0.3.7', desinstalador: { exe: 'D:\\Termix\\Uninstall Termix.exe', args: ['/allusers'] } });
 });
 
 test('acharApp: usa InstallLocation quando existe', () => {
@@ -59,7 +59,7 @@ test('acharApp: não instalado quando não há entrada, o nome só parece ou o e
 });
 
 test('detectarApps: um estado por app do catálogo', async () => {
-  const apps = carregarCatalogo().apps;
+  const apps = carregarCatalogo().apps.filter((a) => !a.emBreve);
   const achou = await detectarApps(apps, async () => lerSaidaReg(SAIDA), () => true);
   assert.equal(achou.termix.instalado, true);
   const nao = await detectarApps(apps, async () => [], () => true);
@@ -76,19 +76,32 @@ test('a detecção só lê o registro: sem instalar, escrever nem executar o app
   assert.match(js, /execFile\('reg\.exe', \['query'/);
 });
 
-test('renderer: Início mostra "Não instalado" com botão de releases só quando a detecção disse', () => {
+test('renderer: Apps mostra "Não instalado" com botão de releases só quando a detecção disse', () => {
   const renderer = path.join(__dirname, '..', 'src', 'renderer');
   const read = (f) => fs.readFileSync(path.join(renderer, f), 'utf8');
   const rodar = (estados) => vm.runInNewContext(`${['icons.js', 'catalogo.js', 'inicio.js'].map(read).join('\n')}
-    definirCatalogo(${JSON.stringify(carregarCatalogo())}); definirEstados(${JSON.stringify(estados)}); htmlInicio();`);
+    definirCatalogo(${JSON.stringify(carregarCatalogo())}); definirEstados(${JSON.stringify(estados)}); htmlApps();`);
   const nao = rodar({ termix: { instalado: false } });
   assert.match(nao, /Não instalado/);
   assert.match(nao, /data-releases="termix"/);
-  assert.ok(!/<button class="tile"/.test(nao));
+  assert.doesNotMatch(nao, /data-app="termix"/);
   for (const e of [{ termix: { instalado: true } }, null, {}]) {
     const html = rodar(e);
     assert.ok(!/Não instalado|data-releases/.test(html));
-    assert.match(html, /<button class="tile" data-app="termix"/);
+    assert.match(html, /<button class="btn pri" data-app="termix">Abrir/);
   }
   assert.ok(!/style=/.test(nao));
+});
+
+test('comandoDesinstalar: só .exe dentro da pasta do app e só /allusers ou /currentuser', () => {
+  const W = path.win32;
+  const pasta = 'D:\\Termix';
+  const un = W.join(pasta, 'Uninstall Termix.exe');
+  assert.deepEqual(comandoDesinstalar(`"${un}" /allusers`, pasta), { exe: un, args: ['/allusers'] });
+  assert.deepEqual(comandoDesinstalar(`"${un}"`, pasta), { exe: un, args: [] });
+  assert.equal(comandoDesinstalar('"C:\\Windows\\evil.exe" /allusers', pasta), null, 'fora da pasta do app');
+  assert.equal(comandoDesinstalar(`"${un}" /S`, pasta), null, 'modo silencioso não vale');
+  assert.equal(comandoDesinstalar(`"${un}" /allusers & calc`, pasta), null);
+  assert.equal(comandoDesinstalar('"D:\\Termix2\\u.exe"', pasta), null, 'pasta parecida não conta');
+  assert.equal(comandoDesinstalar('', pasta), null);
 });

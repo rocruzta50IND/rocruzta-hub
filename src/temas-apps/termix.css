@@ -1,0 +1,27 @@
+/* Tema do Termix embutido: QUEM MANDA NO DESIGN É O HUB (TASK-024/026). O Termix não sabe de tema claro ou escuro;
+   o Hub injeta este arquivo na tela dele e marca <html data-hub-theme="dark|light">. O escuro é o próprio padrão do Termix
+   (os mesmos tokens do Hub), então só o claro precisa de valores. Os nomes à esquerda são as variáveis do Termix; os valores
+   são os tokens do Hub (src/renderer/styles/tokens.css, bloco [data-theme="light"]). Mudou o design do Hub, mude aqui. */
+html[data-hub-theme="light"] {
+  --text: #18181a;
+  --text2: #55534d;
+  --text3: #77746d;
+  --ok: #17804f;
+  --warn: #8a5a0a;
+  --bad: #c0392b;
+  --glass: #e8e6e0;
+  --glass2: rgba(15, 23, 42, .07);
+  --dense: #e8e6e0;
+  --field: #f5f3ee;
+  --field-h: #faf9f6;
+  --border: #d9d6ce;
+  --border2: #c6c3ba;
+  --pane: #e8e6e0;
+  --sheet: #efede8;
+  --edge: transparent;
+  --hover: rgba(15, 23, 42, .05);
+  --ov: 15 23 42; /* película translúcida (hover, campos, divisórias): tinta escura no lugar do branco */
+  --pop: #f5f3ee; --pop2: #dfdcd5; --ring-c: #e8e6e0; --on-text: #efede8;
+}
+/* o esquema vale só do corpo para baixo: na raiz, o Chromium pintaria o fundo da página de branco opaco e o vidro do Hub não apareceria */
+html[data-hub-theme="light"] body { color-scheme: light; }

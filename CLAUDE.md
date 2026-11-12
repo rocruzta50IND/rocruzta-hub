@@ -26,7 +26,7 @@ Este projeto segue o fluxo da Rocruzta, definido em `WORKFLOW.md`. Estas regras 
 - **Nunca altere o Termix nem outro app.** Mudanças neles só como tarefa própria, aprovada pelo usuário.
 - **Só Windows.**
 - **Visual aprovado:** `base/index.html`. Não mude o look sem pedir (`docs/DESIGN.md`).
-- **Nada fingido na interface:** sem dados de exemplo, sem selos "Em breve" e sem apps que não existem (plano dos apps futuros em `docs/DECISOES.md`, seção 11).
+- **Nada fingido na interface:** sem dados de exemplo. Apps que ainda não existem só aparecem como "Em breve" na loja (tela Apps), nunca no seletor, na barra lateral nem no Início (`docs/DECISOES.md`, seções 11 e 14).
 - Dúvida de escopo: pergunte em vez de supor.
 
 ## Contexto e tokens (o botão Clear do Termix depende disto)

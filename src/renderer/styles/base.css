@@ -46,6 +46,8 @@ kbd {
   border: 3px solid transparent; background-clip: content-box;
 }
 
+/* Movimento reduzido (Windows > Acessibilidade > Efeitos de animação desligados): sem animações decorativas.
+   A barra lateral é exceção: o deslize curto de abrir/fechar continua, para a mudança de layout não parecer um salto. */
 @media (prefers-reduced-motion: reduce) {
-  * { transition: none !important; animation: none !important; }
+  *:not(#side-col):not(#side-col *) { transition: none !important; animation: none !important; }
 }

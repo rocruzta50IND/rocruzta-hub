@@ -13,6 +13,10 @@ function iniciarShell() {
   const menu = $('#menu');
   const raiz = document.documentElement;
   let secaoAtual = 'inicio';
+  let appAtual = null; // id do app embutido aberto dentro do Hub (null = telas do Hub)
+  let embutidoVisivel = true;
+  let painelAberto = false;
+  let notificacoes = [];
   let timerAviso = null;
 
   // ---- Aviso curto na barra de status (ex.: abrir apps ainda não existe) ----
@@ -25,18 +29,18 @@ function iniciarShell() {
 
   // ---- Seletor de app (ao lado do nome) ----
   function itemApp(app) {
-    return `<button class="menu-item" role="menuitem" data-app="${app.id}">
+    return `<button class="menu-item${app.id === appAtual ? ' cur' : ''}" role="menuitem" data-app="${app.id}">
       <span class="glyph" data-c="${app.cor}">${ic(app.icone)}</span>
-      <span class="t nome">${app.nome}<small>${emExecucao(app.id) ? 'Em execução' : app.desc}</small></span>${emExecucao(app.id) ? '<i class="dot"></i>' : ''}</button>`;
+      <span class="t nome">${app.nome}<small>${emExecucao(app.id) ? 'Em execução' : app.desc}</small></span>${emExecucao(app.id) ? '<i class="dot"></i>' : ''}${app.id === appAtual ? ic('check') : ''}</button>`;
   }
 
   // Só mostra grupos que têm algum app.
   const gruposComApps = () => GRUPOS.filter((g) => APPS.some((a) => a.grupo === g));
 
   function montarMenu() {
-    const hub = `<button class="menu-item cur" role="menuitem" data-hub="1">
+    const hub = `<button class="menu-item${appAtual ? '' : ' cur'}" role="menuitem" data-hub="1">
       <span class="glyph" data-c="${HUB.cor}">${ic(HUB.icone)}</span>
-      <span class="t">Hub<small>Notícias, comunicados e equipe</small></span></button><hr>`;
+      <span class="t">Hub<small>Notícias, comunicados e equipe</small></span>${appAtual ? '' : ic('check')}</button><hr>`;
     const grupos = gruposComApps().map((g) => `<div class="group-title">${g}</div>${APPS.filter((a) => a.grupo === g).map(itemApp).join('')}`).join('');
     menu.innerHTML = hub + grupos;
     aplicarCores(menu);
@@ -45,6 +49,26 @@ function iniciarShell() {
   function definirSeletor(aberto) {
     seletor.classList.toggle('open', aberto);
     botaoSeletor.setAttribute('aria-expanded', String(aberto));
+    sincronizarEmbutido();
+  }
+  // A tela do app embutido é desenhada por cima da página: some enquanto o seletor está aberto.
+  // Com o seletor aberto, o app embutido sai da frente e uma foto dele ocupa o lugar: o fundo continua visível.
+  let seqSnap = 0;
+  const limparSnap = () => { const sn = $('#v-snap'); sn.hidden = true; sn.removeAttribute('src'); };
+  async function sincronizarEmbutido() {
+    const quer = !seletorAberto();
+    if (!appAtual || embutidoVisivel === quer) return;
+    embutidoVisivel = quer;
+    const id = appAtual, meu = ++seqSnap;
+    if (!quer) {
+      const url = await window.hub.capturarEmbutido(id).catch(() => null);
+      if (meu !== seqSnap || appAtual !== id) return; // fechou o menu (ou trocou de app) enquanto a foto era feita
+      if (url) { const sn = $('#v-snap'); sn.src = url; sn.hidden = false; try { await sn.decode(); } catch { /* segue mesmo assim */ } if (meu !== seqSnap) return; }
+      window.hub.visivelEmbutido(id, false);
+    } else {
+      window.hub.visivelEmbutido(id, true);
+      setTimeout(() => { if (meu === seqSnap) limparSnap(); }, 90); // dá tempo do app reaparecer antes de tirar a foto
+    }
   }
   const seletorAberto = () => seletor.classList.contains('open');
 
@@ -52,6 +76,7 @@ function iniciarShell() {
     const app = APPS.find((a) => a.id === id);
     if (!app) return;
     definirSeletor(false);
+    if (ESTADOS[id]?.embutivel) return entrarApp(id);
     if (naoInstalado(id)) return avisar(`${app.nome} não está instalado neste computador.`);
     avisar(`Abrindo o ${app.nome}...`);
     const r = await window.hub.abrirApp(id).catch(() => ({ ok: false }));
@@ -66,13 +91,13 @@ function iniciarShell() {
   botaoSeletor.addEventListener('click', (e) => {
     e.stopPropagation();
     definirSeletor(!seletorAberto());
-    if (seletorAberto()) menu.querySelector('.menu-item.cur').focus();
+    if (seletorAberto()) (menu.querySelector('.menu-item.cur') || menu.querySelector('.menu-item')).focus();
   });
   document.addEventListener('click', () => definirSeletor(false));
   menu.addEventListener('click', (e) => {
     const item = e.target.closest('.menu-item');
     if (!item) return;
-    if (item.dataset.hub) definirSeletor(false);
+    if (item.dataset.hub) { definirSeletor(false); voltarHub(); }
     else clicarApp(item.dataset.app);
   });
   menu.addEventListener('keydown', (e) => {
@@ -82,10 +107,63 @@ function iniciarShell() {
     if (e.key === 'ArrowUp') { itens[(i - 1 + itens.length) % itens.length].focus(); e.preventDefault(); }
   });
 
+  // ---- Notificações dos apps embutidos (o Hub é quem mostra) ----
+  const naoVistas = () => notificacoes.filter((n) => !n.visto).length;
+  const TITULO_TIPO = { done: 'Terminou', perm: 'Precisa de você', error: 'Erro', cache: 'Cache esfriando' };
+  const horaCurta = (ts) => new Date(ts).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  function montarNotificacoes() {
+    const n = naoVistas();
+    const selo = $('#nbadge');
+    selo.hidden = n === 0;
+    selo.textContent = n > 9 ? '9+' : String(n);
+    $('#notif-menu').innerHTML = notificacoes.length ? notificacoes.map((x) => {
+      const app = APPS.find((a) => a.id === x.appId);
+      return `<button class="menu-item n-item" role="menuitem" data-notif="${x.id}">
+        <span class="glyph" data-c="${app ? app.cor : '#3570dc'}">${ic(app ? app.icone : HUB.icone)}</span>
+        <span class="t nome">${esc(x.quem || (app ? app.nome : ''))} · ${TITULO_TIPO[x.tipo] || ''}<small>${esc(x.msg)} · ${horaCurta(x.ts)}</small></span>${x.visto ? '' : '<i class="nova"></i>'}</button>`;
+    }).join('') : '<div class="n-vazio">Nenhuma notificação.</div>';
+    aplicarCores($('#notif-menu'));
+  }
+  async function carregarNotificacoes() {
+    notificacoes = (await window.hub.notificacoes().catch(() => [])) || [];
+    montarNotificacoes();
+  }
+  function definirPainel(aberto) {
+    if (aberto === painelAberto) return;
+    painelAberto = aberto;
+    document.body.classList.toggle('notif-aberto', aberto);
+    $('#v-notif').setAttribute('aria-hidden', String(!aberto));
+    $('#notif').setAttribute('aria-expanded', String(aberto));
+    if (!aberto) window.hub.marcarNotificacoesVistas(); // abriu e fechou: o que estava lá já foi visto
+  }
+  async function abrirNotificacao(id) {
+    const n = notificacoes.find((x) => x.id === id);
+    if (!n) return;
+    definirPainel(false);
+    if (appAtual !== n.appId) await entrarApp(n.appId);
+    window.hub.abrirNotificacao(id); // o app leva a pessoa até a aba que gerou o aviso
+  }
+  $('#notif').addEventListener('click', (e) => { e.stopPropagation(); definirSeletor(false); definirPainel(!painelAberto); });
+  $('#notif-menu').addEventListener('click', (e) => { e.stopPropagation(); const item = e.target.closest('[data-notif]'); if (item) abrirNotificacao(Number(item.dataset.notif)); });
+  window.hub.onNotificacoesMudou(carregarNotificacoes);
+  window.hub.onAbrirNotificacao(abrirNotificacao);
+  carregarNotificacoes();
+
+  // ---- Barra lateral: esconde por inteiro (como no Claude Desktop); a escolha fica guardada ----
+  const CHAVE_SIDE = 'rocruzta-hub:side-oculta';
+  const aplicarSide = (oculta) => { document.body.classList.toggle('side-oculta', oculta); $('#btn-side').setAttribute('aria-pressed', String(oculta)); };
+  aplicarSide(localStorage.getItem(CHAVE_SIDE) === '1');
+  $('#btn-side').addEventListener('click', () => {
+    const oculta = !document.body.classList.contains('side-oculta');
+    localStorage.setItem(CHAVE_SIDE, oculta ? '1' : '0');
+    aplicarSide(oculta);
+  });
+
   // ---- Sidebar ----
   function montarSidebar() {
-    const secoes = SECOES.map((s) => `<button class="sub${s.id === secaoAtual ? ' act' : ''}" data-sec="${s.id}"${s.id === secaoAtual ? ' aria-current="page"' : ''}>
-      ${ic(s.icone)}<span>${s.nome}</span><kbd>${s.tecla}</kbd></button>`).join('');
+    const secoes = SECOES.filter((s) => !s.rodape).map((s) => `<button class="sub${s.id === secaoAtual ? ' act' : ''}" data-sec="${s.id}"${s.id === secaoAtual ? ' aria-current="page"' : ''}>
+      ${ic(s.icone)}<span>${s.nome}</span>${s.id === 'apps' && APPS.some((a) => avisoNaoVisto(a.id)) ? '<i class="dot-att" title="Atualização disponível"></i>' : ''}</button>`).join('');
     const apps = gruposComApps().map((g) => `<div class="group-title">${g}</div>${APPS.filter((a) => a.grupo === g).map((a) => `<button class="sub" data-app="${a.id}">
       <span class="glyph" data-c="${a.cor}">${ic(a.icone)}</span><span class="nome">${a.nome}</span>${emExecucao(a.id) ? '<i class="dot" title="Em execução"></i>' : ''}</button>`).join('')}`).join('');
     $('#side').innerHTML = secoes + apps;
@@ -99,6 +177,85 @@ function iniciarShell() {
     if (app) clicarApp(app.dataset.app);
   });
 
+  // ---- Chat da tela Início (do Hub, independente dos apps; sem histórico) ----
+  const campoChat = () => $('#c-texto');
+  function ajustarCampo() {
+    const c = campoChat(); if (!c) return;
+    c.style.height = 'auto';
+    c.style.height = `${Math.min(c.scrollHeight, 220)}px`;
+    $('#c-enviar').disabled = !c.value.trim() || CHAT.gerando || !(CHAT.estado && CHAT.estado.disponivel);
+  }
+  const rolarFim = () => { const r = $('#c-rolagem'); if (r) r.scrollTop = r.scrollHeight; };
+  function atualizarFio() {
+    const fio = $('#c-fio'); if (!fio) return;
+    const r = $('#c-rolagem'); const perto = r.scrollHeight - r.scrollTop - r.clientHeight < 80;
+    fio.innerHTML = htmlMensagens();
+    if (perto) rolarFim();
+    ajustarCampo();
+  }
+  window.hub.onConversaEvento((ev) => {
+    if (ev.tipo === 'delta') {
+      const ult = CHAT.msgs[CHAT.msgs.length - 1];
+      if (ult && ult.papel === 'ia' && !ult.erro) ult.texto += ev.texto; else CHAT.msgs.push({ papel: 'ia', texto: ev.texto });
+    } else if (ev.tipo === 'fim') {
+      CHAT.gerando = false;
+      if (ev.erro) CHAT.msgs.push({ papel: 'ia', texto: ev.erro, erro: true });
+    }
+    if (secaoAtual === 'inicio' && !appAtual) atualizarFio();
+  });
+  async function enviarChatInicio(texto) {
+    if (!texto.trim() || CHAT.gerando || !(CHAT.estado && CHAT.estado.disponivel)) return;
+    const primeira = CHAT.msgs.length === 0;
+    CHAT.msgs.push({ papel: 'eu', texto: texto.trim() });
+    CHAT.gerando = true;
+    if (primeira) { renderTela(); campoChat()?.focus(); } else atualizarFio();
+    rolarFim();
+    const r = await window.hub.conversaEnviar(texto.trim()).catch(() => ({ ok: false, erro: 'Não foi possível falar com o Claude Code.' }));
+    if (!r.ok) { CHAT.gerando = false; CHAT.msgs.push({ papel: 'ia', texto: r.erro || 'Não foi possível enviar a mensagem.', erro: true }); atualizarFio(); }
+  }
+  $('#hmain').addEventListener('input', (e) => { if (e.target.id === 'c-texto') ajustarCampo(); });
+  $('#hmain').addEventListener('keydown', (e) => {
+    if (e.target.id === 'c-texto' && e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); $('#composer').requestSubmit(); }
+  });
+  $('#hmain').addEventListener('submit', (e) => {
+    if (e.target.id !== 'composer') return;
+    e.preventDefault();
+    const c = campoChat(); const texto = c.value;
+    if (!texto.trim()) return;
+    c.value = ''; ajustarCampo();
+    enviarChatInicio(texto);
+  });
+  $('#btn-nova-conversa').addEventListener('click', async () => {
+    await window.hub.conversaNova().catch(() => false);
+    CHAT.msgs = []; CHAT.gerando = false;
+    renderTela();
+    campoChat()?.focus();
+  });
+  window.hub.conversaEstado().then((e) => { CHAT.estado = e; if (secaoAtual === 'inicio' && !appAtual && !CHAT.msgs.length) renderTela(); }).catch(() => { CHAT.estado = { disponivel: false }; });
+
+  // ---- Usuário (rodapé da barra lateral) ----
+  const usuarioEl = $('#usuario');
+  function itemMenu(acao, icone, texto, extra = '') { return `<button class="menu-item${extra}" role="menuitem" data-acao="${acao}">${ic(icone)}<span class="t">${texto}</span></button>`; }
+  function montarMenuUsuario() {
+    const claro = raiz.dataset.theme === 'light';
+    $('#usuario-menu').innerHTML = itemMenu('config', 'gear', 'Configurações') + itemMenu('tema', claro ? 'moon' : 'sun', claro ? 'Tema escuro' : 'Tema claro') + '<hr>' + itemMenu('fechar', 'x', 'Fechar o Hub', ' perigo');
+  }
+  function definirMenuUsuario(aberto) { usuarioEl.classList.toggle('open', aberto); $('#usuario-btn').setAttribute('aria-expanded', String(aberto)); if (aberto) montarMenuUsuario(); }
+  $('#usuario-btn').addEventListener('click', (e) => { e.stopPropagation(); definirMenuUsuario(!usuarioEl.classList.contains('open')); });
+  $('#usuario-menu').addEventListener('click', (e) => {
+    const item = e.target.closest('[data-acao]'); if (!item) return;
+    definirMenuUsuario(false);
+    if (item.dataset.acao === 'config') irParaSecao('config');
+    else if (item.dataset.acao === 'tema') alternarTema();
+    else if (item.dataset.acao === 'fechar') window.hub.close();
+  });
+  document.addEventListener('click', () => definirMenuUsuario(false));
+  window.hub.usuario().then((u) => {
+    const nome = (u && u.nome) || 'Usuário';
+    $('#usuario-nome').textContent = nome;
+    $('#usuario-av').textContent = nome.trim()[0]?.toUpperCase() || 'U';
+  }).catch(() => { $('#usuario-nome').textContent = 'Usuário'; $('#usuario-av').textContent = 'U'; });
+
   // Cliques dentro das telas: links e cartões de seção (data-sec) e blocos de app (data-app).
   $('#hmain').addEventListener('click', (e) => {
     const rel = e.target.closest('[data-releases]');
@@ -106,7 +263,32 @@ function iniciarShell() {
     const sec = e.target.closest('[data-sec]');
     if (sec) return irParaSecao(sec.dataset.sec);
     const app = e.target.closest('[data-app]');
-    if (app) clicarApp(app.dataset.app);
+    if (app) return clicarApp(app.dataset.app);
+    // Loja (tela Apps): filtros, detalhe de um app e voltar para a lista.
+    const filtro = e.target.closest('[data-filtro]');
+    if (filtro) { LOJA.filtro = filtro.dataset.filtro; return renderTela(); }
+    const car = e.target.closest('[data-car]');
+    if (car) { const f = $('#car-faixa'); if (f) f.scrollBy({ left: Number(car.dataset.car) * f.clientWidth * 0.82, behavior: 'smooth' }); return; }
+    const des = e.target.closest('[data-des]');
+    if (des) { LOJA.desinstalar = des.dataset.des; return renderTela(); }
+    if (e.target.closest('[data-des-cancelar]')) { LOJA.desinstalar = null; return renderTela(); }
+    const desOk = e.target.closest('[data-des-ok]');
+    if (desOk) { desinstalarApp(desOk.dataset.desOk); return; }
+    const det = e.target.closest('[data-detalhe]');
+    if (det) { abrirDetalheApp(det.dataset.detalhe); return; }
+    const chk = e.target.closest('[data-checar-att]');
+    if (chk) { verificarAgora(chk); return; }
+    if (e.target.closest('[data-loja-voltar]')) { LOJA.detalhe = null; renderTela(); }
+  });
+  $('#hmain').addEventListener('input', (e) => {
+    if (e.target.id !== 'l-busca') return;
+    LOJA.busca = e.target.value;
+    $('#l-lista').innerHTML = htmlCartoesLoja(); // só a lista: o campo de busca mantém o foco
+    aplicarCores($('#l-lista'));
+  });
+  $('#hmain').addEventListener('keydown', (e) => {
+    const card = e.target.closest?.('.loja-card, .loja-hero');
+    if (card && e.target === card && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); card.click(); }
   });
 
   // ---- Telas (Notícias, Comunicados e Equipe mostram estado vazio até haver dados reais) ----
@@ -114,6 +296,10 @@ function iniciarShell() {
     const s = SECOES.find((x) => x.id === secaoAtual);
     if (secaoAtual === 'inicio') {
       $('#hmain').innerHTML = htmlInicio();
+    } else if (secaoAtual === 'apps') {
+      $('#hmain').innerHTML = htmlApps();
+    } else if (secaoAtual === 'config') {
+      $('#hmain').innerHTML = htmlConfig();
     } else {
       $('#hmain').innerHTML = `<div class="page">
         <div class="p-head"><div><h1>${s.nome}</h1><p>${s.desc}</p></div></div>
@@ -121,7 +307,9 @@ function iniciarShell() {
     }
     aplicarCores($('#hmain'));
     $('#hmain').scrollTop = 0;
-    $('#st-mid').textContent = `Hub · ${s.nome}`;
+    $('#sb-titulo').textContent = s.nome;
+    $('#btn-nova-conversa').hidden = !(secaoAtual === 'inicio' && CHAT.msgs.length > 0);
+    if (!appAtual) $('#st-mid').textContent = `Hub · ${s.nome}`;
   }
 
   // Relê o registro do Windows e redesenha se algo mudou (ex.: o Termix foi instalado com o Hub aberto).
@@ -136,14 +324,71 @@ function iniciarShell() {
       montarMenu();
       montarSidebar();
       renderTela();
+      if (appAtual && novos[appAtual]?.embutido === 'caiu') mostrarCaiu();
     } finally { consultando = false; }
   }
   window.addEventListener('focus', atualizarEstados);
   // O selo "Em execução" acompanha a realidade: relê a cada poucos segundos enquanto a janela está visível.
   setInterval(() => { if (document.visibilityState === 'visible') atualizarEstados(); }, INTERVALO_ESTADOS);
 
-  function irParaSecao(id) {
+  // ---- Atualizações dos apps (só aviso): faixa no topo por ~15 min, bolinha em Apps até a pessoa ver o app ----
+  const JANELA_AVISO = 15 * 60 * 1000;
+  const appDoAviso = () => APPS.find((a) => { const u = atuDe(a.id); return comAtualizacao(a.id) && !u.visto && !u.avisoFechado && Date.now() - u.detectadoEm < JANELA_AVISO; });
+  function atualizarBannerAtt() {
+    const a = appDoAviso();
+    const faixa = $('#aviso-att');
+    faixa.hidden = !a;
+    if (!a) return;
+    faixa.dataset.app = a.id;
+    $('#aa-texto').innerHTML = `<b>${a.nome} v${atuDe(a.id).versaoNova}</b> disponível`;
+  }
+  function atualizarIndicadoresAtt() { atualizarBannerAtt(); montarSidebar(); }
+  async function carregarAtualizacoes() {
+    definirAtualizacoes(await window.hub.atualizacoes().catch(() => null));
+    atualizarIndicadoresAtt();
+    if (secaoAtual === 'apps' && !appAtual) renderTela();
+  }
+  function abrirDetalheApp(id) {
+    LOJA.detalhe = id;
+    if (atuDe(id) && atuDe(id).visto === false) { atuDe(id).visto = true; window.hub.marcarAtualizacaoVista(id); atualizarIndicadoresAtt(); }
+    renderTela();
+  }
+  async function desinstalarApp(id) {
+    const app = APPS.find((a) => a.id === id);
+    LOJA.desinstalar = null;
+    renderTela();
+    const r = await window.hub.desinstalarApp(id).catch(() => ({ ok: false, motivo: 'falha' }));
+    const msg = { 'em-execucao': `Feche o ${app.nome} antes de desinstalar.`, cancelado: 'Desinstalação cancelada.', 'nao-instalado': `${app.nome} não está instalado.`, 'sem-desinstalador': `Não achei o desinstalador do ${app.nome}.` };
+    avisar(r.ok ? `Desinstalador do ${app.nome} aberto.` : (msg[r.motivo] || `Não foi possível desinstalar o ${app.nome}.`));
+    if (r.ok) setTimeout(atualizarEstados, 4000);
+  }
+  async function verificarAgora(botao) {
+    botao.textContent = 'Verificando…'; botao.disabled = true;
+    definirAtualizacoes(await window.hub.verificarAtualizacoes().catch(() => null));
+    atualizarIndicadoresAtt();
+    renderTela();
+  }
+  $('#aviso-att').addEventListener('click', (e) => {
+    const id = $('#aviso-att').dataset.app;
+    if (e.target.closest('[data-aa-ver]')) { irParaSecao('apps'); abrirDetalheApp(id); }
+    else if (e.target.closest('[data-aa-fechar]')) { if (atuDe(id)) atuDe(id).avisoFechado = true; window.hub.fecharAvisoAtualizacao(id); atualizarBannerAtt(); }
+  });
+  window.hub.onAtualizacoesMudou(carregarAtualizacoes);
+  setInterval(atualizarBannerAtt, 30000); // a faixa some sozinha depois da janela de 15 minutos
+
+  // Histórico de telas do Hub (setas ‹ › do cabeçalho).
+  let historico = [];
+  let posicao = -1;
+  function atualizarSetas() {
+    const pode = { 'btn-back': posicao > 0, 'btn-fwd': posicao < historico.length - 1 };
+    for (const [id, ok] of Object.entries(pode)) $('#' + id).setAttribute('aria-disabled', String(!ok));
+  }
+  function irParaSecao(id, registrar = true) {
     if (!SECOES.some((s) => s.id === id)) return;
+    voltarHub();
+    if (registrar && historico[posicao] !== id) { historico = historico.slice(0, posicao + 1); historico.push(id); posicao = historico.length - 1; }
+    atualizarSetas();
+    if (id !== secaoAtual) LOJA.detalhe = null;
     secaoAtual = id;
     definirSeletor(false);
     montarSidebar();
@@ -151,17 +396,68 @@ function iniciarShell() {
     history.replaceState(null, '', `#${id}`);
   }
 
+  // ---- App embutido (experimental): o app roda sem janela e a tela dele aparece nesta área ----
+  const areaApp = $('#v-app');
+  const retangulo = () => { const r = areaApp.getBoundingClientRect(); return { x: r.x, y: r.y, width: r.width, height: r.height }; };
+  function mostrarTela(qual) { $('#v-hub').hidden = qual !== 'hub'; areaApp.hidden = qual !== 'app'; document.body.classList.toggle('app-aberto', qual === 'app'); }
+  // Versão do app em foco (Hub ou app embutido) no rodapé, à direita.
+  let VERSOES = { hub: '', apps: {} };
+  function mostrarVersao() {
+    const app = APPS.find((a) => a.id === appAtual);
+    const v = app ? VERSOES.apps[app.id] : VERSOES.hub;
+    $('#st-ver').textContent = v ? `v${v}` : '';
+  }
+  window.hub.versoes().then((v) => { VERSOES = v || VERSOES; mostrarVersao(); }).catch(() => {});
+  function definirTitulo() {
+    mostrarVersao();
+    const app = APPS.find((a) => a.id === appAtual);
+    const item = app || HUB;
+    $('#cur-name').textContent = item.nome;
+    const g = $('#cur-g'); g.innerHTML = ic(item.icone); g.dataset.c = item.cor;
+    aplicarCores($('#titlebar'));
+    $('#st-mid').textContent = app ? app.nome : '';
+    montarMenu();
+  }
+  function mensagemApp(titulo, detalhe, botao) {
+    areaApp.innerHTML = `<div class="app-msg"><b>${titulo}</b><span>${detalhe}</span>${botao ? `<button class="btn" data-tentar="1">${botao}</button>` : ''}</div>`;
+  }
+  function mostrarCaiu() { const a = APPS.find((x) => x.id === appAtual); mensagemApp(`${a.nome} parou`, 'O Hub e os outros apps seguem normais.', 'Abrir de novo'); }
+  async function entrarApp(id) {
+    const app = APPS.find((a) => a.id === id);
+    appAtual = id; embutidoVisivel = true; seqSnap++; limparSnap();
+    mostrarTela('app');
+    definirTitulo();
+    mensagemApp(`Abrindo o ${app.nome}...`, '');
+    await new Promise((r) => { requestAnimationFrame(r); setTimeout(r, 100); }); // o layout da área precisa estar pronto para medir (o timeout cobre janela oculta, onde o quadro não vem)
+    const r = await window.hub.mostrarEmbutido(id, retangulo()).catch(() => ({ ok: false }));
+    if (appAtual !== id) return;
+    if (!r.ok) return mensagemApp(`Não foi possível abrir o ${app.nome} aqui dentro`, r.motivo === 'indisponivel' ? 'O modo embutido não está disponível neste computador.' : (r.detalhe || 'Falha ao iniciar.'), 'Tentar de novo');
+    areaApp.innerHTML = '';
+    atualizarEstados();
+    return true;
+  }
+  function voltarHub() {
+    if (!appAtual) return;
+    appAtual = null; embutidoVisivel = true; seqSnap++; limparSnap();
+    window.hub.ocultarEmbutido();
+    mostrarTela('hub');
+    definirTitulo();
+  }
+  areaApp.addEventListener('click', (e) => { if (e.target.closest('[data-tentar]') && appAtual) entrarApp(appAtual); });
+  new ResizeObserver(() => { if (appAtual && !areaApp.hidden) window.hub.ajustarEmbutido(appAtual, retangulo()); }).observe(areaApp);
+  window.hub.onEmbutidoMudou(() => atualizarEstados());
+
   // ---- Tema ----
   function aplicarTema(tema) {
     if (tema === 'light') raiz.dataset.theme = 'light';
     else delete raiz.dataset.theme;
-    $('#theme').innerHTML = ic(tema === 'light' ? 'sun' : 'moon');
+    window.hub.definirTema(tema); // os apps embutidos seguem o tema do Hub
   }
-  $('#theme').addEventListener('click', () => {
+  function alternarTema() {
     const novo = raiz.dataset.theme === 'light' ? 'dark' : 'light';
     aplicarTema(novo);
     try { localStorage.setItem(CHAVE_TEMA, novo); } catch { /* sem armazenamento: só não lembra */ }
-  });
+  }
 
   // ---- Atalhos internos ----
   document.addEventListener('keydown', (e) => {
@@ -172,6 +468,8 @@ function iniciarShell() {
   });
 
   $('#brand').addEventListener('click', () => irParaSecao('inicio'));
+  $('#btn-back').addEventListener('click', () => { if (posicao > 0) { posicao -= 1; irParaSecao(historico[posicao], false); } });
+  $('#btn-fwd').addEventListener('click', () => { if (posicao < historico.length - 1) { posicao += 1; irParaSecao(historico[posicao], false); } });
 
   // ---- Início ----
   let temaSalvo = null;
@@ -180,6 +478,8 @@ function iniciarShell() {
   montarMenu();
   const daUrl = location.hash.slice(1);
   if (SECOES.some((s) => s.id === daUrl)) secaoAtual = daUrl;
+  historico = [secaoAtual]; posicao = 0; atualizarSetas();
   montarSidebar();
   renderTela();
+  atualizarBannerAtt();
 }

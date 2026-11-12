@@ -14,7 +14,7 @@ function resolverAtalho(ev, estado, secoes) {
   if (!ev || ev.defaultPrevented || ev.ctrlKey || ev.metaKey || ev.altKey) return null;
   if (ehCampoDeTexto(ev.target)) return null;
   if (ev.key === 'Escape') return estado && estado.seletorAberto ? { acao: 'fechar-seletor' } : null;
-  const sec = (secoes || []).find((s) => s.tecla === ev.key);
+  const sec = (secoes || []).find((s) => s.tecla && s.tecla === ev.key);
   return sec ? { acao: 'secao', id: sec.id } : null;
 }
 

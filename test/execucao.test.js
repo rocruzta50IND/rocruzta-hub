@@ -6,7 +6,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const { EventEmitter } = require('node:events');
-const { estaRodando, anexarExecucao, ambienteLimpo, abrirApp, lerProcessos } = require('../src/main/execucao');
+const { desinstalarApp, estaRodando, anexarExecucao, ambienteLimpo, abrirApp, lerProcessos } = require('../src/main/execucao');
 const { carregarCatalogo } = require('../src/main/apps');
 
 const EXE = ['D:', 'Termix', 'Termix.exe'].join(path.win32.sep);
@@ -20,7 +20,7 @@ test('estaRodando: compara o caminho do executável, sem diferenciar maiúsculas
 });
 
 test('anexarExecucao: só marca rodando nos instalados e usa o nome do executável', async () => {
-  const apps = carregarCatalogo().apps;
+  const apps = carregarCatalogo().apps.filter((a) => !a.emBreve);
   let pedido = null;
   const r = await anexarExecucao(apps, { termix: estado }, async (nome) => { pedido = nome; return [EXE]; });
   assert.equal(pedido, 'Termix');
@@ -76,11 +76,11 @@ test('Hub não encerra nem controla processos de apps', () => {
   assert.doesNotMatch(js, /taskkill|Stop-Process|\.kill\(|process\.kill/);
 });
 
-test('renderer: selo "Em execução" no Início, no seletor e na sidebar só quando a detecção diz', () => {
+test('renderer: selo "Em execução" em Apps, no seletor e na sidebar só quando a detecção diz', () => {
   const renderer = path.join(__dirname, '..', 'src', 'renderer');
   const read = (f) => fs.readFileSync(path.join(renderer, f), 'utf8');
   const rodar = (estados) => vm.runInNewContext(`${['icons.js', 'catalogo.js', 'inicio.js'].map(read).join('\n')}
-    definirCatalogo(${JSON.stringify(carregarCatalogo())}); definirEstados(${JSON.stringify(estados)}); htmlInicio();`);
+    definirCatalogo(${JSON.stringify(carregarCatalogo())}); definirEstados(${JSON.stringify(estados)}); htmlApps();`);
   const on = rodar({ termix: { instalado: true, rodando: true } });
   assert.match(on, /class="rodando"[^>]*><i class="dot"><\/i>Em execução/);
   for (const e of [{ termix: { instalado: true, rodando: false } }, { termix: { instalado: true } }, null]) {
@@ -90,4 +90,16 @@ test('renderer: selo "Em execução" no Início, no seletor e na sidebar só qua
   assert.match(shell, /emExecucao\(app\.id\)/);
   assert.match(shell, /emExecucao\(a\.id\)/);
   assert.match(shell, /INTERVALO_ESTADOS/);
+});
+
+test('desinstalarApp: só com o app instalado, fechado e com desinstalador; nada é executado nos outros casos', async () => {
+  const nunca = () => { throw new Error('não podia lançar'); };
+  const des = { exe: 'D:\Termix\Uninstall Termix.exe', args: ['/allusers'] };
+  assert.deepEqual(await desinstalarApp({ instalado: false }, nunca), { ok: false, motivo: 'nao-instalado' });
+  assert.deepEqual(await desinstalarApp({ instalado: true }, nunca), { ok: false, motivo: 'sem-desinstalador' });
+  assert.deepEqual(await desinstalarApp({ instalado: true, desinstalador: des, rodando: true }, nunca), { ok: false, motivo: 'em-execucao' });
+  let recebido = null;
+  assert.deepEqual(await desinstalarApp({ instalado: true, desinstalador: des, rodando: false }, async (d) => { recebido = d; return true; }), { ok: true });
+  assert.deepEqual(recebido, des);
+  assert.deepEqual(await desinstalarApp({ instalado: true, desinstalador: des }, async () => false), { ok: false, motivo: 'cancelado' });
 });

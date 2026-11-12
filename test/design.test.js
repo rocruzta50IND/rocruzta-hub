@@ -23,12 +23,10 @@ function blockVars(css, selector) {
 const tokens = read('src/renderer/styles/tokens.css');
 const reference = squash(read('base/index.html'));
 
-// Tokens que vêm da referência (base/index.html), por tema.
-const FROM_REFERENCE_DARK = ['--bg', '--surface', '--surface-2', '--hover', '--line', '--line-strong',
-  '--text', '--text-2', '--text-3', '--brand', '--brand-2', '--ok', '--warn', '--bad',
-  '--sheet', '--glass', '--edge', '--r-s', '--r-m', '--r-l'];
-const FROM_REFERENCE_LIGHT = ['--bg', '--surface', '--surface-2', '--hover', '--line', '--line-strong',
-  '--text', '--text-2', '--text-3', '--ok', '--warn', '--bad', '--sheet', '--glass', '--edge'];
+// Tokens que continuam vindo da referência (base/index.html), por tema. Superfícies, linhas e vidro foram trocados
+// pela paleta opaca no estilo do Claude Desktop (TASK-026, pedido do usuário) e saíram desta lista.
+const FROM_REFERENCE_DARK = ['--text-2', '--text-3', '--ok', '--warn', '--bad', '--r-s', '--r-m', '--r-l'];
+const FROM_REFERENCE_LIGHT = ['--text']; // texto secundário e cores de estado do claro foram escurecidos para dar contraste sobre o fundo fosco
 
 test('tokens escuros e claros batem com os valores da referência', () => {
   const dark = blockVars(tokens, ':root');
@@ -49,9 +47,9 @@ test('o tema claro sobrescreve só tokens que existem no escuro', () => {
   for (const k of Object.keys(light)) assert.ok(k in dark, `${k} só existe no claro`);
 });
 
-test('identidade: azul principal e raios 6, 8, 12 e 18 px', () => {
+test('identidade: azul da logo e raios 6, 8, 12 e 18 px', () => {
   const dark = blockVars(tokens, ':root');
-  assert.equal(dark['--brand'], '#3b82f6');
+  assert.equal(dark['--brand'], '#3570dc'); // azul da logo, chapado
   assert.deepEqual([dark['--r-s'], dark['--r-m'], dark['--r-l'], dark['--r-xl']], ['6px', '8px', '12px', '18px']);
 });
 
@@ -104,7 +102,7 @@ test('componentes: botões, chips, listas, vidro e o selo Em breve / Dados de ex
     '.selo', '.selo-breve', '.selo-exemplo']) {
     assert.ok(css.includes(sel), `seletor ${sel} ausente`);
   }
-  assert.match(css, /backdrop-filter:\s*blur\(/);
+  assert.doesNotMatch(css, /backdrop-filter:\s*blur\(/, 'visual flat e opaco: sem vidro desfocado');
 });
 
 test('o selo é um componente único e aparece na amostra com os dois textos', () => {

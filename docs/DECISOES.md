@@ -123,3 +123,49 @@ Instalar ou atualizar apps pelo GitHub, login, backend, API real de notícias, a
 **Terminais:** continuam rodando na máquina do usuário, como filhos do backend do app. Não há servidor remoto. Problemas esperados: terminais morrem se o backend morrer (decidir se fechar o Hub mata as sessões); reconexão sem perder saída (buffer de scrollback); backpressure; segurança da porta local (token, `Origin`, `Host`, CSP); hooks do Claude usam `process.execPath`; foco, Ctrl+C/V e IME dentro da view; GPU/WebGL com vários terminais; atualizar app com terminais ativos.
 
 **Próximos passos (precisam de aprovação do usuário):** TASK-024 (protótipo com terminal real, medir foco, teclado, desempenho e segurança) e, se passar, TASK-025 (modo embutível do Termix, no repositório do Termix). Só então reescrever a §1 e o `apps.json` para o contrato.
+
+## 13. Termix embutido no Hub real: quem manda no quê (TASK-024/026, 2026-11-12)
+
+**Aprovado pelo usuário:** o Termix roda sem janela e aparece dentro da janela do Hub; a lógica dele não muda, só ganhou o modo `--embed` (repo do Termix, TASK-134 a 136). O Hub só o mostra quando a pasta de desenvolvimento do Termix tem esse modo (`HUB_TERMIX_DEV`, padrão `C:/Termix/termix`); senão abre o Termix instalado em janela, como antes.
+
+**Quem manda no quê (dentro do Hub):**
+- **Janela e cabeçalho:** do Hub. O Termix esconde a barra de título, a moldura, o fundo, o chip de atualização e o painel de notificações. Atualizar o app embutido é papel do Hub.
+- **Design e tema:** do Hub. O Termix não sabe de claro ou escuro. O Hub injeta `src/temas-apps/<id>.css` na tela do app e marca `<html data-hub-theme="dark|light">`. O escuro é o padrão do próprio Termix (mesmos tokens do Hub); o claro é só valores novos no arquivo do Hub. **Hoje o claro cobre sidebar, rodapé e cores de texto; a área do chat e o terminal têm cores fixas e ainda ficam escuros.** Terminar o claro é trabalho só do lado do Hub.
+- **Notificações:** do Hub. O Termix continua detectando os eventos e os manda por linhas `HUB_EVENT {json}` na saída do processo; o Hub guarda (`src/main/notificacoes.js`), mostra o sino com contador e a lista, e dispara o aviso do Windows quando a pessoa não está olhando para o app. Clicar leva ao app e, por um comando autenticado (`POST /__cmd`, token do app), à aba que gerou o aviso. Esse é o canal Hub e app (app para Hub por saída, Hub para app por comando), que também servirá às conexões compartilhadas (GitHub etc.).
+- **Consumo:** só os anéis (contexto, 5 h, 7 d, cache); a barra de consumo do topo não existe no embutido.
+
+**Segurança:** a tela do app roda num `WebContentsView` com `sandbox`, sem preload e sem Node; só o processo principal do Hub fala com o app, e só o canal `notify:click` é aceito no comando. O app encerra sozinho se o Hub morrer (`HUB_PARENT_PID`), e o Hub encerra o app e os terminais ao sair.
+
+**Ainda não provado:** teclado, foco e IME no terminal embutido; vários terminais e saída em volume; diálogos nativos (escolher pasta), aba Web e dock do Termix (provavelmente não funcionam ainda).
+
+## 14. Tela Apps como loja de apps (TASK-027, 2026-11-12)
+
+**Pedido do usuário:** a tela Apps vira uma loja, onde o Hub passa a gerenciar a instalação e a configuração de cada app. Também pediu para anunciar **Desk, Midia e Studio** como "Em breve". Isto **revoga em parte a §11** (que proibia selos "Em breve" e apps inexistentes): agora o "Em breve" é permitido, mas só na loja.
+
+**Regras do "Em breve":** entrada no `apps.json` com `"emBreve": true` (não exige repositório nem detecção). Aparece só na tela Apps, com o selo `selo-breve`, sem botão de abrir nem de instalar. O processo principal ignora esses apps na detecção, na abertura e nas versões; o renderer os guarda em `EM_BREVE` e não os põe em `APPS` (seletor, barra lateral e Início só veem apps reais). Descrição provisória "Em desenvolvimento" (o usuário ainda não definiu o que cada um faz).
+
+| App | Grupo | Cor | Ícone |
+|---|---|---|---|
+| Desk | Operação | `#4cc38a` | desk (monitor) |
+| Midia | Criação | `#ec6a8b` | camera |
+| Studio | Criação | `#a78bfa` | film |
+
+**Loja (etapa 1, só leitura e abrir):** busca, filtros (Todos, Instalados, Para instalar, Em breve), cartões por grupo com estado real (instalado com versão do registro, em execução, não instalado) e tela de detalhe (situação, grupo, versão, repositório, bloco de configurações). Não instalado oferece só "Ver releases".
+
+**Formato Store (2026-11-12):** a lista tem um destaque no topo (app com `"destaque": true` e prévias), busca, filtros e cartões. Clicar abre a página do app: cabeçalho com botão principal, carrossel de imagens, "Sobre", informações e configurações. Métricas de uso ficam de fora por decisão do usuário. Campos novos no `apps.json`: `destaque`, `sobre` e `previas` (lista de `{arquivo, legenda}`, arquivos em `src/previas/<app>/`); app sem imagens não mostra carrossel nem destaque. As 3 imagens do Termix são capturas reais da interface num Termix isolado (modo `--embed`, pasta de dados temporária, projetos e conversas de exemplo, tema do Hub injetado). A tela de Consumo ficou de fora por mostrar dados reais da máquina.
+
+**Avisos de atualização (só aviso, aprovado pelo usuário em 2026-11-12):** repositórios públicos por enquanto; a conexão com o GitHub e o acesso a repositórios privados ficam para a tela de configurações. `src/main/atualizacoes.js` lê `api.github.com/repos/<repo>/releases` (sem token, sem baixar nem instalar nada), compara com a versão instalada no registro do Windows e guarda o estado em `%APPDATA%\Rocruzta Hubtualizacoes.json` (checa 4 s depois de abrir, a cada 3 h e no botão "Verificar agora"; sem rede mantém o último estado). Como aparece: (1) faixa fina abaixo da barra de título, "App vX disponível" com "Ver" e dispensar, que some sozinha 15 min depois de a versão ser detectada (a contagem não reinicia a cada checagem), ao ver a página do app ou ao dispensar; (2) bolinha em Apps na barra lateral, que fica até a pessoa abrir a página do app (ou atualizar); (3) selo "Atualização" e "v0.3.5 → v0.6.4" nos cartões e no destaque, enquanto houver versão nova; (4) na página do app, seção "Atualizações" com o histórico das últimas 10 releases (data, notas do GitHub, "Nova" nas mais novas que a instalada; release sem notas diz "Sem notas nesta versão", nada inventado). Nada disto altera o Termix. A versão comparada é a instalada no Windows, não a da pasta de desenvolvimento embutida.
+
+**Etapa 2 (pendente de decisão do usuário):** instalar, atualizar e desinstalar. Bloqueios: o repositório do Termix é privado (baixar a release exige token ou release pública); o Termix é um instalador NSIS para todos os usuários e pede administrador; "atualização disponível" depende de ler a última release. Configuração por app só vale para o que o próprio Hub controla; o Termix não expõe configurações.
+
+**Botões e novidades na página do app (2026-11-12):** ao lado de "Abrir" ficam "Baixar vX.Y.Z" (só quando há versão nova; hoje abre a página das releases no GitHub, porque o Hub ainda não instala, e quando instalar este mesmo botão vira "Atualizar") e "Desinstalar". Desinstalar pede confirmação no próprio lugar, só aparece se o registro do Windows traz o desinstalador, fica desligado com o app aberto e apenas lança o desinstalador do próprio app com permissão de administrador (`Start-Process -Verb RunAs`); o Hub não apaga nada. Só aceita um `.exe` dentro da pasta do app e as opções `/allusers` e `/currentuser`. **Nunca foi executado de verdade** (testes só com lançador falso). A seção "Novidades" mostra a versão mais nova em destaque, já aberta com as notas, e as anteriores numa lista que abre ao clicar (uma linha de prévia em cada); a página tem duas colunas (sobre e novidades, e ao lado informações e configurações).
+
+## 15. Termix embutido em qualquer máquina (TASK-028, 2026-11-12)
+
+**Pedido do usuário:** desenvolver em uma máquina, subir o Hub e o Termix para o GitHub e, em outra máquina, só puxar o Hub (o Termix atualiza).
+
+**Decisão:** o Hub embute o Termix de duas formas, nesta ordem: (1) pasta de desenvolvimento (`HUB_TERMIX_DEV`, padrão `C:/Termix/termix`), usada para desenvolver; (2) Termix instalado, se a versão detectada no registro for >= `embutirDesde` do catálogo (Termix: **0.7.0**, a primeira release com `--embed`), executando o `Termix.exe` com `--embed --user-data-dir=<dados do Hub>`. Sem nenhuma das duas, o Hub abre o Termix instalado em janela, como antes (não quebra com Termix antigo). Dados do app embutido ficam isolados em `%APPDATA%\Rocruzta Hub\apps\termix`.
+
+**Versões:** o aviso de atualização compara com a versão que o Hub roda (a da pasta de desenvolvimento, se for ela; senão a instalada). Com a pasta de desenvolvimento, o botão Desinstalar não aparece (seria o desinstalador de outra cópia).
+
+**Em outra máquina:** `git clone` do Hub, `git checkout dev1` (ou `main`), `npm install`, `npm start`; instalar ou atualizar o Termix para >= 0.7.0. O Hub ainda não tem instalador próprio (TASK-014).

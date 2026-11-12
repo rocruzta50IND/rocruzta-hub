@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'; font-src 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'; font-src 'self'; img-src 'self' data:">
   <title>Rocruzta Hub</title>
   <link rel="stylesheet" href="styles/fonts.css">
   <link rel="stylesheet" href="styles/tokens.css">
@@ -16,41 +16,69 @@
   <div id="app">
     <header id="titlebar">
       <div class="tb-l">
-        <div class="mark" aria-hidden="true">R</div>
-        <button class="brand" id="brand">Rocruzta Hub</button>
+        <div class="wordmark">
+          <img class="mark" src="logo.png" alt="" aria-hidden="true">
+          <button class="brand" id="brand" title="Rocruzta Hub" aria-label="Rocruzta: início do Hub">ocruzta</button>
+        </div>
         <span class="slash">/</span>
         <div class="switch" id="switch">
           <button class="sw-btn" id="sw-btn" aria-haspopup="menu" aria-expanded="false">
-            <span class="glyph" data-c="#3b82f6" id="cur-g"></span><b id="cur-name">Hub</b>
+            <span class="glyph" data-c="#3570dc" id="cur-g"></span><b id="cur-name">Hub</b>
             <svg class="i chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 15 5 5 5-5M7 9l5-5 5 5"/></svg>
           </button>
           <div class="menu" id="menu" role="menu"></div>
         </div>
       </div>
       <div class="tb-r">
-        <button class="tb-btn" id="theme" title="Alternar tema" aria-label="Alternar tema"></button>
-        <button class="tb-btn" id="notif" title="Notificações: em breve" aria-label="Notificações (em breve)" aria-disabled="true"></button>
+        <div class="notif" id="notif-wrap">
+          <button class="tb-btn" id="notif" title="Notificações" aria-label="Notificações" aria-haspopup="menu" aria-expanded="false"></button>
+          <span class="nbadge" id="nbadge" hidden></span>
+        </div>
         <button class="tb-btn win" id="btn-min" title="Minimizar" aria-label="Minimizar"></button>
         <button class="tb-btn win" id="btn-max" title="Maximizar" aria-label="Maximizar"></button>
         <button class="tb-btn win x" id="btn-close" title="Fechar" aria-label="Fechar"></button>
       </div>
     </header>
+    <div id="aviso-att" class="aviso-att" hidden>
+      <span class="aa-ponto"></span><span id="aa-texto"></span>
+      <button class="aa-ver" data-aa-ver="1">Ver</button>
+      <button class="aa-x" data-aa-fechar="1" aria-label="Dispensar aviso"></button>
+    </div>
+    <div id="subbar">
+    <div class="tb-nav" id="tb-nav">
+      <button class="tb-btn" id="btn-side" title="Mostrar ou esconder a barra lateral" aria-label="Mostrar ou esconder a barra lateral" aria-pressed="false"></button>
+      <button class="tb-btn" id="btn-back" title="Voltar" aria-label="Voltar" aria-disabled="true"></button>
+      <button class="tb-btn" id="btn-fwd" title="Avançar" aria-label="Avançar" aria-disabled="true"></button>
+    </div>
+      <span class="sb-titulo" id="sb-titulo"></span>
+      <button class="sb-acao" id="btn-nova-conversa" hidden><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Nova conversa</button>
+    </div>
     <div id="view">
       <section id="v-hub">
-        <aside class="side glass-panel glass-side" id="side" aria-label="Navegação"></aside>
+        <div class="side-col" id="side-col">
+          <aside class="side glass-panel glass-side" id="side" aria-label="Navegação"></aside>
+          <div class="usuario" id="usuario">
+            <button class="usuario-btn" id="usuario-btn" aria-haspopup="menu" aria-expanded="false"><span class="usuario-av" id="usuario-av"></span><span class="usuario-nome" id="usuario-nome"></span><svg class="i chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+            <div class="menu menu-cima" id="usuario-menu" role="menu"></div>
+          </div>
+        </div>
         <main class="hmain glass-panel" id="hmain"></main>
       </section>
+      <section id="v-app" hidden aria-label="App aberto dentro do Hub"></section>
+      <aside id="v-notif" aria-label="Notificações" aria-hidden="true"><div class="notif-in"><div class="notif-tit">Notificações</div><div id="notif-menu" role="menu"></div></div></aside>
+      <img id="v-snap" alt="" hidden>
     </div>
     <footer id="status">
       <span><i class="dot"></i>Pronto <span id="st-aviso"></span></span>
       <span id="st-mid"></span>
-      <span></span>
+      <span id="st-ver"></span>
     </footer>
   </div>
   <script src="icons.js"></script>
   <script src="catalogo.js"></script>
   <script src="atalhos.js"></script>
   <script src="ui.js"></script>
+  <script src="conversa.js"></script>
   <script src="inicio.js"></script>
   <script src="shell.js"></script>
   <script src="renderer.js"></script>
