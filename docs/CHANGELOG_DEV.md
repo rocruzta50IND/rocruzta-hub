@@ -6,6 +6,16 @@ Histórico legível do que foi desenvolvido, alterado ou corrigido. Uma entrada 
 
 ---
 
+## 2026-11-12
+
+**TASK-023 — Estudo: apps dentro da janela do Hub** (DEV1)
+
+- Pedido do usuário: o Hub deve montar o app dentro da própria janela (sem janela solta do Windows), com apps em repositório próprio e releases, instalados e atualizados pelo Hub. Reavaliação registrada em `docs/DECISOES.md` §12 (contrato proposto, caminhos, riscos, terminais na máquina do usuário). A §1 segue valendo até o usuário aprovar.
+- `lab/embed/`: protótipo fora do produto (Hub mínimo e 2 apps de mentira que sobem em `127.0.0.1` com token e aparecem num `WebContentsView` isolado). Abrir: `npx electron lab/embed/hub`; teste: `npx electron lab/embed/hub --selftest`.
+- Validado: `selftest` com 14 verificações OK (isolamento de falha, token, sessões, reinício, atualização com rollback, desinstalação) e `npm test` com 55 testes OK. Estudo do Termix 0.6.3 só de leitura, nada alterado nele nem no código do Hub.
+- Não verificado: foco, teclado e desempenho com o Termix real e com terminal real; `Origin` e backpressure. Próximas tarefas no Backlog: TASK-024 e TASK-025.
+- Retomar em outra máquina: `git clone`, `git checkout dev1`, `npm install`, `/fluxo:papel`, ler `docs/TASKS.md` e `docs/DECISOES.md` §12.
+
 ## 2026-11-09
 
 **TASK-015 — Publicar o repositório no GitHub** (DEV1)

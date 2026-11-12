@@ -16,3 +16,7 @@ out/
 # Sistema
 Thumbs.db
 .DS_Store
+
+# Laboratorio de apps embutidos (saida de teste)
+lab/embed/data/
+lab/embed/resultado.txt

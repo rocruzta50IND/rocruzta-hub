@@ -12,7 +12,11 @@ _Nenhuma no momento._
 
 ## Aguardando validação DEV1
 
-_Nenhuma no momento._
+### TASK-023 — Estudo: apps dentro da janela do Hub
+
+- **Responsável:** DEV1
+- **Status:** AGUARDANDO VALIDAÇÃO DEV1
+- **Resultado:** protótipo em `lab/embed/` (14 verificações OK), estudo do Termix e contrato proposto em `docs/DECISOES.md` §12. Nada do Hub nem do Termix foi alterado. Falta o usuário aprovar (ou não) o contrato e a direção.
 
 ## Validadas em DEV1
 
@@ -70,6 +74,21 @@ Ordem de execução da v1. Pegue a primeira cujas dependências estejam concluí
 ## Backlog
 
 Fora da v1. O DEV1 promove para "Prontas" quando decidir.
+
+### TASK-024 — Protótipo com terminal real no Hub embutido
+
+- **Responsável:** DEV1
+- **Status:** BACKLOG
+- **Prioridade:** Alta (se a direção da TASK-023 for aprovada)
+- **Depende de:** aprovação da TASK-023
+- **Objetivo:** estender `lab/embed/` com node-pty real via WebSocket e medir foco, Ctrl+C/V, IME, desempenho com vários terminais, reconexão com scrollback, backpressure e checagem de `Origin`/`Host`. Relatório do que passou, falhou e não deu para verificar.
+
+### TASK-025 — Modo embutível do Termix (repositório do Termix)
+
+- **Responsável:** A definir
+- **Status:** BACKLOG
+- **Depende de:** TASK-024 e aprovação do usuário (mexe no Termix, tarefa própria no repositório dele)
+- **Objetivo:** transporte único (IPC ou WebSocket), camada `platform` e modo headless conforme `docs/DECISOES.md` §12. Estimativa ~2 a 3 semanas.
 
 ### TASK-014 — Empacotar o instalador do Hub
 

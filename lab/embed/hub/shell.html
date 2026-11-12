@@ -1,0 +1,31 @@
+<!doctype html><meta charset=utf-8>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'">
+<style>
+body{margin:0;font:14px Segoe UI;background:#0d1117;color:#e8edf3;display:flex;height:100vh;overflow:hidden}
+#side{width:240px;padding:14px;box-sizing:border-box;border-right:1px solid #222b36}
+h2{font-size:15px;margin:0 0 14px}
+.app{padding:10px;border:1px solid #222b36;border-radius:8px;margin-bottom:8px;cursor:pointer}
+.app.sel{border-color:#5b8def;background:#131a24}
+.st{font-size:12px;color:#8a97a6}.run{color:#4cc38a}.cai{color:#f66}
+button{background:#1c2633;color:#e8edf3;border:1px solid #2a3340;border-radius:6px;padding:3px 8px;margin:6px 4px 0 0;cursor:pointer}
+#msg{position:absolute;left:240px;right:0;top:0;bottom:0;display:none;align-items:center;justify-content:center;flex-direction:column;background:#0d1117}
+</style>
+<div id=side><h2>Lab Hub (embutido)</h2><div id=l></div></div>
+<div id=msg></div>
+<script>
+let sel=null;
+async function pinta(){const a=await hub.lista();
+ l.innerHTML='';
+ for(const x of a){const d=document.createElement('div');d.className='app'+(x.id===sel?' sel':'');
+  const est=!x.instalado?'Não instalado':x.estado==='rodando'?'<span class=run>● Em execução</span>':x.estado==='caiu'?'<span class=cai>● Caiu</span>':'Instalado';
+  d.innerHTML='<b>'+x.nome+'</b> <span class=st>'+(x.versao||'')+'</span><div class=st>'+est+'</div>';
+  const b=(t,f)=>{const e=document.createElement('button');e.textContent=t;e.onclick=ev=>{ev.stopPropagation();f()};d.appendChild(e)};
+  if(!x.instalado)b('Instalar',()=>hub.instalar(x.id));else{b('Atualizar/Reinstalar',()=>hub.instalar(x.id));b('Desinstalar',()=>hub.desinstalar(x.id));}
+  d.onclick=()=>{if(x.instalado){sel=x.id;hub.abrir(x.id);}};
+  l.appendChild(d);
+  if(x.id===sel){msg.style.display=(x.estado==='caiu')?'flex':'none';
+   msg.innerHTML=x.estado==='caiu'?'<h2>'+x.nome+' caiu</h2><div class=st>O Hub e os outros apps seguem normais.</div><button id=r>Reiniciar</button>':'';
+   if(x.estado==='caiu')document.getElementById('r').onclick=()=>hub.reiniciar(x.id);}}
+ if(!sel||!a.find(x=>x.id===sel&&x.instalado))msg.style.display='none';}
+hub.aoMudar(pinta);pinta();
+</script>

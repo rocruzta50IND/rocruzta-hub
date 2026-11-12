@@ -102,3 +102,24 @@ Instalar ou atualizar apps pelo GitHub, login, backend, API real de notícias, a
 3. O estado vem de fatos, nunca de rótulo: **instalado** (achado no registro do Windows, TASK-009), **não instalado** (existe no `apps.json` mas não foi achado; oferece instalar pela release, TASK-016) e **em execução** (processo vivo, TASK-010). "Em breve" deixa de existir como estado.
 4. Cada app continua independente: repositório, processo, janela e atualização próprios. O Hub só detecta, abre, foca e, mais tarde, instala e atualiza.
 5. Mudanças dentro de um app (botão "← Hub", identificador comum) só como tarefa própria aprovada (TASK-017).
+
+## 12. Apps dentro da janela do Hub: reavaliação (TASK-023, 2026-11-12)
+
+**Pedido do usuário:** a sensação de não sair do Hub tem que ser real. Cada app continua em repositório próprio, versionado, com releases; o Hub instala, atualiza, desinstala e **monta a tela do app dentro dele**, aceitando perder o vidro do Termix. Isto reabre a §1 (que descartou apps embutidos): a §1 vale até o usuário aprovar o contrato abaixo. A janela solta do Windows de hoje é o motivo da queixa.
+
+**Caminhos avaliados:** (A) `SetParent` do Win32 sobre a janela do app: frágil, foco/DPI/GPU quebram, descartado; (B) **app serve a interface em `127.0.0.1` e o Hub a mostra num `WebContentsView` isolado: escolhido para estudo**; (C) Hub como trilho/dock com o app colado ao lado: sem mexer no app, mas depende de Win32 e janelas sincronizadas; (D) transição contínua (mesmas bordas, agrupar na barra de tarefas, "← Hub"): barato, não é "dentro"; (E) apps como módulos do Hub: descartado na §1, acopla versões.
+
+**Contrato proposto (v1, ainda não aprovado):**
+- Release do app traz `app.json`: `id`, `nome`, `versao`, `contrato`, `start`, `health`.
+- O Hub instala em pasta própria por versão (mantém a anterior para rollback); desinstalar = apagar a pasta; dados do usuário ficam em outro lugar.
+- O app roda como processo headless (Electron com `ELECTRON_RUN_AS_NODE` ou Node), sobe em `127.0.0.1` porta aleatória, imprime `HUB_READY <porta>`, exige token (cookie `hubt`) e confere o `Host`.
+- O Hub mostra cada app num `WebContentsView` com `sandbox`, sem preload, sem Node e `partition` por app. Se o app cai, o Hub mostra "caiu, reiniciar" e os outros seguem.
+- Apps que não seguirem o contrato (nativos, de terceiros) continuam abrindo em janela própria, como hoje.
+
+**Protótipo (`lab/embed/`, fora do produto):** Hub mínimo e 2 apps de mentira. `npx electron lab/embed/hub` abre para uso manual; `npx electron lab/embed/hub --selftest` roda 14 verificações (todas OK em 2026-11-12): processos separados; 401 sem token e token de um app não vale no outro; interface renderizada dentro do Hub sem Node nem API do Hub; sessões separadas; falha grave de um app não afeta o outro nem o Hub; reinício; atualização 1.0.0→1.1.0 com rollback; desinstalar. **Não provado:** foco e teclado com o Termix real, desempenho de terminal, GPU compartilhada, checagem de `Origin`, backpressure.
+
+**Estudo do Termix 0.6.3 (somente leitura, nada alterado):** JS puro sem build, ~3.100 linhas no main e ~4.000 no renderer; o renderer só usa `window.termix` (66 métodos: ~37 `handle`, 17 `on`, 18 eventos main→renderer). Terminal: `@lydell/node-pty`, saída já em lotes de ~8 ms/64 KB, mapeia bem para WebSocket (falta backpressure). Caminho incremental viável: tabela de canais única, preload IPC e cliente WebSocket implementam a mesma API, o main registra handlers num registro servido pelos dois transportes, e o que usa Electron (dialogs, `shell`, clipboard, notificação, `userData`) fica atrás de uma interface `platform`. Estimativa: ~2 semanas para funcionar, ~3 com acabamento. **Maiores riscos:** (1) aba Web (`WebContentsView`) e dock do Termix não têm equivalente fora do Electron: ficam no Hub ou são reescritos; (2) diálogos nativos e `shell` precisam de ponte para o Hub; (3) segurança de pty e `fs` por WebSocket local. Pontos a conferir: intervalo das métricas e o caminho de instalação (instalado em `D:\Nova pasta\Termix` nesta máquina, não em `D:\Termix`).
+
+**Terminais:** continuam rodando na máquina do usuário, como filhos do backend do app. Não há servidor remoto. Problemas esperados: terminais morrem se o backend morrer (decidir se fechar o Hub mata as sessões); reconexão sem perder saída (buffer de scrollback); backpressure; segurança da porta local (token, `Origin`, `Host`, CSP); hooks do Claude usam `process.execPath`; foco, Ctrl+C/V e IME dentro da view; GPU/WebGL com vários terminais; atualizar app com terminais ativos.
+
+**Próximos passos (precisam de aprovação do usuário):** TASK-024 (protótipo com terminal real, medir foco, teclado, desempenho e segurança) e, se passar, TASK-025 (modo embutível do Termix, no repositório do Termix). Só então reescrever a §1 e o `apps.json` para o contrato.
