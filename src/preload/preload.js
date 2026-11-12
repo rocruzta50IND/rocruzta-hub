@@ -38,6 +38,9 @@ const CH = {
   atualizacoesVisto: 'atu:visto',
   atualizacoesFechar: 'atu:fechar',
   desinstalar: 'apps:desinstalar',
+  trocaEspaco: 'troca:espaco',
+  trocaSoltou: 'troca:soltou',
+  trocaFoco: 'troca:foco',
 };
 
 contextBridge.exposeInMainWorld('hub', {
@@ -94,6 +97,18 @@ contextBridge.exposeInMainWorld('hub', {
     ipcRenderer.on(CH.notificacaoAbrirPedido, listener);
     return () => ipcRenderer.removeListener(CH.notificacaoAbrirPedido, listener);
   },
+  // Troca rápida entre apps (Ctrl+Espaço): as teclas chegam pelo processo principal, mesmo com o foco dentro de um app.
+  onTrocaEspaco: (cb) => {
+    const listener = (_e, voltar) => cb(Boolean(voltar));
+    ipcRenderer.on(CH.trocaEspaco, listener);
+    return () => ipcRenderer.removeListener(CH.trocaEspaco, listener);
+  },
+  onTrocaSoltou: (cb) => {
+    const listener = () => cb();
+    ipcRenderer.on(CH.trocaSoltou, listener);
+    return () => ipcRenderer.removeListener(CH.trocaSoltou, listener);
+  },
+  focarJanela: () => ipcRenderer.send(CH.trocaFoco),
   onEmbutidoMudou: (cb) => {
     const listener = () => cb();
     ipcRenderer.on(CH.embutidoMudou, listener);

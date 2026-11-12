@@ -169,3 +169,16 @@ Instalar ou atualizar apps pelo GitHub, login, backend, API real de notícias, a
 **Versões:** o aviso de atualização compara com a versão que o Hub roda (a da pasta de desenvolvimento, se for ela; senão a instalada). Com a pasta de desenvolvimento, o botão Desinstalar não aparece (seria o desinstalador de outra cópia).
 
 **Em outra máquina:** `git clone` do Hub, `git checkout dev1` (ou `main`), `npm install`, `npm start`; instalar ou atualizar o Termix para >= 0.7.0. O Hub ainda não tem instalador próprio (TASK-014).
+
+## 16. Troca rápida entre apps: Ctrl+Espaço (TASK-030, 2026-11-12)
+
+**Pedido do usuário:** o mesmo efeito da Visão de Tarefas do Windows para alternar entre apps. **Por que não Alt+Tab:** é do sistema, o app não o recebe (interceptar exige gancho nativo de teclado, frágil e que prende o usuário no Hub).
+
+**Comportamento:** Ctrl+Espaço abre um painel em tela cheia (fundo desfocado) com um cartão por item (Hub e apps instalados), ordenados por uso recente, já selecionando o anterior. Cada novo Ctrl+Espaço avança (Shift volta); **soltar o Ctrl confirma**; Esc cancela; setas, Enter, 1 a 9 e clique também valem. Confirmar o item atual só fecha. As telas internas do Hub (Início, Notícias...) não são cartões. Só vale com a janela do Hub em foco; o seletor global `Ctrl+Alt+Espaço` segue para a TASK-011. Sem Alt nem Meta (AltGr no ABNT2, §5).
+
+**Como funciona (e o que não é óbvio):**
+- A tela de um app embutido é uma camada nativa por cima da página, então o painel só aparece depois de o app ser fotografado e escondido (mecanismo `capturar`/`#v-snap` que o seletor já usava). As miniaturas são **a última foto do app, não a tela ao vivo**: tiradas ao sair dele e ao abrir o painel. Apps parados mostram o ícone.
+- Com o foco **dentro** de um app, a tecla é pega no processo principal (`before-input-event`) e **não chega ao app**: no terminal, o Ctrl+Espaço (caractere NUL) deixa de existir enquanto o Hub está em foco. Quando o processo principal trata uma tecla, o Chromium descarta os `keyUp` seguintes daquela tela, **inclusive o do Ctrl**. Por isso o foco passa para a página do Hub na hora, e é ela que vê o Ctrl ser solto. Com o foco na própria página do Hub o atalho é tratado no renderer, onde isso não acontece.
+- Teste automático: `node tools/verificar-troca.js` (abre o Hub, o Termix embutido e confere o fluxo). O `Input.dispatchKeyEvent` do CDP não passa por `before-input-event`, então as teclas da tela do app entram por `--inspect` e `webContents.sendInputEvent`.
+
+**Não provado:** o teclado físico e o foco do Windows com o Hub em primeiro plano; muitos apps (grade com quebra de linha); tema claro do painel; miniatura de apps que não são embutidos (aparecem só com ícone).

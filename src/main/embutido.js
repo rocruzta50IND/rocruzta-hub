@@ -64,7 +64,7 @@ function encerrarArvore(pid) {
   return new Promise((resolve) => execFile('taskkill', ['/PID', String(pid), '/T', '/F'], { windowsHide: true }, () => resolve()));
 }
 
-function criarEmbutidos({ janela, dadosDir, abrirExterno, aoMudar, aoEvento = () => {} }) {
+function criarEmbutidos({ janela, dadosDir, abrirExterno, aoMudar, aoEvento = () => {}, aoCriarView = () => {} }) {
   const { WebContentsView } = require('electron');
   const apps = new Map(); // id -> { filho, token, porta, view, estado }
   let tema = 'dark'; // quem manda no tema é o Hub
@@ -121,6 +121,7 @@ function criarEmbutidos({ janela, dadosDir, abrirExterno, aoMudar, aoEvento = ()
     view.setVisible(false);
     if (retangulo) view.setBounds(retangulo);
     const wc = view.webContents;
+    aoCriarView(wc);
     const origem = `http://127.0.0.1:${app.porta}`;
     wc.on('will-navigate', (e, url) => { if (!url.startsWith(origem)) { e.preventDefault(); if (/^https?:\/\//i.test(url)) abrirExterno(url); } });
     wc.setWindowOpenHandler(({ url }) => { if (/^https?:\/\//i.test(url)) abrirExterno(url); return { action: 'deny' }; });

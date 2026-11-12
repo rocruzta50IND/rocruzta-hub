@@ -8,6 +8,13 @@ Histórico legível do que foi desenvolvido, alterado ou corrigido. Uma entrada 
 
 ## 2026-11-12
 
+**TASK-030 — Troca rápida entre apps (Ctrl+Espaço)** (DEV1)
+
+- Pedido do usuário: efeito do Alt+Tab/Visão de Tarefas do Windows para alternar entre os apps sem sair do Hub. O Alt+Tab em si é do Windows e o app não o recebe, então o atalho é Ctrl+Espaço (só com o Hub em foco).
+- `src/main/teclas.js` (classifica a tecla), `src/renderer/troca.js` (ordem por uso recente e seleção, pura e testada), painel em `shell.js`/`shell.css`/`index.html` (`#troca`) e canais `troca:*` (config.js e preload). Com o foco dentro de um app embutido, `before-input-event` (em `main.js`, ligado por `aoCriarView` em `embutido.js`) pega a tecla, passa o foco ao Hub e avisa a página; com o foco na página, o renderer trata a tecla. Miniaturas: foto da tela do app guardada ao sair dele e ao abrir o painel (reaproveita `capturar`).
+- Validado: `npm test` com 97 testes OK (7 novos em `test/troca.test.js`) e `node tools/verificar-troca.js` no app real com o Termix embutido, 12/12 OK em 2 rodadas (abrir, Esc, soltar o Ctrl confirma, a partir do Hub e de dentro do Termix, miniatura, avançar). Não verificado: o teclado físico (as teclas foram injetadas pelo CDP e por `sendInputEvent`) e o foco do Windows com a janela em primeiro plano.
+- Achado: quando o processo principal trata uma tecla, o Chromium descarta os `keyUp` seguintes daquela tela, inclusive o do Ctrl; por isso a página do Hub trata o atalho no próprio renderer e, no app embutido, o foco passa ao Hub na hora.
+
 **TASK-029 — Versão real do app instalado** (DEV1)
 
 - Causa: nesta máquina o registro do Windows dizia Termix 0.2.7 enquanto os arquivos eram da 0.7.0 (o app se atualiza sozinho e não corrige o registro). O Hub lê a versão do registro, achou o app abaixo de `embutirDesde` (0.7.0) e abria o Termix em janela solta em vez de embutir.

@@ -163,3 +163,22 @@ body.side-oculta #side-col > * { opacity: 0; transform: translateX(-12px); point
 .aa-x::after { transform: rotate(-45deg); }
 .aa-x:hover { background: var(--hover); color: var(--text); }
 .dot-att { flex: none; width: 7px; height: 7px; margin-left: auto; border-radius: 50%; background: var(--brand); }
+
+/* Troca rápida entre apps (Ctrl+Espaço): painel em tela cheia com um cartão por app, como o Alt+Tab (TASK-030). */
+#troca { position: fixed; inset: 0; z-index: 60; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; padding: 56px 40px; background: color-mix(in srgb, var(--bg) 58%, transparent); backdrop-filter: blur(22px) saturate(1.15); animation: troca-in .12s ease-out; }
+#troca[hidden] { display: none; }
+@keyframes troca-in { from { opacity: 0; } to { opacity: 1; } }
+.troca-grade { display: flex; flex-wrap: wrap; gap: 18px; justify-content: center; max-width: 1100px; }
+.troca-card { width: 268px; display: flex; flex-direction: column; gap: 10px; padding: 12px; text-align: left; color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-l); transition: background .12s, border-color .12s, box-shadow .12s; }
+.troca-card:hover { background: var(--surface-2); }
+.troca-card.sel { background: var(--surface-2); border-color: var(--brand-2); box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand-2) 55%, transparent); }
+.troca-cab { display: flex; align-items: center; gap: 8px; font-size: 13px; min-width: 0; }
+.troca-cab b { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.troca-cab small { margin-left: auto; flex: none; font-size: 11.5px; color: var(--text-3); }
+.troca-mini { aspect-ratio: 16 / 10; display: block; overflow: hidden; background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-m); }
+.troca-mini img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top left; }
+.troca-vazio { width: 100%; height: 100%; display: grid; place-items: center; }
+.troca-vazio .glyph { width: 52px; height: 52px; border-radius: 13px; }
+.troca-vazio .glyph svg { width: 27px; height: 27px; }
+.troca-dica { margin: 0; font-size: 12px; color: var(--text-2); }
+.troca-dica kbd { font: 11px var(--mono); padding: 1px 6px; border: 1px solid var(--line-strong); border-radius: 4px; background: var(--surface); }

@@ -9,6 +9,7 @@ const { criarAtualizacoes } = require('./atualizacoes');
 const { anexarExecucao, abrirApp, desinstalarApp } = require('./execucao');
 const { localizarDev, localizarInstalado, criarEmbutidos } = require('./embutido');
 const { criarConversa } = require('./conversa');
+const { classificarTecla } = require('./teclas');
 const { criarCentral, deveAvisarWindows, TITULOS } = require('./notificacoes');
 const { APP_ID, APP_NAME, ICON, WINDOW, CHANNELS, userDataDir } = require('./config');
 
@@ -43,7 +44,22 @@ function aoEventoDoApp(appId, bruto) {
     n.show();
   }
 }
+// Troca rápida (Ctrl+Espaço): com o foco DENTRO de um app embutido, a tecla é pega aqui, no processo principal, e não chega ao
+// app (no terminal seria o caractere NUL). Quando o processo principal trata uma tecla, o Chromium descarta os keyUp seguintes
+// daquela tela, inclusive o do Ctrl, então o foco passa para a página do Hub NA HORA: é ela que vê o Ctrl ser solto.
+// Com o foco na própria página do Hub o atalho é tratado no renderer (shell.js), onde isso não acontece.
+function escutarTeclasDeTroca(wc) {
+  wc.on('before-input-event', (e, input) => {
+    const t = classificarTecla(input);
+    if (!t || !mainWindow || mainWindow.isDestroyed()) return;
+    if (t.acao === 'soltou') return mainWindow.webContents.send(CHANNELS.trocaSoltou);
+    e.preventDefault();
+    mainWindow.webContents.focus();
+    if (!t.repeticao) mainWindow.webContents.send(CHANNELS.trocaEspaco, t.voltar);
+  });
+}
 const embutidos = criarEmbutidos({
+  aoCriarView: escutarTeclasDeTroca,
   aoEvento: aoEventoDoApp,
   janela: () => mainWindow,
   dadosDir: app.getPath('userData'),
@@ -222,6 +238,7 @@ ipcMain.handle(CHANNELS.atualizacoesChecar, async (e) => {
 });
 ipcMain.on(CHANNELS.atualizacoesVisto, (e, id) => { if (windowFrom(e) && appsReais().some((x) => x.id === id)) atualizacoes.marcarVisto(id); });
 ipcMain.on(CHANNELS.atualizacoesFechar, (e, id) => { if (windowFrom(e) && appsReais().some((x) => x.id === id)) atualizacoes.fecharAviso(id); });
+ipcMain.on(CHANNELS.trocaFoco, (e) => { const w = windowFrom(e); if (w) w.webContents.focus(); });
 ipcMain.on(CHANNELS.embutirOcultar, (e) => { if (windowFrom(e)) embutidos.ocultarTodos(); });
 // A página de releases sai do catálogo (repositório do app), nunca de um endereço vindo da janela.
 ipcMain.handle(CHANNELS.releases, async (e, id) => {

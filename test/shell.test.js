@@ -82,7 +82,7 @@ test('casca: abrir app passa pela ponte e só diz "aberto" quando deu certo', ()
 
 test('index.html: scripts na ordem certa, existentes, sem inline', () => {
   const html = read('index.html');
-  const ordem = ['icons.js', 'catalogo.js', 'atalhos.js', 'ui.js', 'shell.js', 'renderer.js'];
+  const ordem = ['icons.js', 'catalogo.js', 'atalhos.js', 'troca.js', 'ui.js', 'shell.js', 'renderer.js'];
   let ultimo = -1;
   for (const f of ordem) {
     const i = html.indexOf(`<script src="${f}"></script>`);

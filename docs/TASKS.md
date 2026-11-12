@@ -53,6 +53,12 @@ _Nenhuma no momento._
 - **Status:** VALIDADA EM DEV1 (testes automáticos e detecção real nesta máquina)
 - **Feito:** o Termix se atualiza por cima dos arquivos e não corrige o `DisplayVersion` do registro (aqui: registro 0.2.7, código 0.7.0), então o Hub achava o app "antigo" e não o embutia. `src/main/deteccao.js` agora lê `resources/app/package.json` da pasta instalada e usa essa versão quando for maior que a do registro (nunca rebaixa). Afeta a decisão de embutir (`embutirDesde`) e os avisos de atualização.
 
+### TASK-030 — Troca rápida entre apps (Ctrl+Espaço)
+
+- **Responsável:** DEV1
+- **Status:** VALIDADA EM DEV1 (testes e verificação no app real; falta a conferência sua com o teclado de verdade)
+- **Feito:** painel em tela cheia, estilo Alt+Tab, com um cartão por app instalado e miniatura da última tela. Ctrl+Espaço abre e avança (Shift volta), soltar o Ctrl confirma, Esc cancela; também setas, Enter, números e clique. Só com o Hub em foco, inclusive com o foco dentro do Termix embutido. Detalhes e armadilhas em `docs/DECISOES.md` §16.
+
 ## Prontas
 
 Ordem de execução da v1. Pegue a primeira cujas dependências estejam concluídas.

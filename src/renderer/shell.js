@@ -56,14 +56,15 @@ function iniciarShell() {
   let seqSnap = 0;
   const limparSnap = () => { const sn = $('#v-snap'); sn.hidden = true; sn.removeAttribute('src'); };
   async function sincronizarEmbutido() {
-    const quer = !seletorAberto();
+    const quer = !(seletorAberto() || trocaAberta());
     if (!appAtual || embutidoVisivel === quer) return;
     embutidoVisivel = quer;
     const id = appAtual, meu = ++seqSnap;
     if (!quer) {
-      const url = await window.hub.capturarEmbutido(id).catch(() => null);
+      let url = await window.hub.capturarEmbutido(id).catch(() => null);
+      if (!url && meu === seqSnap) { await new Promise((r) => setTimeout(r, 80)); if (meu === seqSnap) url = await window.hub.capturarEmbutido(id).catch(() => null); } // a 1ª foto pode sair vazia se a tela ainda não pintou
       if (meu !== seqSnap || appAtual !== id) return; // fechou o menu (ou trocou de app) enquanto a foto era feita
-      if (url) { const sn = $('#v-snap'); sn.src = url; sn.hidden = false; try { await sn.decode(); } catch { /* segue mesmo assim */ } if (meu !== seqSnap) return; }
+      if (url) { miniaturas[id] = url; const sn = $('#v-snap'); sn.src = url; sn.hidden = false; try { await sn.decode(); } catch { /* segue mesmo assim */ } if (meu !== seqSnap) return; }
       window.hub.visivelEmbutido(id, false);
     } else {
       window.hub.visivelEmbutido(id, true);
@@ -87,6 +88,90 @@ function iniciarShell() {
       setTimeout(atualizarEstados, 1500);
     }
   }
+
+  // ---- Troca rápida entre apps (Ctrl+Espaço): painel com um cartão por app, como o Alt+Tab (TASK-030) ----
+  // As teclas chegam pelo processo principal (o foco costuma estar dentro do app). Soltar o Ctrl confirma.
+  const painelTroca = $('#troca');
+  let recentes = ['hub'];     // ids usados por último primeiro ('hub' ou id do app)
+  const miniaturas = {};      // id -> foto (data URL) da última vez que o app foi visto
+  let troca = null;           // { itens, sel, pronto, soltou } enquanto o painel está aberto
+  const trocaAberta = () => troca !== null;
+
+  async function guardarMiniatura(id) {
+    const url = await Promise.race([window.hub.capturarEmbutido(id).catch(() => null), new Promise((r) => setTimeout(() => r(null), 250))]);
+    if (url) miniaturas[id] = url;
+  }
+  function itensDaTroca() {
+    const atual = appAtual || 'hub';
+    const todos = [{ id: 'hub', nome: HUB.nome, cor: HUB.cor, icone: HUB.icone }, ...APPS.filter((a) => !naoInstalado(a.id)).map((a) => ({ id: a.id, nome: a.nome, cor: a.cor, icone: a.icone }))];
+    return ordenarPorRecentes(todos, registrarRecente(recentes, atual)).map((it) => ({ ...it, atual: it.id === atual, rodando: it.id === 'hub' || emExecucao(it.id) }));
+  }
+  function desenharTroca() {
+    if (!troca) return;
+    painelTroca.innerHTML = `<div class="troca-grade" role="listbox">${troca.itens.map((it, i) => `<button class="troca-card${i === troca.sel ? ' sel' : ''}" role="option" aria-selected="${i === troca.sel}" data-i="${i}">
+      <span class="troca-cab"><span class="glyph" data-c="${it.cor}">${ic(it.icone)}</span><b>${it.nome}</b><small>${it.atual ? 'Aberto agora' : it.rodando ? 'Em execução' : ''}</small></span>
+      <span class="troca-mini">${miniaturas[it.id] ? `<img alt="" src="${miniaturas[it.id]}">` : `<span class="troca-vazio"><span class="glyph" data-c="${it.cor}">${ic(it.icone)}</span></span>`}</span>
+    </button>`).join('')}</div><p class="troca-dica"><kbd>Ctrl</kbd> + <kbd>Espaço</kbd> avança · solte o <kbd>Ctrl</kbd> para abrir · <kbd>Esc</kbd> cancela</p>`;
+    aplicarCores(painelTroca);
+  }
+  async function abrirTroca() {
+    if (troca) return;
+    const itens = itensDaTroca();
+    if (itens.length < 2) return; // só o Hub: não há para onde trocar
+    troca = { itens, sel: selecaoInicial(itens.length), pronto: false, soltou: false };
+    definirSeletor(false);
+    window.hub.focarJanela();
+    await sincronizarEmbutido(); // tira a foto do app e o esconde: a tela dele é uma camada nativa e cobriria o painel
+    if (!troca) return;
+    desenharTroca(); // as fotos novas já estão em `miniaturas`
+    painelTroca.hidden = false;
+    troca.pronto = true;
+    if (troca.soltou) confirmarTroca(); // a pessoa já soltou o Ctrl antes de o painel aparecer: vale o que foi escolhido
+  }
+  function moverTroca(voltar) {
+    if (!troca) return abrirTroca();
+    troca.sel = mover(troca.sel, troca.itens.length, voltar);
+    if (troca.pronto) desenharTroca();
+  }
+  function fecharTroca(restaurar) {
+    if (!troca) return;
+    troca = null;
+    painelTroca.hidden = true; painelTroca.innerHTML = '';
+    if (restaurar) sincronizarEmbutido();
+  }
+  function confirmarTroca() {
+    if (!troca) return;
+    if (!troca.pronto) { troca.soltou = true; return; }
+    const alvo = troca.itens[troca.sel];
+    const atual = appAtual || 'hub';
+    if (!alvo || alvo.id === atual) return fecharTroca(true);
+    const embutivel = alvo.id === 'hub' || ESTADOS[alvo.id]?.embutivel;
+    fecharTroca(!embutivel); // indo para outro app embutido, ele mesmo cuida de mostrar/esconder; senão devolve o app atual
+    if (alvo.id === 'hub') voltarHub();
+    else clicarApp(alvo.id);
+  }
+  window.hub.onTrocaEspaco((voltar) => moverTroca(voltar));
+  window.hub.onTrocaSoltou(() => confirmarTroca());
+  painelTroca.addEventListener('click', (e) => {
+    const c = e.target.closest('.troca-card');
+    if (c && troca) { troca.sel = Number(c.dataset.i); confirmarTroca(); } else fecharTroca(true);
+  });
+  // Com o foco na página do Hub, o Ctrl+Espaço é tratado aqui (nas telas dos apps é o processo principal que o repassa).
+  document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' && e.ctrlKey && !e.altKey && !e.metaKey) { e.preventDefault(); e.stopPropagation(); if (!e.repeat) moverTroca(e.shiftKey); }
+  }, true);
+  document.addEventListener('keydown', (e) => {
+    if (!troca) return;
+    const k = e.key;
+    if (k === 'Escape') fecharTroca(true);
+    else if (k === 'Enter') confirmarTroca();
+    else if (k === 'ArrowRight' || k === 'ArrowDown') moverTroca(false);
+    else if (k === 'ArrowLeft' || k === 'ArrowUp') moverTroca(true);
+    else if (/^[1-9]$/.test(k) && troca.itens[Number(k) - 1]) { troca.sel = Number(k) - 1; confirmarTroca(); }
+    else return;
+    e.preventDefault(); e.stopPropagation();
+  }, true);
+  document.addEventListener('keyup', (e) => { if (e.key === 'Control') confirmarTroca(); });
 
   botaoSeletor.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -424,6 +509,8 @@ function iniciarShell() {
   function mostrarCaiu() { const a = APPS.find((x) => x.id === appAtual); mensagemApp(`${a.nome} parou`, 'O Hub e os outros apps seguem normais.', 'Abrir de novo'); }
   async function entrarApp(id) {
     const app = APPS.find((a) => a.id === id);
+    if (appAtual && appAtual !== id && embutidoVisivel) await guardarMiniatura(appAtual);
+    recentes = registrarRecente(recentes, id);
     appAtual = id; embutidoVisivel = true; seqSnap++; limparSnap();
     mostrarTela('app');
     definirTitulo();
@@ -436,8 +523,11 @@ function iniciarShell() {
     atualizarEstados();
     return true;
   }
-  function voltarHub() {
+  async function voltarHub() {
     if (!appAtual) return;
+    if (embutidoVisivel) await guardarMiniatura(appAtual);
+    if (!appAtual) return;
+    recentes = registrarRecente(recentes, 'hub');
     appAtual = null; embutidoVisivel = true; seqSnap++; limparSnap();
     window.hub.ocultarEmbutido();
     mostrarTela('hub');
