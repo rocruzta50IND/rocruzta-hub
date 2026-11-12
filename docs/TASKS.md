@@ -65,6 +65,12 @@ _Nenhuma no momento._
 - **Status:** VALIDADA EM DEV1 (verificação no app real; falta a sua conferência visual)
 - **Feito:** depois da primeira abertura, voltar ao Termix (barra lateral, seletor ou Ctrl+Espaço) não mostra mais a tela "Abrindo o Termix...": a tela escondida volta direto, com a última foto no lugar até reaparecer. Só a primeira abertura (ou depois de o app cair) mostra o carregamento.
 
+### TASK-032 — Troca rápida fluida ao alternar depressa
+
+- **Responsável:** DEV1
+- **Status:** VALIDADA EM DEV1 (teclado real medido; falta a sua conferência)
+- **Feito:** entrar num app já aberto não consulta mais o registro do Windows (levava mais de 300 ms e fazia toques seguidos se perderem); gestos de Ctrl+Espaço em sequência não se atropelam (ficam enfileirados); o painel não é redesenhado a cada Espaço e perdeu a animação de entrada.
+
 ## Prontas
 
 Ordem de execução da v1. Pegue a primeira cujas dependências estejam concluídas.

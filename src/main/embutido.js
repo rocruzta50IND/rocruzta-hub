@@ -187,10 +187,13 @@ function criarEmbutidos({ janela, dadosDir, abrirExterno, aoMudar, aoEvento = ()
       req.end(dados);
     });
   }
+  // App já rodando e com a tela criada: voltar a ele não precisa reavaliar onde ele está instalado (isso consulta o registro
+  // do Windows e leva centenas de ms, o que travava a troca rápida entre apps).
+  const pronto = (id) => { const a = apps.get(id); return Boolean(a && a.estado === 'rodando' && a.view); };
   // App cuja tela está aparecendo agora (null se nenhuma).
   const visivelAgora = () => { for (const [id, a] of apps) if (a.view && a.estado === 'rodando' && a.view.getVisible()) return id; return null; };
 
-  return { estado, mostrar, ajustar, visivel, capturar, ocultarTodos, parar, pararTodos, definirTema, comando, visivelAgora };
+  return { estado, pronto, mostrar, ajustar, visivel, capturar, ocultarTodos, parar, pararTodos, definirTema, comando, visivelAgora };
 }
 
 module.exports = { localizarDev, localizarInstalado, argumentos, argumentosInstalado, ambiente, lerPronto, retanguloValido, criarEmbutidos };

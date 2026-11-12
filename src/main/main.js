@@ -173,6 +173,7 @@ ipcMain.handle(CHANNELS.embutir, async (e, id, retangulo) => {
   if (!windowFrom(e)) return { ok: false, motivo: 'janela' };
   try {
     if (!appEmbutivel(id)) return { ok: false, motivo: 'desconhecido' };
+    if (embutidos.pronto(id)) return await embutidos.mostrar(id, null, retangulo); // já aberto: só traz a tela de volta, sem reconsultar o registro
     const dev = await embutivelDe(appEmbutivel(id));
     if (!dev) return { ok: false, motivo: 'indisponivel' };
     return await embutidos.mostrar(id, dev, retangulo);

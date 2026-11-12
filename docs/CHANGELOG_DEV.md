@@ -8,6 +8,14 @@ Histórico legível do que foi desenvolvido, alterado ou corrigido. Uma entrada 
 
 ## 2026-11-12
 
+**TASK-032 — Troca rápida fluida ao alternar depressa** (DEV1)
+
+- Problema (relato do usuário): alternando rápido, a troca não era fluida como a Visão de Tarefas do Windows.
+- Medido com teclado real (`tools/medir-troca-real.js`, `keybd_event` com o Hub em primeiro plano; aborta se o Hub não estiver à frente): havia toques perdidos (11 de 12, 16 de 20) e estado final errado. Causa: voltar ao Termix passava por `embutivelDe`, que consulta o registro do Windows (4 `reg.exe`) e levava mais de 300 ms; o Ctrl+Espaço seguinte chegava no meio e era tratado como "avançar" no painel anterior. Os quadros da tela já estavam bem (nenhum acima de 33 ms).
+- Correções: `embutidos.pronto(id)` evita reconsultar o registro quando o app já está rodando (`main.js`, `embutido.js`); gestos em sequência esperam a navegação anterior e ficam em fila (`proxima`) em `shell.js`; os cartões são desenhados uma vez por abertura (avançar só troca a marca `.sel`); sem animação de entrada e desfoque menor (`shell.css`).
+- Validado: teclado real, 7/7: 12 e 20 toques seguidos viram 12 e 20 trocas (com o Ctrl segurado de 30 a 80 ms, soltando o Ctrl antes ou depois do Espaço), ciclar com três Espaços, tempo até o painel e até o destino na casa de poucos ms, nenhum quadro acima de 33 ms. `tools/verificar-troca.js` 13/13, `npm test` 97 OK.
+- Não verificado: com o Hub em primeiro plano, as teclas reais chegaram sempre à página do Hub, então o caminho com o foco dentro da tela do app só foi coberto pelo teste de `sendInputEvent`. Depois de trocar para o Termix pelo teclado, não consegui provar que o teclado vai para ele sem clicar (testei 11 formas de focar; a sonda pode estar errada): confirme se dá para digitar no Termix logo após a troca.
+
 **TASK-031 — Voltar a um app já aberto sem "Abrindo..."** (DEV1)
 
 - Problema (relato do usuário): ao trocar entre o Hub e o Termix, depois do primeiro carregamento, ainda aparecia "Abrindo o Termix..." e um carregamento. Causa: `entrarApp` (`src/renderer/shell.js`) mostrava a mensagem e esperava um quadro a cada entrada, mesmo com a tela do app já carregada e só escondida.

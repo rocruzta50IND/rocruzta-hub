@@ -89,17 +89,22 @@ function iniciarShell() {
     }
   }
 
-  // ---- Troca rápida entre apps (Ctrl+Espaço): painel com um cartão por app, como o Alt+Tab (TASK-030) ----
+  // ---- Troca rápida entre apps (Ctrl+Espaço): painel com um cartão por app, como o Alt+Tab (TASK-030, TASK-032) ----
   // As teclas chegam pelo processo principal (o foco costuma estar dentro do app). Soltar o Ctrl confirma.
+  // Gestos seguidos não podem se atropelar: um novo Ctrl+Espaço espera a navegação anterior terminar (`navegacao`) e, se chegar
+  // enquanto o gesto anterior ainda confirma, fica guardado em `proxima` (com o Ctrl dele, se já soltou) e abre logo depois.
   const painelTroca = $('#troca');
   const abertos = new Set();  // apps embutidos cuja tela já foi mostrada e que seguem rodando
   let recentes = ['hub'];     // ids usados por último primeiro ('hub' ou id do app)
   const miniaturas = {};      // id -> foto (data URL) da última vez que o app foi visto
   let troca = null;           // { itens, sel, pronto, soltou } enquanto o painel está aberto
+  let proxima = null;         // { soltou } um novo gesto que chegou enquanto o anterior ainda confirmava
+  let navegacao = Promise.resolve(); // última troca de tela em andamento (entrar no app ou voltar ao Hub)
   const trocaAberta = () => troca !== null;
+  const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
 
   async function guardarMiniatura(id) {
-    const url = await Promise.race([window.hub.capturarEmbutido(id).catch(() => null), new Promise((r) => setTimeout(() => r(null), 250))]);
+    const url = await Promise.race([window.hub.capturarEmbutido(id).catch(() => null), esperar(250).then(() => null)]);
     if (url) miniaturas[id] = url;
   }
   function itensDaTroca() {
@@ -107,68 +112,90 @@ function iniciarShell() {
     const todos = [{ id: 'hub', nome: HUB.nome, cor: HUB.cor, icone: HUB.icone }, ...APPS.filter((a) => !naoInstalado(a.id)).map((a) => ({ id: a.id, nome: a.nome, cor: a.cor, icone: a.icone }))];
     return ordenarPorRecentes(todos, registrarRecente(recentes, atual)).map((it) => ({ ...it, atual: it.id === atual, rodando: it.id === 'hub' || emExecucao(it.id) }));
   }
+  // Desenha os cartões uma vez por abertura; avançar só troca a marca de seleção (redesenhar recarregaria as fotos a cada Espaço).
   function desenharTroca() {
     if (!troca) return;
-    painelTroca.innerHTML = `<div class="troca-grade" role="listbox">${troca.itens.map((it, i) => `<button class="troca-card${i === troca.sel ? ' sel' : ''}" role="option" aria-selected="${i === troca.sel}" data-i="${i}">
+    painelTroca.innerHTML = `<div class="troca-grade" role="listbox">${troca.itens.map((it, i) => `<button class="troca-card" role="option" data-i="${i}">
       <span class="troca-cab"><span class="glyph" data-c="${it.cor}">${ic(it.icone)}</span><b>${it.nome}</b><small>${it.atual ? 'Aberto agora' : it.rodando ? 'Em execução' : ''}</small></span>
       <span class="troca-mini">${miniaturas[it.id] ? `<img alt="" src="${miniaturas[it.id]}">` : `<span class="troca-vazio"><span class="glyph" data-c="${it.cor}">${ic(it.icone)}</span></span>`}</span>
     </button>`).join('')}</div><p class="troca-dica"><kbd>Ctrl</kbd> + <kbd>Espaço</kbd> avança · solte o <kbd>Ctrl</kbd> para abrir · <kbd>Esc</kbd> cancela</p>`;
     aplicarCores(painelTroca);
+    marcarSelecaoTroca();
   }
-  async function abrirTroca() {
+  function marcarSelecaoTroca() {
+    if (!troca) return;
+    painelTroca.querySelectorAll('.troca-card').forEach((c, i) => { c.classList.toggle('sel', i === troca.sel); c.setAttribute('aria-selected', String(i === troca.sel)); });
+  }
+  async function abrirTroca(soltouJa = false) {
     if (troca) return;
+    const minha = { itens: [], sel: 0, extra: 0, pronto: false, soltou: soltouJa };
+    troca = minha; // marca já: Espaços e Ctrl solto que chegarem durante a preparação entram neste gesto
+    await Promise.race([navegacao, esperar(300)]); // a tela anterior precisa ter terminado de trocar (senão ela reapareceria por cima do painel)
+    if (troca !== minha) return;
     const itens = itensDaTroca();
-    if (itens.length < 2) return; // só o Hub: não há para onde trocar
-    troca = { itens, sel: selecaoInicial(itens.length), pronto: false, soltou: false };
+    if (itens.length < 2) { troca = null; return; } // só o Hub: não há para onde trocar
+    minha.itens = itens;
+    minha.sel = (((selecaoInicial(itens.length) + minha.extra) % itens.length) + itens.length) % itens.length; // inclui os Espaços que já chegaram
     definirSeletor(false);
     window.hub.focarJanela();
     await sincronizarEmbutido(); // tira a foto do app e o esconde: a tela dele é uma camada nativa e cobriria o painel
-    if (!troca) return;
+    if (troca !== minha) return; // Esc durante a preparação
     desenharTroca(); // as fotos novas já estão em `miniaturas`
     painelTroca.hidden = false;
-    troca.pronto = true;
-    if (troca.soltou) confirmarTroca(); // a pessoa já soltou o Ctrl antes de o painel aparecer: vale o que foi escolhido
+    minha.pronto = true;
+    if (minha.soltou) efetivarTroca(); // a pessoa já soltou o Ctrl antes de o painel aparecer: vale o que foi escolhido
   }
   function moverTroca(voltar) {
-    if (!troca) return abrirTroca();
+    if (!troca) { abrirTroca(); return; }
+    if (troca.soltou) { proxima = { soltou: false }; return; } // Ctrl+Espaço novo, com o gesto anterior ainda confirmando
+    if (!troca.itens.length) { troca.extra += voltar ? -1 : 1; return; } // ainda preparando: conta o Espaço e aplica quando os cartões existirem
     troca.sel = mover(troca.sel, troca.itens.length, voltar);
-    if (troca.pronto) desenharTroca();
+    if (troca.pronto) marcarSelecaoTroca();
   }
   function fecharTroca(restaurar) {
-    if (!troca) return;
+    if (!troca) return Promise.resolve();
     troca = null;
     painelTroca.hidden = true; painelTroca.innerHTML = '';
-    if (restaurar) sincronizarEmbutido();
+    return restaurar ? sincronizarEmbutido() : Promise.resolve();
   }
+  // Ctrl solto: confirma o que está selecionado (ou, se o painel ainda não apareceu, deixa marcado para confirmar ao aparecer).
   function confirmarTroca() {
     if (!troca) return;
-    if (!troca.pronto) { troca.soltou = true; return; }
-    const alvo = troca.itens[troca.sel];
+    if (troca.soltou) { if (proxima) proxima.soltou = true; return; } // já confirmando: o Ctrl solto agora é do gesto seguinte
+    troca.soltou = true;
+    if (troca.pronto) efetivarTroca();
+  }
+  function efetivarTroca() {
+    const alvo = troca.itens[((troca.sel % troca.itens.length) + troca.itens.length) % troca.itens.length];
     const atual = appAtual || 'hub';
-    if (!alvo || alvo.id === atual) return fecharTroca(true);
-    const embutivel = alvo.id === 'hub' || ESTADOS[alvo.id]?.embutivel;
-    fecharTroca(!embutivel); // indo para outro app embutido, ele mesmo cuida de mostrar/esconder; senão devolve o app atual
-    if (alvo.id === 'hub') voltarHub();
-    else clicarApp(alvo.id);
+    const seguinte = proxima; proxima = null;
+    if (!alvo || alvo.id === atual) navegacao = fecharTroca(true);
+    else {
+      const embutivel = alvo.id === 'hub' || ESTADOS[alvo.id]?.embutivel;
+      fecharTroca(!embutivel); // indo para outro app embutido, ele mesmo cuida de mostrar/esconder; senão devolve o app atual
+      navegacao = alvo.id === 'hub' ? voltarHub() : Promise.resolve(clicarApp(alvo.id));
+    }
+    if (seguinte) abrirTroca(seguinte.soltou);
   }
   window.hub.onTrocaEspaco((voltar) => moverTroca(voltar));
   window.hub.onTrocaSoltou(() => confirmarTroca());
   painelTroca.addEventListener('click', (e) => {
     const c = e.target.closest('.troca-card');
-    if (c && troca) { troca.sel = Number(c.dataset.i); confirmarTroca(); } else fecharTroca(true);
+    if (!troca) return;
+    if (c && troca.pronto) { troca.sel = Number(c.dataset.i); troca.soltou = true; efetivarTroca(); } else if (!c) { proxima = null; fecharTroca(true); }
   });
   // Com o foco na página do Hub, o Ctrl+Espaço é tratado aqui (nas telas dos apps é o processo principal que o repassa).
   document.addEventListener('keydown', (e) => {
     if (e.code === 'Space' && e.ctrlKey && !e.altKey && !e.metaKey) { e.preventDefault(); e.stopPropagation(); if (!e.repeat) moverTroca(e.shiftKey); }
   }, true);
   document.addEventListener('keydown', (e) => {
-    if (!troca) return;
+    if (!troca || !troca.pronto) return;
     const k = e.key;
-    if (k === 'Escape') fecharTroca(true);
-    else if (k === 'Enter') confirmarTroca();
+    if (k === 'Escape') { proxima = null; fecharTroca(true); }
+    else if (k === 'Enter') { troca.soltou = true; efetivarTroca(); }
     else if (k === 'ArrowRight' || k === 'ArrowDown') moverTroca(false);
     else if (k === 'ArrowLeft' || k === 'ArrowUp') moverTroca(true);
-    else if (/^[1-9]$/.test(k) && troca.itens[Number(k) - 1]) { troca.sel = Number(k) - 1; confirmarTroca(); }
+    else if (/^[1-9]$/.test(k) && troca.itens[Number(k) - 1]) { troca.sel = Number(k) - 1; troca.soltou = true; efetivarTroca(); }
     else return;
     e.preventDefault(); e.stopPropagation();
   }, true);
