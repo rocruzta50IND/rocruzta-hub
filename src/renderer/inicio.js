@@ -37,7 +37,10 @@ function htmlInicio() {
 
 // Tela Apps, no formato de loja: cartões por grupo com o estado real de cada app neste computador
 // (instalado, em execução, não instalado) e os anunciados como "Em breve". Clicar num cartão abre o detalhe.
-// Instalar e atualizar pelo GitHub ainda não existe: enquanto isso, "não instalado" oferece a página de releases.
+// Instalar e atualizar: o Hub baixa o instalador da última release do GitHub e o executa (progresso em INSTAL, por app).
+const INSTAL = {};
+const instalandoApp = (id) => Boolean(INSTAL[id] && INSTAL[id].fase !== 'pronto' && INSTAL[id].fase !== 'erro');
+const textoInstalacao = (id) => { const i = INSTAL[id]; return i.fase === 'instalando' ? 'Instalando…' : i.fase === 'baixando' && i.progresso > 0 ? `Baixando ${Math.round(i.progresso * 100)}%` : 'Preparando…'; };
 const LOJA = { filtro: 'todos', busca: '', detalhe: null, desinstalar: null };
 const FILTROS_LOJA = [['todos', 'Todos'], ['instalados', 'Instalados'], ['disponiveis', 'Para instalar'], ['em-breve', 'Em breve']];
 
@@ -57,13 +60,13 @@ function passaFiltroLoja(a) {
 function acaoApp(a) {
   const e = estadoApp(a);
   if (e === 'em-breve') return '<span class="selo selo-breve">Em breve</span>';
-  if (e === 'nao-instalado') return `<button class="btn" data-releases="${a.id}">Ver releases</button>`;
+  if (instalandoApp(a.id)) return `<button class="btn pri" disabled data-instalando="${a.id}">${textoInstalacao(a.id)}</button>`;
+  if (e === 'nao-instalado') return `<button class="btn pri" data-instalar="${a.id}">Instalar</button>`;
   return `<button class="btn pri" data-app="${a.id}">Abrir</button>`;
 }
 
-// Botão de atualizar, ao lado de "Abrir". Por enquanto leva à página da release (o Hub ainda não instala);
-// quando o Hub passar a instalar, é este mesmo botão que vira "Atualizar".
-const botaoAtualizar = (a) => (estadoApp(a) === 'instalado' && comAtualizacao(a.id) ? `<button class="btn att" data-releases="${a.id}">Baixar v${atuDe(a.id).versaoNova}</button>` : '');
+// Botão de atualizar, ao lado de "Abrir": baixa e instala a versão nova (o app precisa estar fechado).
+const botaoAtualizar = (a) => (estadoApp(a) === 'instalado' && comAtualizacao(a.id) && !instalandoApp(a.id) ? (emExecucao(a.id) ? `<button class="btn att" disabled title="Feche o ${a.nome} para atualizar">Atualizar para v${atuDe(a.id).versaoNova}</button>` : `<button class="btn att" data-instalar="${a.id}">Atualizar para v${atuDe(a.id).versaoNova}</button>`) : '');
 
 // Desinstalar: abre o desinstalador do próprio app (Windows pede permissão). Pede confirmação e só com o app fechado.
 function controleDesinstalar(a) {

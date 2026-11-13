@@ -38,6 +38,8 @@ const CH = {
   atualizacoesVisto: 'atu:visto',
   atualizacoesFechar: 'atu:fechar',
   desinstalar: 'apps:desinstalar',
+  instalar: 'apps:instalar',
+  instalacaoMudou: 'apps:instalacao-mudou',
   trocaEspaco: 'troca:espaco',
   trocaSoltou: 'troca:soltou',
   trocaFoco: 'troca:foco',
@@ -52,6 +54,12 @@ contextBridge.exposeInMainWorld('hub', {
   detectarApps: () => ipcRenderer.invoke(CH.detectar),
   abrirApp: (id) => ipcRenderer.invoke(CH.abrir, String(id)),
   desinstalarApp: (id) => ipcRenderer.invoke(CH.desinstalar, String(id)),
+  instalarApp: (id) => ipcRenderer.invoke(CH.instalar, String(id)),
+  onInstalacaoMudou: (cb) => {
+    const listener = (_e, dados) => cb(dados);
+    ipcRenderer.on(CH.instalacaoMudou, listener);
+    return () => ipcRenderer.removeListener(CH.instalacaoMudou, listener);
+  },
   abrirReleases: (id) => ipcRenderer.invoke(CH.releases, String(id)),
   // Apps embutidos (experimental): o app roda sem janela e aparece dentro da janela do Hub.
   // Chat da tela Início (independente dos apps): conversa com o Claude Code, sem histórico.

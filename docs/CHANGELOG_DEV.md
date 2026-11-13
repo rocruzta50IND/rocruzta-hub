@@ -6,6 +6,16 @@ Histórico legível do que foi desenvolvido, alterado ou corrigido. Uma entrada 
 
 ---
 
+## 2026-11-13
+
+**TASK-014 e TASK-016 — Instalador do Hub e instalar/atualizar apps pelo Hub** (DEV1)
+
+- Instalador: `electron-builder` (NSIS por usuário, sem administrador), `npm run empacotar`. Ícone vem de `assets/icone.png`.
+- `src/main/instalacao.js`: baixa o instalador da última release pública (só hosts do GitHub, https), confere tamanho e sha512 do `latest.yml`, executa `/S /currentuser` (atualização: mesmo modo do que já está instalado, com administrador se foi para todos). Remove só o `Termix.lnk` criado na área de trabalho durante a instalação (`atalhoNaAreaDeTrabalho: false`). Botões Instalar e Atualizar para vX na loja, com progresso.
+- Desinstalar de uma instalação por usuário (`/currentuser`) abre direto, sem pedir administrador.
+- Validado no Windows Sandbox (`tools/sandbox/rodar.ps1`): Hub instalado, Termix instalado pelo Hub (0.7.0, embutível), atalho do Termix não aparece, Termix abre dentro do Hub, botão Desinstalar lança o desinstalador, reinstalação pelo Hub. 105 testes.
+- Atenção: reinstalar logo depois de desinstalar pode travar enquanto o desinstalador (que se copia para a pasta temporária) ainda roda.
+
 ## 2026-11-12
 
 **TASK-032 — Troca rápida fluida ao alternar depressa** (DEV1)

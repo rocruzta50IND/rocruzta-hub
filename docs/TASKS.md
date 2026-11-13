@@ -12,6 +12,19 @@ _Nenhuma no momento._
 
 ## Aguardando validação DEV1
 
+### TASK-014 — Empacotar o instalador do Hub
+
+- **Responsável:** DEV1
+- **Status:** VALIDADA EM DEV1 no Windows Sandbox (falta a conferência do usuário em máquina real)
+- **Feito:** `npm run empacotar` gera `dist/Rocruzta-Hub-Setup-<versão>.exe` (electron-builder, NSIS por usuário, sem administrador, atalho na área de trabalho e no menu Iniciar). Sem atualização automática do próprio Hub (fica no Backlog).
+- **Verificado:** `tools/sandbox/rodar.ps1` abre um Windows Sandbox limpo, instala o Hub, instala o Termix pelo Hub, abre o Termix embutido, usa o botão Desinstalar e instala de novo (detalhes em `docs/DECISOES.md` §17).
+
+### TASK-016 — Instalar e atualizar apps pelas releases do GitHub (v1)
+
+- **Responsável:** DEV1
+- **Status:** VALIDADA EM DEV1 no Windows Sandbox (falta a conferência do usuário)
+- **Feito:** botões "Instalar" e "Atualizar para vX" na loja (`src/main/instalacao.js`): baixa o instalador da última release, confere tamanho e hash (`latest.yml`) e executa em modo silencioso (`/S /currentuser`; atualização segue o modo já instalado). Apaga só o atalho do app criado na área de trabalho (`atalhoNaAreaDeTrabalho: false` no catálogo). Desinstalar de instalação por usuário abre sem pedir administrador. 105 testes.
+
 ### TASK-023 — Estudo: apps dentro da janela do Hub
 
 - **Responsável:** DEV1
@@ -130,20 +143,6 @@ Fora da v1. O DEV1 promove para "Prontas" quando decidir.
 - **Status:** FEITA no repositório do Termix como TASK-134 (versão 0.7.0, só o modo `--embed`; a camada `platform` completa segue no Backlog)
 - **Depende de:** TASK-024 e aprovação do usuário (mexe no Termix, tarefa própria no repositório dele)
 - **Objetivo:** transporte único (IPC ou WebSocket), camada `platform` e modo headless conforme `docs/DECISOES.md` §12. Estimativa ~2 a 3 semanas.
-
-### TASK-014 — Empacotar o instalador do Hub
-
-- **Responsável:** A definir
-- **Status:** BACKLOG
-- **Prioridade:** Média
-- **Objetivo:** instalador do Windows por usuário (sem administrador) com atualização do próprio Hub.
-
-### TASK-016 — Instalar e atualizar apps pelas releases do GitHub
-
-- **Responsável:** A definir
-- **Status:** BACKLOG
-- **Prioridade:** Média
-- **Objetivo:** loja de apps: baixar o instalador da última release, instalar, avisar de versão nova. Considerar que o Termix está instalado para todos os usuários (pede administrador).
 
 ### TASK-017 — Botão "← Hub" e identificador de app comum no Termix
 

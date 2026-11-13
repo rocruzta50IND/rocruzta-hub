@@ -38,6 +38,7 @@ function validarCatalogo(dados) {
     // App "em breve" só aparece na loja: ainda não tem repositório nem instalador, então não exige detecção.
     if (a.emBreve === true) return;
     if (typeof a.repositorio !== 'string' || !/^[\w.-]+\/[\w.-]+$/.test(a.repositorio)) erros.push(`${nome}: "repositorio" deve ser dono/repo do GitHub`);
+    if (a.atalhoNaAreaDeTrabalho !== undefined && a.atalhoNaAreaDeTrabalho !== false) erros.push(`${nome}: "atalhoNaAreaDeTrabalho" só aceita false`);
     if (a.embutir !== undefined && a.embutir !== 'electron') erros.push(`${nome}: "embutir" só aceita "electron"`);
     const d = a.deteccao;
     if (!d || typeof d !== 'object') erros.push(`${nome}: falta "deteccao"`);

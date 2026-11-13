@@ -182,3 +182,12 @@ Instalar ou atualizar apps pelo GitHub, login, backend, API real de notícias, a
 - Teste automático: `node tools/verificar-troca.js` (abre o Hub, o Termix embutido e confere o fluxo). O `Input.dispatchKeyEvent` do CDP não passa por `before-input-event`, então as teclas da tela do app entram por `--inspect` e `webContents.sendInputEvent`.
 
 **Não provado:** o teclado físico e o foco do Windows com o Hub em primeiro plano; muitos apps (grade com quebra de linha); tema claro do painel; miniatura de apps que não são embutidos (aparecem só com ícone).
+
+## 17. Instalador do Hub e instalação de apps pelo Hub (TASK-014 e 016, 2026-11-13)
+
+**Pedido do usuário:** só o Rocruzta Hub fica na área de trabalho; o Termix é instalado e atualizado pelo Hub. O Termix é publicado no repositório dele, e o Hub abre sempre o que estiver instalado (>= `embutirDesde`).
+
+**Decisões:** instalador do Hub por usuário (sem administrador). Instalar app novo: `/S /currentuser`. Atualizar: mesmo modo do desinstalador registrado. O Hub só apaga o atalho `<Nome>.lnk` criado pela própria instalação, nunca arquivos do app. O Termix não foi alterado. Alternativa mais limpa, se um dia valer a pena: o instalador do Termix não criar o atalho (repositório dele). O auto-atualizador do próprio Termix pode recriar o atalho.
+
+**Teste:** `npm run empacotar` e `powershell -File tools\sandboxodar.ps1` (feche qualquer Sandbox aberto antes; o Sandbox às vezes não executa o script se reaberto logo após fechar, espere ~20 s). O `.wsb` não pode ter BOM.
+

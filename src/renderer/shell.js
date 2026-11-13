@@ -382,6 +382,8 @@ function iniciarShell() {
     if (filtro) { LOJA.filtro = filtro.dataset.filtro; return renderTela(); }
     const car = e.target.closest('[data-car]');
     if (car) { const f = $('#car-faixa'); if (f) f.scrollBy({ left: Number(car.dataset.car) * f.clientWidth * 0.82, behavior: 'smooth' }); return; }
+    const inst = e.target.closest('[data-instalar]');
+    if (inst) { instalarApp(inst.dataset.instalar); return; }
     const des = e.target.closest('[data-des]');
     if (des) { LOJA.desinstalar = des.dataset.des; return renderTela(); }
     if (e.target.closest('[data-des-cancelar]')) { LOJA.desinstalar = null; return renderTela(); }
@@ -467,6 +469,25 @@ function iniciarShell() {
     if (atuDe(id) && atuDe(id).visto === false) { atuDe(id).visto = true; window.hub.marcarAtualizacaoVista(id); atualizarIndicadoresAtt(); }
     renderTela();
   }
+  async function instalarApp(id) {
+    const app = APPS.find((a) => a.id === id);
+    if (!app || instalandoApp(id)) return;
+    INSTAL[id] = { fase: 'buscando', progresso: 0 };
+    renderTela();
+    const r = await window.hub.instalarApp(id).catch(() => ({ ok: false, motivo: 'falha' }));
+    delete INSTAL[id];
+    const msg = { 'em-execucao': `Feche o ${app.nome} antes de atualizar.`, 'sem-rede': 'Sem conexão com o GitHub. Tente de novo.', 'sem-instalador': `A última versão do ${app.nome} não tem instalador.`, 'arquivo-corrompido': 'O arquivo baixado veio incompleto. Tente de novo.', cancelado: 'Instalação cancelada.', 'em-andamento': `O ${app.nome} já está sendo instalado.` };
+    avisar(r.ok ? `${app.nome} v${r.versao} instalado.` : (msg[r.motivo] || `Não foi possível instalar o ${app.nome}.`));
+    await atualizarEstados();
+    renderTela();
+  }
+  let ultimoProgresso = 0;
+  window.hub.onInstalacaoMudou((d) => {
+    if (!d || !INSTAL[d.id]) return;
+    INSTAL[d.id] = { fase: d.fase, progresso: d.progresso || 0 };
+    const agora = Date.now();
+    if (d.fase !== 'baixando' || agora - ultimoProgresso > 250) { ultimoProgresso = agora; if (secaoAtual === 'apps' && !appAtual) renderTela(); }
+  });
   async function desinstalarApp(id) {
     const app = APPS.find((a) => a.id === id);
     LOJA.desinstalar = null;

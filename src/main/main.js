@@ -7,6 +7,7 @@ const { carregarCatalogo, urlReleases } = require('./apps');
 const { detectarApps } = require('./deteccao');
 const { criarAtualizacoes } = require('./atualizacoes');
 const { anexarExecucao, abrirApp, desinstalarApp } = require('./execucao');
+const { instalarApp } = require('./instalacao');
 const { localizarDev, localizarInstalado, criarEmbutidos } = require('./embutido');
 const { criarConversa } = require('./conversa');
 const { classificarTecla } = require('./teclas');
@@ -230,6 +231,25 @@ ipcMain.handle(CHANNELS.desinstalar, async (e, id) => {
     if (embutidos.estado(id) === 'rodando') return { ok: false, motivo: 'em-execucao' };
     return await desinstalarApp(estados[a.id]);
   } catch { return { ok: false, motivo: 'falha' }; }
+});
+// Instalar ou atualizar: baixa o instalador da última release do app e o executa em modo silencioso (src/main/instalacao.js).
+const instalando = new Set();
+ipcMain.handle(CHANNELS.instalar, async (e, id) => {
+  const w = windowFrom(e);
+  if (!w) return { ok: false, motivo: 'janela' };
+  const a = appsReais().find((x) => x.id === id);
+  if (!a) return { ok: false, motivo: 'desconhecido' };
+  if (instalando.has(id)) return { ok: false, motivo: 'em-andamento' };
+  instalando.add(id);
+  const avisar = (dados) => { if (!w.isDestroyed()) w.webContents.send(CHANNELS.instalacaoMudou, { id, ...dados }); };
+  try {
+    const estados = await anexarExecucao([a], await detectarApps([a]));
+    const rodando = estados[a.id]?.rodando === true || embutidos.estado(id) === 'rodando';
+    const r = await instalarApp(a, { ...estados[a.id], rodando }, { aoMudar: avisar });
+    avisar({ fase: r.ok ? 'pronto' : 'erro', motivo: r.motivo, progresso: 1 });
+    if (r.ok) setTimeout(verificarAtualizacoes, 1500);
+    return r;
+  } catch { avisar({ fase: 'erro', motivo: 'falha' }); return { ok: false, motivo: 'falha' }; } finally { instalando.delete(id); }
 });
 ipcMain.handle(CHANNELS.atualizacoes, async (e) => (windowFrom(e) ? atualizacoes.listar(await instaladasAgora()) : {}));
 ipcMain.handle(CHANNELS.atualizacoesChecar, async (e) => {

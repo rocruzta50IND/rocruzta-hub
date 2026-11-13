@@ -45,6 +45,8 @@ module.exports = {
     atualizacoesVisto: 'atu:visto',
     atualizacoesFechar: 'atu:fechar',
     desinstalar: 'apps:desinstalar',
+    instalar: 'apps:instalar',
+    instalacaoMudou: 'apps:instalacao-mudou',
     trocaEspaco: 'troca:espaco',
     trocaSoltou: 'troca:soltou',
     trocaFoco: 'troca:foco',

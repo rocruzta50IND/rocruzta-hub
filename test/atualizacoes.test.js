@@ -95,7 +95,7 @@ test('renderer: indicativo em Apps só até ver o app; selo e histórico seguem;
   assert.equal(rodar(`ATU.termix.visto = true; comAtualizacao('termix')`), true, 'o selo continua depois de visto');
   const det = rodar(`LOJA.detalhe = 'termix'; htmlApps();`);
   assert.match(det, /<h2>Novidades<\/h2>/);
-  assert.match(det, /class="btn att" data-releases="termix">Baixar v0\.6\.4/, 'botão de atualizar ao lado do Abrir');
+  assert.match(det, /class="btn att" data-instalar="termix">Atualizar para v0.6.4/, 'botão de atualizar ao lado do Abrir');
   assert.match(det, /class="att-dest"><div class="att-dest-topo"><b>v0\.6\.4/, 'a versão mais nova fica em destaque');
   assert.match(det, /<details class="att-item"><summary><b>v0\.6\.3/, 'as anteriores ficam fechadas, para abrir ao clicar');
   assert.match(det, /Corrige o terminal/);

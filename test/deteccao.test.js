@@ -76,18 +76,18 @@ test('a detecção só lê o registro: sem instalar, escrever nem executar o app
   assert.match(js, /execFile\('reg\.exe', \['query'/);
 });
 
-test('renderer: Apps mostra "Não instalado" com botão de releases só quando a detecção disse', () => {
+test('renderer: Apps mostra "Não instalado" com botão Instalar só quando a detecção disse', () => {
   const renderer = path.join(__dirname, '..', 'src', 'renderer');
   const read = (f) => fs.readFileSync(path.join(renderer, f), 'utf8');
   const rodar = (estados) => vm.runInNewContext(`${['icons.js', 'catalogo.js', 'inicio.js'].map(read).join('\n')}
     definirCatalogo(${JSON.stringify(carregarCatalogo())}); definirEstados(${JSON.stringify(estados)}); htmlApps();`);
   const nao = rodar({ termix: { instalado: false } });
   assert.match(nao, /Não instalado/);
-  assert.match(nao, /data-releases="termix"/);
+  assert.match(nao, /data-instalar="termix"/);
   assert.doesNotMatch(nao, /data-app="termix"/);
   for (const e of [{ termix: { instalado: true } }, null, {}]) {
     const html = rodar(e);
-    assert.ok(!/Não instalado|data-releases/.test(html));
+    assert.ok(!/Não instalado|data-instalar/.test(html));
     assert.match(html, /<button class="btn pri" data-app="termix">Abrir/);
   }
   assert.ok(!/style=/.test(nao));

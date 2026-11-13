@@ -61,6 +61,13 @@ function abrirApp(estado, lancar = spawn, env = process.env) {
 // O Hub não apaga arquivo nenhum: só lança o desinstalador que o app registrou no Windows.
 function lancarElevado({ exe, args }) {
   return new Promise((resolve) => {
+    // Instalação só do usuário (/currentuser) não precisa de administrador: abre direto, sem o aviso do Windows.
+    if (args.includes('/currentuser')) {
+      const filho = spawn(exe, args, { detached: true, stdio: 'ignore' });
+      filho.once('error', () => resolve(false));
+      filho.once('spawn', () => { filho.unref(); resolve(true); });
+      return;
+    }
     const cmd = args.length ? 'Start-Process -FilePath $env:HUB_EXE -ArgumentList $env:HUB_ARGS -Verb RunAs' : 'Start-Process -FilePath $env:HUB_EXE -Verb RunAs';
     execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', cmd],
       { windowsHide: true, timeout: 60000, env: { ...process.env, HUB_EXE: exe, HUB_ARGS: args.join(' ') } },

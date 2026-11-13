@@ -14,6 +14,7 @@
       "desc": "Central de sessões de agentes de programação",
       "repositorio": "rocruzta50IND/termix",
       "embutir": "electron",
+      "atalhoNaAreaDeTrabalho": false,
       "deteccao": {
         "registro": "Termix",
         "executavel": "Termix.exe",
