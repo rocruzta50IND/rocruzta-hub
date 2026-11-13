@@ -1,6 +1,6 @@
 'use strict';
 // Dirige o Hub instalado via DevTools Protocol (roda com o próprio executável do Hub: ELECTRON_RUN_AS_NODE=1).
-// Uso: "Rocruzta Hub.exe" driver.js <passo>   (passos: instalar | abrir | desinstalar | instalar-de-novo)
+// Uso: "Rocruzta Hub.exe" driver.js <passo>   (passos: instalar | abrir | desinstalar | instalar-de-novo | atualizar-hub)
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const passo = process.argv[2];
 const log = (ok, nome, extra = '') => console.log(`${ok ? 'OK    ' : 'FALHOU'} ${nome}${extra ? ' -> ' + extra : ''}`);
@@ -44,11 +44,20 @@ const log = (ok, nome, extra = '') => console.log(`${ok ? 'OK    ' : 'FALHOU'} $
   }
   if (passo === 'desinstalar') {
     log(await ate(card('data-app'), 20000), 'Termix instalado e fechado');
-    await ev('document.querySelector(\'.loja-card[data-detalhe="termix"]\').click()');
-    log(await ate('!!document.querySelector("[data-des]")', 10000), 'página do app mostra o botão Desinstalar');
-    await ev('document.querySelector("[data-des]").click()');
+    // pelo menu "⋯" da barra lateral (TASK-033): Desinstalar leva à confirmação da página do app
+    const itensMenu = () => ev('[...document.querySelectorAll("#menu-app .menu-item")].map((b) => b.textContent.trim() + (b.disabled ? "(x)" : "")).join("|")');
+    log(await ate('!!document.querySelector("#side [data-mais=termix]")', 10000), 'barra lateral tem o ⋯ do Termix');
+    await ev('document.querySelector("#side [data-mais=termix]").click()');
+    log((await itensMenu()) === 'Abrir|Ver novidades|Desinstalar', 'menu ⋯ com Abrir, Ver novidades e Desinstalar ativos', await itensMenu());
+    await ev('document.querySelector("#menu-app [data-mais-acao=desinstalar]").click()');
+    log(await ate('!!document.querySelector("[data-des-ok]")', 10000), 'Desinstalar do menu leva à confirmação "Desinstalar o Termix?"');
     await ev('document.querySelector("[data-des-ok]").click()');
     log(await ate('window.__avisos.some((t) => /Desinstalador do Termix aberto/.test(t))', 15000), 'Hub avisou que abriu o desinstalador', await avisos());
+  }
+  if (passo === 'atualizar-hub') {
+    log(await ate('!document.querySelector("#aviso-hub").hidden', 600000), 'faixa "Hub vX pronto para instalar" apareceu (baixou e conferiu o hash)', await ev('document.querySelector("#ah-texto").textContent'));
+    await ev('document.querySelector("#ah-aplicar").click()');
+    log(true, 'cliquei em "Reiniciar e atualizar"');
   }
   ws.close();
   process.exit(0);

@@ -53,4 +53,22 @@ L "atalhos na area de trabalho: $((Atalhos) -join ', ')"
 L "processos: [$((Get-Process | ? { $_.ProcessName -match 'Uninstall|^Au_|Setup|Termix' } | % { $_.ProcessName }) -join ',')]"
 L "temp do Hub: [$((Get-ChildItem "$env:TEMP\rocruzta-hub" -ErrorAction SilentlyContinue | % { $_.Name + ' ' + $_.Length }) -join ',')]"
 PararHub
+
+L '== 6. atualização automática do Hub (TASK-034)'
+function VersaoHub { (Get-ChildItem 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall' -ErrorAction SilentlyContinue | Get-ItemProperty | ? { $_.DisplayName -like 'Rocruzta Hub*' } | Select-Object -First 1).DisplayVersion }
+L "versao do Hub antes: $(VersaoHub)"
+IniciarHub; Driver 'atualizar-hub'
+$saiu = $false; $voltou = $false
+for ($i = 0; $i -lt 90; $i++) {
+  Start-Sleep 2
+  $n = @(Get-Process 'Rocruzta Hub' -ErrorAction SilentlyContinue).Count
+  if ($n -eq 0) { $saiu = $true }
+  if ($saiu -and $n -gt 0) { $voltou = $true; break }
+}
+L "Hub fechou sozinho: $saiu; Hub reabriu sozinho: $voltou"
+Start-Sleep 5
+L "versao do Hub depois: $(VersaoHub)"
+L "arquivos temporarios da atualizacao: [$((Get-ChildItem "$env:TEMP\rocruzta-hub-atualizacao" -ErrorAction SilentlyContinue | % { $_.Name }) -join ',')]"
+L "atalhos na area de trabalho: $((Atalhos) -join ', ')"
+PararHub
 L 'fim'

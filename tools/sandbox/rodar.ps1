@@ -1,13 +1,15 @@
 ﻿# Roda no computador (não no Sandbox): copia o instalador do Hub e os scripts para uma pasta de teste, abre o Windows Sandbox
 # e espera o resultado. Uso (no repositório): powershell -File tools\sandbox\rodar.ps1 [-Pasta D:\sandbox-hub]
 # Antes: npm run empacotar (gera dist\Rocruzta-Hub-Setup-<versão>.exe). Feche qualquer Sandbox aberto.
-param([string]$Pasta = 'D:\sandbox-hub')
+param([string]$Pasta = 'D:\sandbox-hub', [string]$Versao = '')
 $repo = Resolve-Path "$PSScriptRoot\..\.."
 $utf8 = [Text.Encoding]::UTF8
 New-Item -ItemType Directory -Force $Pasta | Out-Null
 Remove-Item "$Pasta\resultado.txt" -ErrorAction SilentlyContinue
 Get-ChildItem $Pasta -Filter 'Rocruzta-Hub-Setup-*.exe' | Remove-Item -Force
-Copy-Item (Get-ChildItem "$repo\dist\Rocruzta-Hub-Setup-*.exe" | Sort-Object LastWriteTime | Select-Object -Last 1).FullName, "$PSScriptRoot\driver.js" $Pasta -Force
+# -Versao escolhe qual instalador testar (no teste de atualização, uma versão ANTERIOR à última release do GitHub)
+$filtro = if ($Versao) { "Rocruzta-Hub-Setup-$Versao.exe" } else { 'Rocruzta-Hub-Setup-*.exe' }
+Copy-Item (Get-ChildItem "$repo\dist\$filtro" | Sort-Object LastWriteTime | Select-Object -Last 1).FullName, "$PSScriptRoot\driver.js" $Pasta -Force
 # o teste usa o nome real do instalador; o .ps1 vai com BOM (PowerShell 5 lê acentos) e o .wsb sem BOM (o Sandbox rejeita BOM)
 $setup = Get-ChildItem $Pasta -Filter 'Rocruzta-Hub-Setup-*.exe' | Select-Object -First 1
 $teste = [IO.File]::ReadAllText("$PSScriptRoot\teste.ps1", $utf8).Replace('Rocruzta-Hub-Setup-0.1.0.exe', $setup.Name)
