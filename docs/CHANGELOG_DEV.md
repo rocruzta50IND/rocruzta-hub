@@ -8,6 +8,12 @@ Histórico legível do que foi desenvolvido, alterado ou corrigido. Uma entrada 
 
 ## 2026-11-13
 
+**TASK-036 — Contrato de tema com os apps embutidos** (DEV1)
+
+- Pedido do usuário: poder mexer no Termix sem medo de quebrar o visual dentro do Hub, e ter controle máximo dos erros possíveis. Decisão: o Hub continua mandando no visual (CSS só de variáveis de cor); regras e alternativa guardada em `docs/DECISOES.md` §19.
+- `src/main/tema-contrato.js` + `test/tema-contrato.test.js` (5 testes, 115 no total): o `termix.css` só tem seletores `html[data-hub-theme]`; o teste contra o Termix de desenvolvimento falha dizendo qual variável sumiu.
+- `tools/verificar-tema-termix.js [pasta]`: 22/22 variáveis no Termix de desenvolvimento e no instalado (0.7.0). Aviso: ~350 declarações de cor fixa no Termix (não acompanham o tema claro); não bloqueia.
+
 **TASK-034 — Atualização automática do Hub** (DEV1)
 
 - `src/main/autoatualizacao.js`: confere a última release pública do Hub (ao abrir e a cada 3 h, só no app instalado), baixa em segundo plano, confere tamanho e sha512 e deixa pronto. Faixa "Hub vX pronto para instalar" com "Reiniciar e atualizar" (avisa se vai fechar app embutido) e botão para dispensar; só instala com o clique. Sem rede, nada muda; hash errado apaga o arquivo e tenta de novo na próxima checagem.

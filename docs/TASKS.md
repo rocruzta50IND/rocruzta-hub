@@ -12,6 +12,12 @@ _Nenhuma no momento._
 
 ## Aguardando validação DEV1
 
+### TASK-036 — Contrato de tema com os apps embutidos
+
+- **Responsável:** DEV1
+- **Status:** VALIDADA EM DEV1 (115 testes; conferido no Termix de desenvolvimento e no Termix 0.7.0 instalado)
+- **Feito:** contrato por escrito (`docs/DECISOES.md` §19), `src/main/tema-contrato.js`, `test/tema-contrato.test.js` (o `termix.css` só redefine variáveis; falha se o Termix perder uma delas) e `tools/verificar-tema-termix.js [pasta]` (22/22 variáveis; avisa cores fixas).
+
 ### TASK-034 — Atualização automática do Hub (releases públicas do GitHub)
 
 - **Responsável:** DEV1
