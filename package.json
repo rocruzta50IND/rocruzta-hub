@@ -1,7 +1,7 @@
 {
   "name": "rocruzta-hub",
   "productName": "Rocruzta Hub",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Centro de navegação dos apps da Rocruzta",
   "private": true,
   "main": "src/main/main.js",
