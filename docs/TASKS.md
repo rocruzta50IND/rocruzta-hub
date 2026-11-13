@@ -191,6 +191,20 @@ Fora da v1. O DEV1 promove para "Prontas" quando decidir.
 - **Prioridade:** Baixa
 - **Objetivo:** experimento descartável, só se o usuário voltar a querer isso. Motivos do descarte atual em `docs/DECISOES.md`.
 
+### TASK-037 — Modelo de app novo (repositório template) e fluxo de integração com o Hub
+
+- **Responsável:** A definir
+- **Status:** BACKLOG (anotada em 2026-11-13; o usuário quer reavaliar mais tarde)
+- **Prioridade:** Média
+- **Ideia:** um repositório "template" no GitHub com o app mínimo já no contrato do Hub (modo `--embed`, notificações `HUB_EVENT`, variáveis de cor padrão, empacotamento, script de release, verificação de tema, `CLAUDE.md` e checklist). Novo app = criar o repositório a partir do template, rodar o script `novo-app` (nome, id, ícone, cor, appId) e o Claude conduz o resto: release 0.0.1 com o app vazio, entrada no catálogo do Hub e release do Hub, tudo com OK do usuário antes de publicar. Subir o app vazio antes da primeira função valida o caminho inteiro cedo. O segundo app real é quem prova o contrato (hoje só o Termix o usa). Conversa em `docs/DECISOES.md` §19 (alternativa de o app carregar o próprio tema).
+
+### TASK-038 — Catálogo de apps remoto (app novo aparece sem release do Hub)
+
+- **Responsável:** A definir
+- **Status:** BACKLOG (ideia anotada; só depois do segundo app)
+- **Prioridade:** Baixa
+- **Ideia:** o Hub ler o catálogo (`apps.json`) de um arquivo publicado (por exemplo `catalogo.json` no GitHub) em vez de embutido no código. Decidir o que mostrar sem rede e o que muda para a segurança (lista pública).
+
 ### TASK-035 — Repositórios privados e atualização com acesso controlado (pós-MVP)
 
 - **Responsável:** A definir
