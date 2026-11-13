@@ -8,6 +8,12 @@ Histórico legível do que foi desenvolvido, alterado ou corrigido. Uma entrada 
 
 ## 2026-11-13
 
+**TASK-039 — Diálogos de arquivo dos apps embutidos presos à janela do Hub** (DEV1)
+
+- Relato do usuário (com captura): "Escolher pasta" no Termix pelo Hub abria janelas soltas do Windows. O Hub passa a abrir o diálogo preso à própria janela (`src/main/dialogos.js`) quando o app embutido o pede (`HUB_EVENT` `dialogo`), e devolve a resposta por `/__cmd`. A mudança do lado do Termix é a TASK-139 (`src/embed.js`).
+- Validado no Hub real com `tools/verificar-dialogo.js` (8/8): o diálogo tem a janela do Hub como dono, fechar devolve null ao Termix, e a pasta digitada chega ao Termix. 119 testes (4 novos).
+- Entra na próxima release do Hub (junto da limpeza do instalador temporário e do contrato de tema). Com um Termix mais antigo que a TASK-139, o diálogo continua solto.
+
 **TASK-036 — Contrato de tema com os apps embutidos** (DEV1)
 
 - Pedido do usuário: poder mexer no Termix sem medo de quebrar o visual dentro do Hub, e ter controle máximo dos erros possíveis. Decisão: o Hub continua mandando no visual (CSS só de variáveis de cor); regras e alternativa guardada em `docs/DECISOES.md` §19.

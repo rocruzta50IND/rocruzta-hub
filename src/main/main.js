@@ -2,7 +2,8 @@
 
 const path = require('node:path');
 const os = require('node:os');
-const { app, BrowserWindow, ipcMain, shell, Notification } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, Notification, dialog } = require('electron');
+const { tratarPedido } = require('./dialogos');
 const { carregarCatalogo, urlReleases } = require('./apps');
 const { detectarApps } = require('./deteccao');
 const { criarAtualizacoes } = require('./atualizacoes');
@@ -28,6 +29,8 @@ const appsReais = () => carregarCatalogo().apps.filter((a) => !a.emBreve); // "e
 const nomeDoApp = (id) => carregarCatalogo().apps.find((x) => x.id === id)?.nome || id;
 // Evento vindo de um app embutido: entra na central do Hub e, se a pessoa não está olhando, vira aviso do Windows.
 function aoEventoDoApp(appId, bruto) {
+  // Diálogo de arquivo pedido pelo app (ele não tem janela): o Hub abre preso à própria janela e devolve a resposta (TASK-039).
+  if (bruto?.evento === 'dialogo') { tratarPedido(bruto, { dialog, janela: mainWindow, responder: (corpo) => embutidos.comando(appId, corpo) }).catch(() => {}); return; }
   if (bruto?.evento !== 'notificacao') return;
   const item = central.adicionar(appId, bruto);
   if (!item) return;

@@ -136,7 +136,9 @@ Instalar ou atualizar apps pelo GitHub, login, backend, API real de notícias, a
 
 **Segurança:** a tela do app roda num `WebContentsView` com `sandbox`, sem preload e sem Node; só o processo principal do Hub fala com o app, e só o canal `notify:click` é aceito no comando. O app encerra sozinho se o Hub morrer (`HUB_PARENT_PID`), e o Hub encerra o app e os terminais ao sair.
 
-**Ainda não provado:** teclado, foco e IME no terminal embutido; vários terminais e saída em volume; diálogos nativos (escolher pasta), aba Web e dock do Termix (provavelmente não funcionam ainda).
+**Ainda não provado:** teclado, foco e IME no terminal embutido; vários terminais e saída em volume; aba Web e dock do Termix (provavelmente não funcionam ainda).
+
+**Diálogos de arquivo (TASK-039, 2026-11-13):** o app embutido não tem janela, então um diálogo aberto por ele nasce sem dono. Agora, no `--embed` aberto pelo Hub, o app manda `HUB_EVENT { evento: "dialogo", id, metodo: "abrir"|"salvar", opcoes }`; o Hub abre o diálogo preso à janela dele (`src/main/dialogos.js`, opções saneadas) e responde por `/__cmd` com `{ canal: "dialogo:resultado", id, canceled, filePaths | filePath }`. Todo app embutido que precise de diálogo de arquivo deve usar esse pedido (o modelo de app novo, TASK-037, deve trazê-lo).
 
 ## 14. Tela Apps como loja de apps (TASK-027, 2026-11-12)
 

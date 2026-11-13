@@ -12,6 +12,12 @@ _Nenhuma no momento._
 
 ## Aguardando validação DEV1
 
+### TASK-039 — Diálogos de arquivo dos apps embutidos presos à janela do Hub
+
+- **Responsável:** DEV1
+- **Status:** VALIDADA EM DEV1 (8 verificações no Hub real; 119 testes). Depende da TASK-139 do Termix (já feita, falta release).
+- **Feito:** `src/main/dialogos.js`: o app embutido pede o diálogo por `HUB_EVENT` (`evento: "dialogo"`), o Hub o abre preso à janela do Hub e responde por `/__cmd` (`dialogo:resultado`). Opções saneadas (só campos conhecidos). `tools/verificar-dialogo.js` e `tools/janelas-do-processo.ps1` conferem o dono da janela do Windows.
+
 ### TASK-036 — Contrato de tema com os apps embutidos
 
 - **Responsável:** DEV1
