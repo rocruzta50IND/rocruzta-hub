@@ -8,13 +8,16 @@ Formato do ID: `TASK-XXX` — numeração sequencial, sem reuso, livre em todas 
 
 ## Em andamento
 
+_Nenhuma no momento._
+
+## Aguardando validação DEV1
+
 ### TASK-034 — Atualização automática do Hub (releases públicas do GitHub)
 
 - **Responsável:** DEV1
-- **Status:** EM ANDAMENTO
-- **Objetivo:** o Hub confere a última release de `rocruzta50IND/rocruzta-hub` (sem token, repositório público), baixa o instalador em segundo plano, confere o hash, mostra "Reiniciar e atualizar" e, ao confirmar, instala por cima em modo silencioso e reabre sozinho. A versão do rodapé passa a ser a real. Decisão em `docs/DECISOES.md` §18.
-
-## Aguardando validação DEV1
+- **Status:** VALIDADA EM DEV1 no Windows Sandbox (falta a conferência do usuário em máquina real)
+- **Feito:** `src/main/autoatualizacao.js`: ao abrir e a cada 3 h o Hub app instalado lê a última release de `rocruzta50IND/rocruzta-hub` (sem token), baixa o instalador em segundo plano, confere tamanho e sha512 e mostra a faixa "Hub vX pronto para instalar · Reiniciar e atualizar". Só instala quando a pessoa clica: o Hub fecha, o instalador roda por cima (`/S --updated --force-run /currentuser`) e reabre o Hub. Releases v0.1.1 e v0.1.2 publicadas para o teste.
+- **Verificado:** Sandbox limpo, Hub 0.1.1 viu a v0.1.2, baixou, aplicou, fechou e reabriu sozinho, registro foi para 0.1.2; no mesmo teste, instalar, abrir, desinstalar (pelo menu ⋯) e reinstalar o Termix. 110 testes.
 
 ### TASK-033 — Menu "⋯" dos apps na barra lateral
 

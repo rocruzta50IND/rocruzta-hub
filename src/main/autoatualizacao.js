@@ -26,6 +26,8 @@ function criarAutoAtualizacao({
   let estado = { fase: 'nenhuma', versao: null, progresso: 0 };
   let arquivo = null;
   let ocupado = false;
+  // Já estamos na versão da release: o instalador que sobrou da atualização (o instalador ainda o usava ao rodar) pode sair.
+  const limparTemp = () => { try { for (const f of fs.readdirSync(pastaTemp)) fs.unlinkSync(path.join(pastaTemp, f)); } catch { /* pasta inexistente ou arquivo em uso */ } };
   const definir = (novo) => { estado = { ...estado, ...novo }; aoMudar({ ...estado }); };
 
   // Confere o GitHub e baixa se houver versão mais nova. Devolve o estado. Sem rede, nada muda (tenta de novo na próxima).
@@ -35,7 +37,7 @@ function criarAutoAtualizacao({
     try {
       let rel;
       try { rel = await ultimaRelease(repositorio, opcoes); } catch { return { ...estado }; }
-      if (compararVersoes(rel.versao, versaoAtual) <= 0) { if (estado.fase !== 'nenhuma') definir({ fase: 'nenhuma', versao: null, progresso: 0 }); return { ...estado }; }
+      if (compararVersoes(rel.versao, versaoAtual) <= 0) { limparTemp(); if (estado.fase !== 'nenhuma') definir({ fase: 'nenhuma', versao: null, progresso: 0 }); return { ...estado }; }
       const asset = escolherInstalador(rel.assets);
       if (!asset) return { ...estado };
       fs.mkdirSync(pastaTemp, { recursive: true });

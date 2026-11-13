@@ -8,6 +8,14 @@ Histórico legível do que foi desenvolvido, alterado ou corrigido. Uma entrada 
 
 ## 2026-11-13
 
+**TASK-034 — Atualização automática do Hub** (DEV1)
+
+- `src/main/autoatualizacao.js`: confere a última release pública do Hub (ao abrir e a cada 3 h, só no app instalado), baixa em segundo plano, confere tamanho e sha512 e deixa pronto. Faixa "Hub vX pronto para instalar" com "Reiniciar e atualizar" (avisa se vai fechar app embutido) e botão para dispensar; só instala com o clique. Sem rede, nada muda; hash errado apaga o arquivo e tenta de novo na próxima checagem.
+- Releases publicadas no GitHub: v0.1.1 (com a função) e v0.1.2 (alvo do teste). `npm version` + `npm run empacotar` + `gh release create` com o Setup, o .blockmap e o latest.yml.
+- Validado no Windows Sandbox (`tools/sandbox/rodar.ps1 -Versao 0.1.1`, passo 6): faixa apareceu em ~18 s, o clique fechou e reabriu o Hub, registro foi de 0.1.1 para 0.1.2. No mesmo teste: instalar o Termix pelo Hub, abrir embutido, Desinstalar pelo menu ⋯ e reinstalar, tudo OK.
+- Achado: sobrava o instalador baixado em `%TEMP%ocruzta-hub-atualizacao` depois de atualizar; agora a próxima checagem o apaga (teste novo, 110 testes). Essa correção entra na próxima release.
+- Este PC (físico) precisou habilitar o Windows Sandbox (`Containers-DisposableClientVM`) e reiniciar; resultado em `C:sandbox-hubesultado.txt` (fora do git).
+
 **TASK-033 — Menu "⋯" dos apps na barra lateral** (DEV1)
 
 - Pedido do usuário: o Desinstalar não aparecia no Hub (ele é escondido quando o Termix roda da pasta de desenvolvimento, caso desta máquina). Cada app da barra lateral ganhou o botão "⋯" com Abrir, Ver novidades e Desinstalar (desativado com explicação quando não dá). Fecha com Esc, clique fora ou no "⋯" de novo; o menu cabe na barra lateral (a tela do app fica por cima de qualquer coisa fora dela).

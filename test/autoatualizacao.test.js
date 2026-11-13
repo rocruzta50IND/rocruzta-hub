@@ -61,6 +61,14 @@ test('auto-atualização: mesma versão, versão antiga e sem rede não baixam n
   fs.rmSync(temp, { recursive: true, force: true });
 });
 
+test('auto-atualização: já na versão da release, apaga o instalador que sobrou da atualização anterior', async () => {
+  const temp = pasta();
+  fs.writeFileSync(path.join(temp, nome('0.2.0')), 'sobra');
+  await criarAutoAtualizacao({ versaoAtual: '0.2.0', pastaTemp: temp, opcoes: cenario() }).checar();
+  assert.deepStrictEqual(fs.readdirSync(temp), []);
+  fs.rmSync(temp, { recursive: true, force: true });
+});
+
 test('auto-atualização: hash ou tamanho errado vira erro, apaga o arquivo e não deixa aplicar', async () => {
   for (const opts of [{ hashYml: 'errado' }, { tamanho: 999 }]) {
     const temp = pasta(); let lancou = false;
