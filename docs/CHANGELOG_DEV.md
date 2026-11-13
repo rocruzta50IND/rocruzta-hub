@@ -8,6 +8,16 @@ Histórico legível do que foi desenvolvido, alterado ou corrigido. Uma entrada 
 
 ## 2026-11-13
 
+**TASK-045 — Atualização do Hub com botão Atualizar, barra de progresso e troca rápida** (DEV1)
+
+- Pedido do usuário: o Hub demorava muito para reiniciar e abrir depois de atualizar. Agora a faixa mostra **Atualizar**; ao clicar, uma barra de progresso (como no Termix) acompanha o download e a preparação e, quando tudo termina, o Hub reinicia quase instantaneamente.
+- Como: o instalador baixado é extraído com o `7za.exe` numa pasta de preparo com o Hub em uso; ao fechar, `trocar-arquivos.ps1` troca os arquivos por renomeação e reabre o Hub (adaptado do Termix). O `.exe` instalado fica quando o motor Electron é o mesmo (evita a espera de ~9 s do Windows e o bloqueio do Smart App Control). Medido com os instaladores 0.1.4 e 0.1.5: janela já na versão nova em 0,24 s depois da troca.
+- Reserva: o instalador silencioso de antes, se a preparação ou a troca não puderem rodar. Teste sem release: `HUB_ATUALIZACAO_FALSA=1`. 136 testes (novos: `troca-arquivos`, `autoatualizacao` reescrito) e `tools/verificar-atualizacao.js`.
+
+**TASK-046 — Mascote desligável nas Configurações** (DEV1)
+
+- Pedido do usuário: poder desativar o mascote para quem quer o máximo de desempenho. Chave em Configurações > Aparência e desempenho. Desligado: sem mago, sem laços nem observadores, abertura só com o ícone, avatares do chat com pontinho. Ligar de novo traz o mago na hora.
+
 **TASK-044 — Abertura animada com o mago e mascote do Hub** (DEV1)
 
 - Pedido do usuário: implementar no Hub a abertura e o mascote do estudo `iconemascote/abertura-final` (ícone "H com chapéu" vira o mago, que escreve "Rocruzta Hub", vira faísca e cometa e se materializa sentado na quina do campo de mensagem), com o ícone novo no lugar do cometa. Sem a "área de trabalho" simulada, o painel de simulação, o som e a galeria.

@@ -153,6 +153,11 @@ body.side-oculta #side-col > * { opacity: 0; transform: translateX(-12px); point
 .cfg-bloco h2 { margin-bottom: 8px; font-size: 12.5px; font-weight: 500; color: var(--text-2); }
 .cfg-bloco .box.list > * { justify-content: space-between; }
 .cfg-bloco .t b { font-weight: 500; }
+/* chave liga/desliga (Configurações) */
+.chave { position: relative; width: 36px; height: 20px; flex: none; border-radius: 999px; background: var(--line-strong); transition: background .15s; }
+.chave::after { content: ""; position: absolute; left: 2px; top: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform .15s; }
+.chave.on { background: var(--brand); }
+.chave.on::after { transform: translateX(16px); }
 .cfg-valor { color: var(--text-2); text-align: right; max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cfg-valor.ok { color: var(--ok); }
 .cfg-valor.ruim { color: var(--warn); }
@@ -168,6 +173,10 @@ body.side-oculta #side-col > * { opacity: 0; transform: translateX(-12px); point
 .aa-ponto { width: 7px; height: 7px; border-radius: 50%; background: var(--brand); }
 .aa-ver { height: 22px; padding: 0 10px; font-weight: 500; font-size: 12px; border: 1px solid var(--line-strong); border-radius: var(--r-s); }
 .aa-ver:hover { background: var(--hover); }
+.aa-ver[hidden], .aa-x[hidden], .aa-barra[hidden] { display: none; }
+/* barra de progresso da atualização do Hub (baixando e preparando) */
+.aa-barra { width: 200px; height: 5px; flex: none; border-radius: 3px; background: var(--line-strong); overflow: hidden; }
+.aa-barra i { display: block; height: 100%; width: 0; border-radius: 3px; background: var(--brand); transition: width .15s linear; }
 .aa-x { width: 22px; height: 22px; border-radius: var(--r-s); color: var(--text-3); position: relative; }
 .aa-x::before, .aa-x::after { content: ""; position: absolute; left: 5px; right: 5px; top: 10px; height: 1.5px; background: currentColor; transform: rotate(45deg); }
 .aa-x::after { transform: rotate(-45deg); }

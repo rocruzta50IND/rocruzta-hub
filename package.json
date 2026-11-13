@@ -28,6 +28,10 @@
       "assets/**/*",
       "package.json"
     ],
+    "extraResources": [
+      { "from": "vendor/7za.exe", "to": "7za.exe" },
+      { "from": "vendor/7za-LICENSE.txt", "to": "7za-LICENSE.txt" }
+    ],
     "win": {
       "target": [
         {

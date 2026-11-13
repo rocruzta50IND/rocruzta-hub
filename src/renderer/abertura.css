@@ -38,3 +38,6 @@
 /* estrelinhas de pixel ao fundo */
 .sp-estrela { position: absolute; background: var(--sp-estrela); opacity: 0; animation: sp-brilho 2.4s ease-in-out infinite; pointer-events: none; box-shadow: 0 0 6px var(--sp-estrela); }
 @keyframes sp-brilho { 0%, 100% { opacity: 0; transform: scale(.6); } 50% { opacity: .8; transform: scale(1.2); } }
+
+/* mascote desligado: sem a aurora desfocada (a abertura fica só com o ícone) */
+body.sem-mascote .sp-aur { display: none; }

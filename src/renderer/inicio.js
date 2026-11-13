@@ -191,16 +191,23 @@ function htmlApps() {
 // Tela Configurações (aberta pelo menu do usuário): só o que é real hoje.
 function htmlConfig() {
   const e = CHAT.estado;
+  const mascoteLigado = typeof Mascote === 'undefined' ? true : Mascote.ligado();
   const ok = Boolean(e && e.disponivel);
   const linha = (nome, desc, valor, cls = '') => `<div><span class="t"><b>${nome}</b><small>${desc}</small></span><span class="cfg-valor ${cls}">${valor}</span></div>`;
   return `<div class="page cfg">
-    <div class="p-head"><div><h1>Configurações</h1><p>O chat do Início.</p></div></div>
+    <div class="p-head"><div><h1>Configurações</h1><p>O chat do Início e a aparência do Hub.</p></div></div>
     <section class="cfg-bloco"><h2>Chat do Início</h2>
       <div class="box list">
         ${linha('Claude Code', 'O login do Claude Code é usado para conversar.', ok ? 'Encontrado' : 'Não encontrado', ok ? 'ok' : 'ruim')}
         ${ok ? linha('Local', 'Onde o Hub encontrou o Claude Code.', escHtml(e.caminho)) : ''}
         ${linha('Modelo', 'Sempre o mais barato disponível (Haiku).', 'Claude Haiku')}
         ${linha('Histórico', 'As conversas do Início não são guardadas.', 'Desligado')}
+      </div>
+    </section>
+    <section class="cfg-bloco"><h2>Aparência e desempenho</h2>
+      <div class="box list">
+        <div><span class="t"><b>Mascote</b><small>O mago pixelado que abre o Hub e acompanha o Início. Desligue para o máximo de desempenho: a abertura fica só com o ícone.</small></span>
+          <button class="chave${mascoteLigado ? ' on' : ''}" id="cfg-mascote" type="button" role="switch" aria-checked="${mascoteLigado}" aria-label="Mascote"></button></div>
       </div>
     </section>
   </div>`;

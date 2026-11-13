@@ -36,7 +36,27 @@
     setTimeout(() => veu.remove(), 1200);
   }
 
+  // Mascote desligado (Configurações): abertura leve, só o ícone aparece enquanto o app carrega. Sem mago, pixels nem animação pesada.
+  async function aberturaLeve() {
+    const icone = $('#sp-icone');
+    icone.src = document.documentElement.dataset.theme === 'light' ? 'icone-hub.svg' : 'icone-hub-escuro.svg';
+    const TS = 96;
+    icone.style.width = icone.style.height = TS + 'px';
+    icone.style.left = (innerWidth / 2 - TS / 2) + 'px';
+    icone.style.top = (innerHeight * 0.46 - TS / 2) + 'px';
+    icone.hidden = false;
+    icone.animate([{ opacity: 0, transform: 'scale(.8)' }, { opacity: 1, transform: 'scale(1)' }], { duration: 300, easing: 'ease-out', fill: 'forwards' });
+    let pronto = false;
+    pronta.then(() => { pronto = true; });
+    setTimeout(() => { pronto = true; }, TETO_MS);
+    await sleep(500);
+    while (!pronto) await sleep(60);
+    terminar();
+    concluir();
+  }
+
   async function executar() {
+    if (!Mascote.ligado()) return aberturaLeve();
     const mago = Mascote.mago;
     const claro = document.documentElement.dataset.theme === 'light';
     const icone = $('#sp-icone');

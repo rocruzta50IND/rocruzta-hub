@@ -6,8 +6,9 @@ const { app, BrowserWindow, ipcMain, shell, Notification, dialog } = require('el
 const { tratarPedido } = require('./dialogos');
 const { carregarCatalogo, urlReleases } = require('./apps');
 const { detectarApps } = require('./deteccao');
-const { criarAtualizacoes } = require('./atualizacoes');
-const { criarAutoAtualizacao } = require('./autoatualizacao');
+const { criarAtualizacoes, compararVersoes } = require('./atualizacoes');
+const { criarAutoAtualizacao, criarAutoAtualizacaoFalsa } = require('./autoatualizacao');
+const { pastaPreparo, mesmoMotor, preparoValido, extrairInstalador, lancarScript } = require('./troca-arquivos');
 const { anexarExecucao, abrirApp, desinstalarApp } = require('./execucao');
 const { instalarApp } = require('./instalacao');
 const { localizarDev, localizarInstalado, criarEmbutidos } = require('./embutido');
@@ -89,12 +90,40 @@ const instaladasAgora = async () => {
   }
   return saida;
 };
-// Atualização do próprio Hub (TASK-034): só no app instalado (ou com HUB_AUTOATUALIZAR=1, para testes).
-const autoAtualizar = app.isPackaged || process.env.HUB_AUTOATUALIZAR === '1';
-const hubAtualizacao = criarAutoAtualizacao({
-  versaoAtual: app.getVersion(),
-  aoMudar: (estado) => { if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send(CHANNELS.hubAtualizacaoMudou, estado); },
-});
+// Atualização do próprio Hub (TASK-034, TASK-045): só no app instalado (ou com HUB_AUTOATUALIZAR=1, para testes).
+// HUB_ATUALIZACAO_FALSA=1 simula uma versão nova (faixa, barra de progresso e fim) sem rede nem arquivos.
+const atualizacaoFalsa = process.env.HUB_ATUALIZACAO_FALSA === '1';
+const autoAtualizar = atualizacaoFalsa || app.isPackaged || process.env.HUB_AUTOATUALIZAR === '1';
+const avisarHubAtualizacao = (estado) => { if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send(CHANNELS.hubAtualizacaoMudou, estado); };
+const fsMain = require('node:fs');
+// Caminho rápido: o instalador baixado é extraído numa pasta de preparo (dentro da pasta instalada) com o Hub em uso;
+// ao fechar, o script troca os arquivos por renomeação e reabre o Hub. Só no app instalado e com o 7za junto.
+async function prepararTrocaHub(arquivo, versao, aoPercentual) {
+  if (!app.isPackaged) return null;
+  const raiz = pastaPreparo(process.execPath);
+  const dir = path.join(raiz, versao);
+  try { for (const d of fsMain.readdirSync(raiz)) if (d !== versao) fsMain.rmSync(path.join(raiz, d), { recursive: true, force: true }); } catch { /* pasta nova */ }
+  const ok = await extrairInstalador({ sevenZ: path.join(process.resourcesPath, '7za.exe'), arquivo, destino: dir, aoPercentual });
+  if (!ok || !preparoValido(dir, path.basename(process.execPath))) { try { fsMain.rmSync(dir, { recursive: true, force: true }); } catch { /* ignora */ } return null; }
+  return { dir, manterExe: mesmoMotor(path.dirname(process.execPath), dir) };
+}
+function iniciarTrocaHub({ dir, manterExe }) {
+  return lancarScript(path.join(__dirname, 'trocar-arquivos.ps1'), 'rocruzta-hub-trocar-arquivos.ps1', {
+    ParentPid: process.pid, Src: dir, Dst: path.dirname(process.execPath), Exe: path.basename(process.execPath),
+    Restart: 1, KeepExe: manterExe ? 1 : 0, Log: path.join(os.tmpdir(), 'rocruzta-hub-troca.log'),
+  });
+}
+// Sobra de uma atualização já aplicada (ou abandonada): pasta de preparo de versão que não é mais nova que a atual.
+function limparPreparoAntigo() {
+  if (!app.isPackaged) return;
+  try {
+    const raiz = pastaPreparo(process.execPath);
+    for (const d of fsMain.readdirSync(raiz)) if (compararVersoes(d, app.getVersion()) <= 0) fsMain.rmSync(path.join(raiz, d), { recursive: true, force: true });
+  } catch { /* nada a limpar */ }
+}
+const hubAtualizacao = atualizacaoFalsa
+  ? criarAutoAtualizacaoFalsa({ aoMudar: avisarHubAtualizacao })
+  : criarAutoAtualizacao({ versaoAtual: app.getVersion(), aoMudar: avisarHubAtualizacao, preparar: prepararTrocaHub, iniciarTroca: iniciarTrocaHub });
 const verificarHub = async () => { if (autoAtualizar) { try { await hubAtualizacao.checar(); } catch { /* sem checagem desta vez */ } } };
 const avisarAtualizacoes = () => { if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send(CHANNELS.atualizacoesMudou); };
 async function verificarAtualizacoes() {
@@ -264,11 +293,14 @@ ipcMain.handle(CHANNELS.instalar, async (e, id) => {
 });
 ipcMain.handle(CHANNELS.hubAtualizacao, (e) => (windowFrom(e) ? hubAtualizacao.estado() : { fase: 'nenhuma' }));
 ipcMain.handle(CHANNELS.hubAtualizacaoChecar, async (e) => { if (!windowFrom(e)) return { fase: 'nenhuma' }; await verificarHub(); return hubAtualizacao.estado(); });
-// Aplicar: lança o instalador baixado e fecha o Hub (o instalador espera o Hub sair, instala por cima e o reabre).
-ipcMain.handle(CHANNELS.hubAtualizacaoAplicar, (e) => {
+// Aplicar (clique em Atualizar): baixa e prepara com a barra andando na interface; quando tudo termina, lança a troca de
+// arquivos (ou o instalador, no caminho de reserva) e fecha o Hub. A troca renomeia os arquivos e reabre o Hub quase na hora.
+ipcMain.handle(CHANNELS.hubAtualizacaoAplicar, async (e) => {
   if (!windowFrom(e)) return { ok: false, motivo: 'janela' };
+  const final = await hubAtualizacao.atualizar();
+  if (final.fase !== 'pronta') return { ok: false, motivo: 'erro' };
   const r = hubAtualizacao.aplicar();
-  if (r.ok) setTimeout(() => app.quit(), 300);
+  if (r.ok && !r.falso) setTimeout(() => app.quit(), 200);
   return r;
 });
 ipcMain.handle(CHANNELS.atualizacoes, async (e) => (windowFrom(e) ? atualizacoes.listar(await instaladasAgora()) : {}));
@@ -300,7 +332,7 @@ if (!app.requestSingleInstanceLock()) {
     mainWindow.show();
     mainWindow.focus();
   });
-  app.whenReady().then(() => { createWindow(); setTimeout(verificarAtualizacoes, 4000); setInterval(verificarAtualizacoes, 3 * 60 * 60 * 1000); setTimeout(verificarHub, 6000); setInterval(verificarHub, 3 * 60 * 60 * 1000); }); // confere ao abrir e a cada 3 h
+  app.whenReady().then(() => { createWindow(); setTimeout(verificarAtualizacoes, 4000); setInterval(verificarAtualizacoes, 3 * 60 * 60 * 1000); limparPreparoAntigo(); setTimeout(verificarHub, 6000); setInterval(verificarHub, 3 * 60 * 60 * 1000); }); // confere ao abrir e a cada 3 h
   app.on('before-quit', () => { embutidos.pararTodos(); conversa.nova(); }); // encerra os apps embutidos e os processos que eles abriram
   app.on('window-all-closed', () => app.quit());
 }

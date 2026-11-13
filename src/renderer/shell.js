@@ -423,6 +423,8 @@ function iniciarShell() {
 
   // Cliques dentro das telas: links e cartões de seção (data-sec) e blocos de app (data-app).
   $('#hmain').addEventListener('click', (e) => {
+    const chave = e.target.closest('#cfg-mascote');
+    if (chave) { Mascote.definirLigado(!Mascote.ligado()); return renderTela(); }
     const rel = e.target.closest('[data-releases]');
     if (rel) return window.hub.abrirReleases(rel.dataset.releases);
     const sec = e.target.closest('[data-sec]');
@@ -562,18 +564,39 @@ function iniciarShell() {
   });
   window.hub.onAtualizacoesMudou(carregarAtualizacoes);
 
-  // ---- Atualização do próprio Hub (TASK-034): baixa sozinho em segundo plano; a faixa só aparece com o instalador pronto ----
-  const HUB_ATU = { fase: 'nenhuma', versao: null, dispensada: false };
+  // ---- Atualização do próprio Hub (TASK-034, TASK-045): a faixa avisa a versão nova; ao clicar em Atualizar, uma barra mostra
+  // o download e a preparação e, quando tudo termina, o Hub reinicia quase na hora ----
+  const HUB_ATU = { fase: 'nenhuma', versao: null, progresso: 0, dispensada: false };
   const appsEmbutidosAbertos = () => APPS.filter((a) => ESTADOS[a.id]?.embutido === 'rodando');
   function atualizarFaixaHub() {
     const faixa = $('#aviso-hub');
-    const mostrar = HUB_ATU.fase === 'pronta' && !HUB_ATU.dispensada;
+    const emAndamento = ['baixando', 'preparando', 'pronta'].includes(HUB_ATU.fase);
+    const mostrar = (['disponivel', 'erro'].includes(HUB_ATU.fase) && !HUB_ATU.dispensada) || emAndamento;
     faixa.hidden = !mostrar;
     if (!mostrar) return;
     const abertos = appsEmbutidosAbertos();
-    $('#ah-texto').innerHTML = `<b>Hub v${HUB_ATU.versao}</b> pronto para instalar${abertos.length ? ` · vai fechar ${abertos.map((a) => a.nome).join(', ')}` : ''}`;
-    $('#ah-aplicar').disabled = false;
-    $('#ah-aplicar').textContent = 'Reiniciar e atualizar';
+    const nota = abertos.length ? ` · vai fechar ${abertos.map((a) => a.nome).join(', ')}` : '';
+    const barra = $('#ah-barra');
+    const botao = $('#ah-aplicar');
+    const pct = Math.round(Math.max(0, Math.min(1, HUB_ATU.progresso)) * 100);
+    barra.hidden = !emAndamento;
+    $('#ah-fechar').hidden = emAndamento;
+    botao.hidden = emAndamento;
+    if (emAndamento) {
+      $('#ah-texto').innerHTML = HUB_ATU.fase === 'baixando' ? `Baixando o <b>Hub v${HUB_ATU.versao}</b> · ${pct}%`
+        : HUB_ATU.fase === 'preparando' ? `Preparando o <b>Hub v${HUB_ATU.versao}</b> · ${pct}%` : `<b>Hub v${HUB_ATU.versao}</b> pronto · reiniciando…`;
+      $('#ah-barra-i').style.width = `${pct}%`;
+      barra.setAttribute('aria-valuenow', String(pct));
+      return;
+    }
+    botao.disabled = false;
+    if (HUB_ATU.fase === 'erro') {
+      $('#ah-texto').innerHTML = 'Não foi possível atualizar o <b>Hub</b>. Confira a internet e tente de novo';
+      botao.textContent = 'Tentar de novo';
+    } else {
+      $('#ah-texto').innerHTML = `<b>Hub v${HUB_ATU.versao}</b> disponível${nota}`;
+      botao.textContent = 'Atualizar';
+    }
   }
   const definirHubAtu = (estado) => { if (!estado) return; if (estado.versao !== HUB_ATU.versao) HUB_ATU.dispensada = false; Object.assign(HUB_ATU, estado); atualizarFaixaHub(); };
   window.hub.hubAtualizacao().then(definirHubAtu).catch(() => {});
@@ -581,9 +604,10 @@ function iniciarShell() {
   $('#ah-fechar').addEventListener('click', () => { HUB_ATU.dispensada = true; atualizarFaixaHub(); });
   $('#ah-aplicar').addEventListener('click', async () => {
     const b = $('#ah-aplicar');
-    b.disabled = true; b.textContent = 'Atualizando…';
+    b.disabled = true;
+    // O processo principal baixa, prepara e só responde quando tudo termina (a barra anda pelos eventos); aí o Hub reinicia.
     const r = await window.hub.aplicarHubAtualizacao().catch(() => ({ ok: false }));
-    if (!r.ok) { avisar('Não foi possível iniciar a atualização do Hub.'); atualizarFaixaHub(); }
+    if (!r.ok) { avisar('Não foi possível atualizar o Hub.'); atualizarFaixaHub(); }
   });
   setInterval(atualizarFaixaHub, 20000); // o texto acompanha os apps abertos
   setInterval(atualizarBannerAtt, 30000); // a faixa some sozinha depois da janela de 15 minutos

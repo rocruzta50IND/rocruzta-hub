@@ -35,6 +35,13 @@ const Mascote = (() => {
   let H = innerHeight;
   const mago = Mago.create({ x: W / 2, y: H * 0.46, R: 28 });
 
+  // Configurações > Mascote: desligado, o mago não existe (sem laços, sem pixels, sem observadores) e a abertura é simples.
+  const CHAVE = 'rocruzta-hub:mascote';
+  const lerLigado = () => { try { return localStorage.getItem(CHAVE) !== 'off'; } catch { return true; } };
+  let ligado = lerLigado();
+  document.body.classList.toggle('sem-mascote', !ligado);
+  if (!ligado) mago.pausar();
+
   const centro = (el) => { const r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; };
   // Posição do mago sentado sobre o topo do elemento; f (0 a 1) é onde, ao longo da borda, ele está (1 = quina direita).
   function posSentado(el, R = SIT_R, f = 1) {
@@ -192,13 +199,21 @@ const Mascote = (() => {
     agendado = true;
     requestAnimationFrame(() => { agendado = false; sincronizar(); });
   }
-  new MutationObserver(agendarSincronia).observe($('#hmain'), { childList: true, subtree: true });
-  new MutationObserver(agendarSincronia).observe($('#v-hub'), { attributes: true, attributeFilter: ['hidden'] });
+  const observadores = [];
+  function observar() {
+    if (observadores.length) return;
+    const a = new MutationObserver(agendarSincronia); a.observe($('#hmain'), { childList: true, subtree: true });
+    const b = new MutationObserver(agendarSincronia); b.observe($('#v-hub'), { attributes: true, attributeFilter: ['hidden'] });
+    observadores.push(a, b);
+  }
+  const desobservar = () => observadores.splice(0).forEach((o) => o.disconnect());
 
   // ---- laço de quadros: segue o alvo, o balão e a plataforma ----
   // Parado, o mago só confere onde o alvo está a cada 4 quadros (ler medidas da tela a cada quadro custa layout).
   let quadro = 0;
-  (function laco() {
+  let lacoAtivo = false;
+  function laco() {
+    if (!lacoAtivo) return;
     const a = E.att;
     const repouso = !mago.o.dragging && Math.hypot(mago.o.vx, mago.o.vy) < 3 && Math.abs(mago.o.R0t - mago.o.R0) < 0.05;
     const pular = repouso && (quadro++ % 4 !== 0);
@@ -225,12 +240,13 @@ const Mascote = (() => {
       balao.style.top = (mago.y - mago.R * 1.4 - 8) + 'px';
     }
     requestAnimationFrame(laco);
-  })();
+  }
+  function iniciarLaco() { if (lacoAtivo) return; lacoAtivo = true; requestAnimationFrame(laco); }
   addEventListener('resize', () => { W = innerWidth; H = innerHeight; });
 
   // ---- reações ao que o usuário faz ----
   document.addEventListener('input', (e) => {
-    if (!e.target || e.target.id !== 'c-texto') return;
+    if (!E.aberto || !e.target || e.target.id !== 'c-texto') return;
     acordar();
     if (E.visivel && E.att && E.att.sit) {
       mago.burst(...mago.tip(), 3, { dist: 26, dur: 450 });
@@ -243,10 +259,10 @@ const Mascote = (() => {
     if (tem && composerVisivel()) mago.look(...centro($('#composer'))); else mago.look(null);
   });
   document.addEventListener('focusin', (e) => {
-    if (e.target && e.target.id === 'c-texto') { acordar(); if (!CHAT.gerando && composerVisivel()) mago.look(...centro($('#composer'))); }
+    if (E.aberto && e.target && e.target.id === 'c-texto') { acordar(); if (!CHAT.gerando && composerVisivel()) mago.look(...centro($('#composer'))); }
   });
   document.addEventListener('focusout', (e) => {
-    if (!e.target || e.target.id !== 'c-texto') return;
+    if (!E.aberto || !e.target || e.target.id !== 'c-texto') return;
     if (!CHAT.gerando) { mago.look(null); if (!e.target.value.trim()) definirEstado('idle'); }
   });
   document.addEventListener('keydown', acordar, { passive: true });
@@ -356,6 +372,7 @@ const Mascote = (() => {
   }
   // O mago se materializa já no lugar dele, com pixels convergindo.
   function concluirAbertura() {
+    if (!ligado) return;
     E.aberto = true;
     E.ultimaAcao = Date.now();
     const alvo = alvoPadrao();
@@ -383,5 +400,30 @@ const Mascote = (() => {
   // Leitura do estado (usada por tools/verificar-abertura.js).
   const estado = () => ({ aberto: E.aberto, visivel: E.visivel, estado: E.estado, sit: E.att ? E.att.sit : null, alvo: E.att && E.att.el.className || null, plataforma: Boolean(E.plat), dormindo: E.dormindo });
 
-  return { mago, preverFinal, concluirAbertura, dizer, sincronizar, estado };
+  // Liga ou desliga o mascote na hora (Configurações). Ao ligar, ele se materializa no lugar dele; ao desligar, para tudo.
+  function definirLigado(v) {
+    v = Boolean(v);
+    if (v === ligado) return;
+    ligado = v;
+    try { if (v) localStorage.removeItem(CHAVE); else localStorage.setItem(CHAVE, 'off'); } catch { /* sem armazenamento: vale só nesta sessão */ }
+    document.body.classList.toggle('sem-mascote', !v);
+    if (v) {
+      mago.retomar(); observar(); iniciarLaco();
+      E.aberto = true; E.ultimaAcao = Date.now();
+      sincronizar();
+      return;
+    }
+    clearInterval(E.rip); clearInterval(E.thk);
+    matarPlataforma(false);
+    dizer('');
+    mago.look(null);
+    mago.pausar();
+    desobservar();
+    lacoAtivo = false;
+    E.aberto = false; E.visivel = false; E.att = null; E.pin = null; E.dormindo = false; E.estado = 'idle';
+  }
+
+  if (ligado) { observar(); iniciarLaco(); }
+
+  return { mago, preverFinal, concluirAbertura, dizer, sincronizar, estado, ligado: () => ligado, definirLigado };
 })();

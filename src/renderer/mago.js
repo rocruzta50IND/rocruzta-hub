@@ -42,7 +42,9 @@ const Mago = (() => {
     function mood(n) { el.classList.toggle('think', n === 'think'); el.classList.toggle('talk', n === 'speak'); }
     function look(x, y) { if (x == null) { el.style.setProperty('--lx', '0px'); el.style.setProperty('--ly', '0px'); return; } const dx = x - O.x, dy = y - O.y, d = Math.hypot(dx, dy) || 1, m = Math.min(1, d / 220); el.style.setProperty('--lx', (dx / d * m * .45).toFixed(2) + 'px'); el.style.setProperty('--ly', (dy / d * m * .3).toFixed(2) + 'px'); }
     let last = performance.now(), last_tilt = null, last_tr = null, last_op = null; // só escreve no DOM quando algo mudou (parado, o laço quase não custa)
-    (function loop(now) {
+    let pausado = false; // desligado nas configurações: o laço de quadros para de vez (zero custo)
+    function loop(now) {
+      if (pausado) return;
       const dt = Math.min(.04, (now - last) / 1000); last = now; O.t += dt;
       if (!O.dragging) { O.vx += (O.k * (O.tx - O.x) - O.c * O.vx) * dt; O.vy += (O.k * (O.ty - O.y) - O.c * O.vy) * dt; O.x += O.vx * dt; O.y += O.vy * dt; }
       O.R0 += (O.R0t - O.R0) * (1 - Math.exp(-dt * 7)); O.opacity += (O.opT - O.opacity) * (1 - Math.exp(-dt * 9));
@@ -51,13 +53,15 @@ const Mago = (() => {
       const tr = `translate(${(O.x - 60).toFixed(1)}px,${(O.y - 34.5).toFixed(1)}px) scale(${(s * O.flip).toFixed(3)},${s.toFixed(3)})`; if (tr !== last_tr) { last_tr = tr; el.style.transform = tr; }
       const op = Math.round(Math.min(1, O.opacity) * 100) / 100; if (op !== last_op) { last_op = op; el.style.opacity = op; el.style.display = op === 0 && !O.opT ? 'none' : ''; } // some de vez (display none) quando escondido: para as animações e a pintura
       requestAnimationFrame(loop);
-    })(last);
+    }
+    loop(last);
     return {
       o: O, el, burst, tip, head, act, cast, layout, mood, emotion, emote, look,
       get x() { return O.x; }, get y() { return O.y; }, get R() { return O.R0; },
       moveTo(x, y) { O.tx = x; O.ty = y; }, snap(x, y) { O.x = O.tx = x; O.y = O.ty = y; O.vx = O.vy = 0; },
       pulse() { O.pm = 1; burst(...tip(), 5, { dist: 30 }); }, sparkle(n) { burst(...head(), n || 6, { dist: 50 }); }, birth() { O.pm = 1; burst(O.x, O.y, 22, { dist: 80 }); },
       setRadius(R) { O.R0t = R; }, show(v) { O.opT = v ? 1 : 0; }, impulse(dx, dy) { O.vx += dx; O.vy += dy; }, resize() { }, setTrail() { }, eyes() { }, palette() { },
+      pausar() { pausado = true; el.style.display = 'none'; last_op = null; }, retomar() { if (!pausado) return; pausado = false; last = performance.now(); last_op = last_tr = last_tilt = null; el.style.display = ''; requestAnimationFrame(loop); },
       stiffness(k, c) { O.k = k; O.c = c; }, drag(on, x, y) { if (on) { O.dragging = true; O.x = x; O.y = y; O.vx = O.vy = 0; } else O.dragging = false; },
     };
   }

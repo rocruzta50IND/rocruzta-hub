@@ -12,6 +12,19 @@ _Nenhuma no momento._
 
 ## Aguardando validação DEV1
 
+### TASK-045 — Atualização do Hub com botão Atualizar, barra de progresso e troca rápida
+
+- **Responsável:** DEV1
+- **Status:** VALIDADA pelo usuário (136 testes; `tools/verificar-atualizacao.js` no Hub real com atualização simulada; troca medida com os instaladores reais 0.1.4 e 0.1.5)
+- **Feito:** a faixa avisa a versão nova com **Atualizar** (nada é baixado antes do clique); ao clicar, barra de progresso (download 70%, preparação 30%) e, quando tudo termina, o Hub reinicia quase na hora. O instalador é extraído com o `7za` numa pasta de preparo enquanto o Hub está em uso e o `trocar-arquivos.ps1` troca os arquivos por renomeação (`src/main/autoatualizacao.js`, `troca-arquivos.js`, `trocar-arquivos.ps1`; `vendor/7za.exe` vai em `resources/`). Medido: janela do Hub já na versão nova em 0,24 s depois da troca (extração 2,2 s, troca 0,7 s). Reserva: o instalador silencioso de antes. Detalhes em `docs/DECISOES.md` §20.
+- **Falta:** sair numa release (0.1.6). Quem está na 0.1.5 ou antes atualiza pelo caminho antigo uma última vez; o novo fluxo aparece na atualização seguinte e a conferência real (app instalado) acontece aí. Opcional: repetir o teste no Windows Sandbox (`tools/sandbox`).
+
+### TASK-046 — Mascote desligável nas Configurações
+
+- **Responsável:** DEV1
+- **Status:** VALIDADA pelo usuário (mesma verificação da TASK-045)
+- **Feito:** Configurações > Aparência e desempenho > chave **Mascote**. Desligado: sem mago, sem laços de quadros, sem observadores, abertura leve (só o ícone) e avatares do chat viram um pontinho; ligar traz o mago de volta na hora. Preferência guardada. `docs/DECISOES.md` §21.
+
 ### TASK-044 — Abertura animada com o mago e mascote do Hub (ícone "H com chapéu")
 
 - **Responsável:** DEV1

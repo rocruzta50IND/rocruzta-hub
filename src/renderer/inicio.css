@@ -86,7 +86,7 @@
 .c-linha.eu { justify-content: flex-end; }
 .c-bolha { max-width: 80%; padding: 9px 14px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 14px; border-top-right-radius: 5px; line-height: 1.5; overflow-wrap: anywhere; }
 .c-avatar { width: 28px; height: 28px; flex: none; display: grid; place-items: center; } /* o mascote pousa sobre o avatar da última resposta; as anteriores ficam com um pontinho */
-.c-avatar.ponto::before { content: ""; width: 14px; height: 14px; border-radius: 50%; background: radial-gradient(circle at 32% 28%, #fff, #cfe2ff 40%, #7ea8ff 78%, #3a68e0); box-shadow: 0 2px 6px rgba(58, 104, 224, .3); }
+.c-avatar.ponto::before, body.sem-mascote .c-avatar::before { content: ""; width: 14px; height: 14px; border-radius: 50%; background: radial-gradient(circle at 32% 28%, #fff, #cfe2ff 40%, #7ea8ff 78%, #3a68e0); box-shadow: 0 2px 6px rgba(58, 104, 224, .3); }
 .c-texto { flex: 1; min-width: 0; line-height: 1.6; overflow-wrap: anywhere; user-select: text; }
 .c-texto p { margin: 0 0 .7em; }
 .c-texto p:last-child, .c-texto ul:last-child { margin-bottom: 0; }
