@@ -16,9 +16,11 @@ Referência visual aprovada: `base/index.html` (tema escuro com vidro). Reproduz
 
 Temas escuro e claro. Todas as cores são variáveis CSS em `:root`.
 
-## Ícone do app
+## Ícone do app, abertura e mascote
 
-Cometa em órbita (esfera azul com cauda, órbita inclinada, anel e seis quadradinhos num ladrilho claro). Fonte: assets/icone.svg; o assets/icone.png é gerado dele. Vale só para o ícone do próprio app (barra de tarefas, atalho, instalador). Dentro do Hub os ícones continuam em traço de uma cor.
+Ícone: "H com chapéu" (telhado curvo de chapéu de mago, dois pilares e uma travessa, em degradê azul sobre ladrilho arredondado). Fontes: `src/renderer/icone-hub.svg` (ladrilho claro) e `icone-hub-escuro.svg` (ladrilho azul-marinho, para o tema escuro); `assets/icone.png` é gerado do claro por `tools/exportar-icone.js`. Vale para o ícone do app (barra de tarefas, atalho, instalador) e para a marca ao lado de "ocruzta" na barra de título. Os ícones de navegação continuam em traço de uma cor.
+
+Mascote: o mago em pixel (`mago.js`), presença da IA na tela Início: sentado na quina superior direita do campo de mensagem, avatar da última resposta no chat. A abertura (`abertura.js`) cobre o app com um véu que segue o tema e termina com o mago no lugar dele. Referência: `iconemascote/abertura-final`.
 
 ## Estrutura da tela
 

@@ -12,6 +12,23 @@ _Nenhuma no momento._
 
 ## Aguardando validação DEV1
 
+### TASK-044 — Abertura animada com o mago e mascote do Hub (ícone "H com chapéu")
+
+- **Responsável:** DEV1
+- **Status:** VALIDADA pelo usuário; publicada na 0.1.5 (125 testes; conferida no Hub real, nos temas escuro e claro)
+- **Feito:** a abertura do estudo `iconemascote/abertura-final` (`abertura.js`, `abertura.css`): o ícone aparece, vira o mago num poof, o mago escreve "Rocruzta Hub", as letras viram faísca e um cometa leva o mago até a quina superior direita do campo de mensagem. A escrita roda enquanto o app carrega e a revelação só espera se a tela inicial ainda não estiver pronta (`window.splashPronto()` no `renderer.js`; teto de 12 s). O mascote (`mago.js`, `mago.css`, `mascote.js`): sentado de pernas paradas, pisca e olha em volta, reage à digitação e ao "pensando", vira o avatar da última resposta no chat, pode ser arrastado (superfície sólida ou plataforma mágica) e some ao sair do Início. O ícone novo (`icone-hub.svg` e `icone-hub-escuro.svg`) substitui o cometa: `assets/icone.png` (gerado por `tools/exportar-icone.js`) e a marca da barra de título.
+- **Também:** o logo do Início foi removido (o mascote é a presença ali, como no estudo); abertura e mascote são exceção na regra de "reduzir movimento" (`base.css`).
+- **Falta:** o usuário olhar o resultado; sair numa release (0.1.5), que também troca o ícone do app (o `icone.png` já está no código).
+
+### TASK-043 — Abertura simples com a escrita "Rocruzta Hub" (SUBSTITUÍDA pela TASK-044)
+
+- **Responsável:** DEV1
+- **Status:** SUBSTITUÍDA pela TASK-044 (o `splash.js`/`splash.css` desta versão foram trocados pela abertura com o mago)
+- **Feito:** versão simples, a pedido do usuário: véu `#splash` só com a escrita "Rocruzta Hub" montando letra por letra (`splash.js` e `splash.css`). A animação começa no primeiro quadro depois que a janela aparece, termina sempre de se montar, e o véu só sai quando a casca terminou de iniciar (`splashPronto()` no `renderer.js`), com teto de 12 s. O véu é exceção na regra global de "reduzir movimento" (`base.css`), porque neste Windows a opção está ligada e apagaria a abertura.
+- **Também nesta tarefa:** `src/renderer/cometa.svg` (ícone sem o quadrado, fundo transparente) no lugar do "R" na barra de título, no Início e no avatar da IA do chat (estático, sem a lógica do mascote).
+- **Descartado nesta rodada (sai do código):** o cometa animado com barra de loading (`splash-icone.js`, apagado; a fonte segue no estudo `iconemascote/hub-real/icon.js`).
+- **Falta:** o usuário ajustar a partir daqui; sair numa release (0.1.5). `logo.png` ficou sem uso; `assets/icone.png` (app) segue com o quadrado: decidir se fica sem fundo.
+
 ### TASK-042 — Ícone do Hub: cometa em órbita (e Configurações centralizada)
 
 - **Responsável:** DEV1

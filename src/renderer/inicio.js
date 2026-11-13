@@ -28,7 +28,6 @@ function htmlInicio() {
     </div>`;
   }
   return `<div class="inicio-chat">
-    <img class="ic-logo" src="logo.png" alt="">
     <h1>O que vamos fazer hoje?</h1>
     ${htmlComposer('Descreva uma tarefa ou faça uma pergunta')}
     <p class="c-dica">${dica}</p>

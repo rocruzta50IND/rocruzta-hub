@@ -27,11 +27,14 @@ function mdLite(texto) {
 }
 
 function htmlMensagens(msgs = CHAT.msgs, gerando = CHAT.gerando) {
-  const itens = msgs.map((m) => (m.papel === 'eu'
+  // O mascote fica sobre o avatar da última resposta (ou da que está sendo esperada); as anteriores mostram um pontinho.
+  const esperando = gerando && (!msgs.length || msgs[msgs.length - 1].papel === 'eu');
+  const ultimaIa = esperando ? -1 : msgs.map((m) => m.papel).lastIndexOf('ia');
+  const itens = msgs.map((m, i) => (m.papel === 'eu'
     ? `<div class="c-linha eu"><div class="c-bolha">${escHtml(m.texto).replace(/\n/g, '<br>')}</div></div>`
-    : `<div class="c-linha ia${m.erro ? ' erro' : ''}"><div class="c-avatar"><img src="logo.png" alt=""></div><div class="c-texto">${m.erro ? escHtml(m.texto) : mdLite(m.texto)}</div></div>`)).join('');
-  const aguardando = gerando && (!msgs.length || msgs[msgs.length - 1].papel === 'eu')
-    ? '<div class="c-linha ia"><div class="c-avatar"><img src="logo.png" alt=""></div><div class="c-texto"><span class="c-pontos" aria-label="Pensando"><i></i><i></i><i></i></span></div></div>' : '';
+    : `<div class="c-linha ia${m.erro ? ' erro' : ''}"><div class="c-avatar${i === ultimaIa ? '' : ' ponto'}"></div><div class="c-texto">${m.erro ? escHtml(m.texto) : mdLite(m.texto)}</div></div>`)).join('');
+  const aguardando = esperando
+    ? '<div class="c-linha ia"><div class="c-avatar"></div><div class="c-texto"><span class="c-pontos" aria-label="Pensando"><i></i><i></i><i></i></span></div></div>' : '';
   return itens + aguardando;
 }
 

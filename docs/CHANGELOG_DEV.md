@@ -8,6 +8,21 @@ Histórico legível do que foi desenvolvido, alterado ou corrigido. Uma entrada 
 
 ## 2026-11-13
 
+**TASK-044 — Abertura animada com o mago e mascote do Hub** (DEV1)
+
+- Pedido do usuário: implementar no Hub a abertura e o mascote do estudo `iconemascote/abertura-final` (ícone "H com chapéu" vira o mago, que escreve "Rocruzta Hub", vira faísca e cometa e se materializa sentado na quina do campo de mensagem), com o ícone novo no lugar do cometa. Sem a "área de trabalho" simulada, o painel de simulação, o som e a galeria.
+- Abertura acoplada ao app: a escrita roda enquanto a casca carrega e a revelação só espera a tela inicial (`splashPronto()`). Começa no primeiro quadro visível (a janela nasce escondida).
+- Mascote: `mago.js` (personagem e física), `mascote.js` (onde senta, reações à digitação e ao "pensando", avatar das respostas, arrastar com plataforma mágica, some em pixels fora do Início e reaparece no lugar dele ao voltar). Chat: só a última resposta tem avatar livre; as anteriores ganham um pontinho.
+- Ícone: `icone-hub.svg` (claro) e `icone-hub-escuro.svg`; `assets/icone.png` gerado por `tools/exportar-icone.js` (substitui o cometa). O logo do Início saiu; a marca da barra de título usa a versão do tema.
+- Verificação: `tools/verificar-abertura.js` no Hub real (21 etapas: abertura, quina do campo, digitação, avatar, pensando, navegação, arrastar), 125 testes, capturas nos dois temas. Abertura e mascote são exceção na regra de "reduzir movimento".
+- Substitui a TASK-043 (abertura simples só com a escrita).
+
+**TASK-043 — Abertura do Hub: a escrita "Rocruzta Hub" se monta enquanto o app carrega** (DEV1)
+
+- Pedido do usuário: tirar a sensação de esperar o app abrir. Depois de testar o cometa animado, o usuário pediu uma versão mais simples, só a escrita "Rocruzta Hub" se montando na tela de loading, para ajustar a partir daí. O véu cobre a casca, as letras entram uma a uma (mínimo ~1,3 s) e ele só some quando a casca está pronta.
+- Dois achados nos testes: a janela nasce escondida, então a animação tem de contar o tempo a partir do primeiro quadro visível; e a regra global de "reduzir movimento" do `base.css` apagava animações e transições (inclusive a do véu), por isso o `#splash` virou exceção.
+- `cometa.svg` (sem fundo, derivado de `assets/icone.svg`) passa a ser o logo da barra de título, da tela Início e o avatar da IA no chat, no lugar do "R", sem a lógica do mascote.
+
 **TASK-042 — Ícone do Hub: cometa em órbita; Configurações centralizada** (DEV1)
 
 - Pedido do usuário: usar o ícone do estudo `iconemascote` no Hub e centralizar o conteúdo da tela Configurações. `hub-icone.svg` é a fonte e o `assets/icone.png` (1024 px, transparente) sai dele. O glifo do Hub no seletor, no menu e na troca de apps usa o cometa; o menu lateral Início mantém a casinha (é navegação). Configurações: `.page.cfg` com 712 px, centralizada.

@@ -1,0 +1,40 @@
+/* Abertura do Hub (ver abertura.js): véu que cobre o app enquanto o mago escreve o nome. Segue o tema. */
+#splash {
+  --sp-fundo: radial-gradient(ellipse at 50% 42%, #202633 0%, #181b24 50%, #10131a 100%);
+  --sp-a: rgba(53, 112, 220, .32);
+  --sp-b: rgba(110, 90, 230, .24);
+  --sp-texto: linear-gradient(120deg, #a9dcff, #5aa2ff 55%, #3b6fe0);
+  --sp-estrela: #7dbbff;
+  position: fixed; inset: 0; z-index: 40; overflow: hidden;
+  background: var(--sp-fundo);
+  transition: opacity .9s .1s;
+  -webkit-app-region: drag;
+}
+:root[data-theme="light"] #splash {
+  --sp-fundo: radial-gradient(ellipse at 50% 42%, #ffffff 0%, #f1f5fd 48%, #e1e9f9 100%);
+  --sp-a: #c9dcff;
+  --sp-b: #e3dcff;
+  --sp-texto: linear-gradient(120deg, #60befa, #2563eb 55%, #0b1f4d);
+  --sp-estrela: #7dbbff;
+}
+#splash.out { opacity: 0; pointer-events: none; }
+
+.sp-aur { position: absolute; inset: -20%; filter: blur(90px); opacity: .9; }
+.sp-aur i { position: absolute; border-radius: 50%; }
+.sp-aur i:nth-child(1) { width: 40vw; height: 40vw; left: 8%; top: 8%; background: var(--sp-a); animation: sp-a1 24s ease-in-out infinite alternate; }
+.sp-aur i:nth-child(2) { width: 32vw; height: 32vw; right: 8%; top: 14%; background: var(--sp-b); animation: sp-a2 28s ease-in-out infinite alternate; }
+@keyframes sp-a1 { to { transform: translate(10vw, 8vh) scale(1.2); } }
+@keyframes sp-a2 { to { transform: translate(-9vw, 6vh) scale(.85); } }
+
+/* o ícone "H com chapéu" que vira o mago */
+.sp-icone { position: absolute; opacity: 0; filter: drop-shadow(0 18px 30px rgba(0, 0, 0, .35)); }
+.sp-icone[hidden] { display: none; }
+
+/* a escrita "Rocruzta Hub" */
+.sp-escrita { position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%); font-size: clamp(34px, 6.2vh, 58px); font-weight: 600; letter-spacing: -.025em; white-space: nowrap; display: flex; }
+.sp-escrita .ch { display: inline-block; opacity: 0; will-change: transform, opacity, filter; background: var(--sp-texto); -webkit-background-clip: text; background-clip: text; color: transparent; padding: 0 .01em; }
+.sp-escrita .sp { width: .28em; }
+
+/* estrelinhas de pixel ao fundo */
+.sp-estrela { position: absolute; background: var(--sp-estrela); opacity: 0; animation: sp-brilho 2.4s ease-in-out infinite; pointer-events: none; box-shadow: 0 0 6px var(--sp-estrela); }
+@keyframes sp-brilho { 0%, 100% { opacity: 0; transform: scale(.6); } 50% { opacity: .8; transform: scale(1.2); } }

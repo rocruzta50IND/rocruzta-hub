@@ -47,7 +47,9 @@ kbd {
 }
 
 /* Movimento reduzido (Windows > Acessibilidade > Efeitos de animação desligados): sem animações decorativas.
-   A barra lateral é exceção: o deslize curto de abrir/fechar continua, para a mudança de layout não parecer um salto. */
+   A barra lateral é exceção: o deslize curto de abrir/fechar continua, para a mudança de layout não parecer um salto.
+   A abertura (#splash) e o mascote (#mago, seus pixels, plataforma, faísca e balão) também: são a animação de entrada e o
+   personagem; sem as animações, o mago ficaria parado e a abertura não aconteceria. */
 @media (prefers-reduced-motion: reduce) {
-  *:not(#side-col):not(#side-col *) { transition: none !important; animation: none !important; }
+  *:not(#side-col):not(#side-col *):not(#splash):not(#splash *):not(#mago):not(#mago *):not(.mago-px):not(.mago-plat):not(.mago-cometa):not(.mago-balao) { transition: none !important; animation: none !important; }
 }

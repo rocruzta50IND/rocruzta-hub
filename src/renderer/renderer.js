@@ -16,6 +16,12 @@ document.getElementById('btn-close').addEventListener('click', () => window.hub.
 document.getElementById('cur-g').innerHTML = ic(HUB.icone);
 aplicarCores(document.getElementById('titlebar'));
 
+// Avisa a abertura (abertura.js) que a tela inicial está pronta; se ela não carregou, só tira o véu.
+function avisarPronto() {
+  if (typeof window.splashPronto === 'function') window.splashPronto();
+  else document.getElementById('splash')?.remove();
+}
+
 // O catálogo vem do apps.json pelo processo principal; a casca só inicia com ele carregado.
 window.hub.apps().then(async (dados) => {
   definirCatalogo(dados);
@@ -23,7 +29,9 @@ window.hub.apps().then(async (dados) => {
   definirEstados(await window.hub.detectarApps().catch(() => null));
   definirAtualizacoes(await window.hub.atualizacoes().catch(() => null));
   iniciarShell();
+  avisarPronto();
 }).catch((erro) => {
   console.error('Falha ao carregar apps.json', erro);
   document.getElementById('hmain').textContent = 'Não foi possível carregar o catálogo de apps.';
+  avisarPronto();
 });
