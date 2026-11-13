@@ -194,7 +194,7 @@ function htmlConfig() {
   const e = CHAT.estado;
   const ok = Boolean(e && e.disponivel);
   const linha = (nome, desc, valor, cls = '') => `<div><span class="t"><b>${nome}</b><small>${desc}</small></span><span class="cfg-valor ${cls}">${valor}</span></div>`;
-  return `<div class="page">
+  return `<div class="page cfg">
     <div class="p-head"><div><h1>Configurações</h1><p>O chat do Início.</p></div></div>
     <section class="cfg-bloco"><h2>Chat do Início</h2>
       <div class="box list">

@@ -12,6 +12,13 @@ _Nenhuma no momento._
 
 ## Aguardando validação DEV1
 
+### TASK-042 — Ícone do Hub: cometa em órbita (e Configurações centralizada)
+
+- **Responsável:** DEV1
+- **Status:** AGUARDANDO VALIDAÇÃO do usuário (119 testes; conferido por captura)
+- **Feito:** o ícone vem do estudo da pasta `iconemascote` (`hub-real/icon.js`). `src/renderer/hub-icone.svg` é a fonte; `assets/icone.png` (1024 px, fundo transparente) sai dele e vale para janela, barra de tarefas, atalhos, notificações e instalador. No Hub, o glifo do seletor, do menu e da troca de apps usa o cometa (`ICONES_IMG` em `icons.js`). A tela Configurações ganhou largura própria e ficou centralizada.
+- **Falta:** ver o ícone em 16/24/32 px na barra de tarefas; a abertura animada (`intro()` do `icon.js`) fica para a tela de entrada.
+
 ### TASK-039 — Diálogos de arquivo dos apps embutidos presos à janela do Hub
 
 - **Responsável:** DEV1
@@ -210,6 +217,14 @@ Fora da v1. O DEV1 promove para "Prontas" quando decidir.
 - **Status:** BACKLOG (ideia anotada; só depois do segundo app)
 - **Prioridade:** Baixa
 - **Ideia:** o Hub ler o catálogo (`apps.json`) de um arquivo publicado (por exemplo `catalogo.json` no GitHub) em vez de embutido no código. Decidir o que mostrar sem rede e o que muda para a segurança (lista pública).
+
+### TASK-041 — Reiniciar app embutido sem sair do Hub (com esqueleto de carregamento)
+
+- **Responsável:** DEV1
+- **Status:** BACKLOG (anotada em 2026-11-13; o usuário quer voltar a ela depois)
+- **Prioridade:** Média
+- **Motivo:** o Hub mostra "v0.7.2 · Em execução" (versão lida do `package.json` da pasta de desenvolvimento) enquanto o processo embutido ainda roda o código antigo (rodapé "v0.7.1"); hoje só fechando o Hub inteiro.
+- **Ideia:** botão "Reiniciar app" = `parar(id)` + `mostrar(id)` do `embutido.js`, com esqueleto de carregamento (contorno do layout embutido, tema atual) desenhado na página do Hub enquanto a tela nativa do app fica escondida. Guardar a versão com que cada app embutido subiu e avisar "Em execução (v0.7.1) · reinicie para aplicar a 0.7.2". Confirmar antes se houver terminais abertos (morrem com o processo; abas e projetos voltam pelo `state.json`). Falha na subida vira erro com "Tentar de novo". Só apps embutidos. Lugares do botão: menu "⋯", página do app e o aviso (a definir se os três). Teste no Hub real no estilo `tools/verificar-menu-app.js`. Só Hub, sem mexer no Termix.
 
 ### TASK-035 — Repositórios privados e atualização com acesso controlado (pós-MVP)
 

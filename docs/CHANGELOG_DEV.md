@@ -8,6 +8,11 @@ Histórico legível do que foi desenvolvido, alterado ou corrigido. Uma entrada 
 
 ## 2026-11-13
 
+**TASK-042 — Ícone do Hub: cometa em órbita; Configurações centralizada** (DEV1)
+
+- Pedido do usuário: usar o ícone do estudo `iconemascote` no Hub e centralizar o conteúdo da tela Configurações. `hub-icone.svg` é a fonte e o `assets/icone.png` (1024 px, transparente) sai dele. O glifo do Hub no seletor, no menu e na troca de apps usa o cometa; o menu lateral Início mantém a casinha (é navegação). Configurações: `.page.cfg` com 712 px, centralizada.
+- A abertura animada (`intro()`) e o mascote ficam para a tela de entrada.
+
 **TASK-039 — Diálogos de arquivo dos apps embutidos presos à janela do Hub** (DEV1)
 
 - Relato do usuário (com captura): "Escolher pasta" no Termix pelo Hub abria janelas soltas do Windows. O Hub passa a abrir o diálogo preso à própria janela (`src/main/dialogos.js`) quando o app embutido o pede (`HUB_EVENT` `dialogo`), e devolve a resposta por `/__cmd`. A mudança do lado do Termix é a TASK-139 (`src/embed.js`).

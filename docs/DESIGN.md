@@ -16,6 +16,10 @@ Referência visual aprovada: `base/index.html` (tema escuro com vidro). Reproduz
 
 Temas escuro e claro. Todas as cores são variáveis CSS em `:root`.
 
+## Ícone do app
+
+Cometa em órbita (esfera azul com cauda, órbita inclinada, anel e seis quadradinhos num ladrilho claro). Fonte: assets/icone.svg; o assets/icone.png é gerado dele. Vale só para o ícone do próprio app (barra de tarefas, atalho, instalador). Dentro do Hub os ícones continuam em traço de uma cor.
+
 ## Estrutura da tela
 
 - Barra de título própria: logo, "Rocruzta Hub", **seletor de app ao lado do nome**, tema, notificações, controles da janela.
