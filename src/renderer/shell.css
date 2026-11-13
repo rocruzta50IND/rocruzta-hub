@@ -81,6 +81,15 @@ body.notif-aberto #v-notif { width: 340px; border-left-color: var(--line); }
 .sub > .nome, .sub > span:not(.glyph):not(.selo) { flex: 1; }
 .sub svg { width: 15px; height: 15px; }
 .sub .glyph svg { width: 13px; height: 13px; }
+.sub-linha { position: relative; }
+.sub-linha .mais { position: absolute; right: 4px; top: 50%; width: 24px; height: 24px; margin-top: -12px; display: grid; place-items: center; border-radius: var(--r-s); color: var(--text-2); opacity: 0; }
+.sub-linha .mais svg { width: 16px; height: 16px; fill: currentColor; stroke: none; }
+.sub-linha:hover .mais, .sub-linha .mais:focus-visible, .sub-linha.aberto .mais { opacity: 1; }
+.sub-linha .mais:hover, .sub-linha.aberto .mais { background: var(--surface-2); color: var(--text); }
+.sub-linha:hover .dot, .sub-linha.aberto .dot { visibility: hidden; }
+.sub-linha.aberto .sub { background: var(--hover); color: var(--text); }
+.menu.menu-app { position: fixed; z-index: 60; width: 200px; }
+.menu.menu-app .menu-item:disabled { cursor: default; }
 .sub.off, .menu-item.off { cursor: default; }
 .sub.off:hover, .menu-item.off:hover { background: none; color: var(--text-2); }
 .sub.off .glyph, .sub.off .nome, .menu-item.off .glyph, .menu-item.off .nome { opacity: .5; }

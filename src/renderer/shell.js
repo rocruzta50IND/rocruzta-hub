@@ -274,16 +274,68 @@ function iniciarShell() {
   });
 
   // ---- Sidebar ----
+  let menuApp = null; // id do app cujo menu "⋯" está aberto
   function montarSidebar() {
     const secoes = SECOES.filter((s) => !s.rodape).map((s) => `<button class="sub${s.id === secaoAtual ? ' act' : ''}" data-sec="${s.id}"${s.id === secaoAtual ? ' aria-current="page"' : ''}>
       ${ic(s.icone)}<span>${s.nome}</span>${s.id === 'apps' && APPS.some((a) => avisoNaoVisto(a.id)) ? '<i class="dot-att" title="Atualização disponível"></i>' : ''}</button>`).join('');
-    const apps = gruposComApps().map((g) => `<div class="group-title">${g}</div>${APPS.filter((a) => a.grupo === g).map((a) => `<button class="sub" data-app="${a.id}">
-      <span class="glyph" data-c="${a.cor}">${ic(a.icone)}</span><span class="nome">${a.nome}</span>${emExecucao(a.id) ? '<i class="dot" title="Em execução"></i>' : ''}</button>`).join('')}`).join('');
+    const apps = gruposComApps().map((g) => `<div class="group-title">${g}</div>${APPS.filter((a) => a.grupo === g).map((a) => `<div class="sub-linha${menuApp === a.id ? ' aberto' : ''}"><button class="sub" data-app="${a.id}">
+      <span class="glyph" data-c="${a.cor}">${ic(a.icone)}</span><span class="nome">${a.nome}</span>${emExecucao(a.id) ? '<i class="dot" title="Em execução"></i>' : ''}</button><button class="mais" data-mais="${a.id}" aria-label="Mais opções de ${a.nome}" aria-haspopup="menu" title="Mais opções">${ic('mais')}</button></div>`).join('')}`).join('');
     $('#side').innerHTML = secoes + apps;
     aplicarCores($('#side'));
   }
 
+  // ---- Menu "⋯" de cada app na barra lateral: Abrir, Ver novidades (página do app na loja) e Desinstalar (TASK-033) ----
+  function fecharMenuApp() {
+    if (!menuApp) return;
+    menuApp = null;
+    $('#menu-app')?.remove();
+    document.querySelector('.sub-linha.aberto')?.classList.remove('aberto');
+  }
+  function abrirMenuApp(id, botao) {
+    const app = APPS.find((a) => a.id === id);
+    if (!app) return;
+    fecharMenuApp();
+    menuApp = id;
+    botao.closest('.sub-linha').classList.add('aberto');
+    const est = ESTADOS[id] || {};
+    const instalado = !naoInstalado(id);
+    const item = (cls, acao, icone, texto, dica) => `<button class="menu-item ${cls}" role="menuitem"${acao ? ` data-mais-acao="${acao}"` : ` disabled title="${dica}"`}>${ic(icone)}<span class="nome">${texto}</span></button>`;
+    let des = '';
+    if (instalado) {
+      if (!est.desinstalador) des = item('off', '', 'lixo', 'Desinstalar', 'Não achei o desinstalador registrado no Windows');
+      else if (est.embutidoDev) des = item('off', '', 'lixo', 'Desinstalar', 'Rodando da pasta de desenvolvimento: o desinstalador seria o de outra cópia');
+      else if (emExecucao(id)) des = item('off', '', 'lixo', 'Desinstalar', `Feche o ${app.nome} antes de desinstalar`);
+      else des = item('perigo', 'desinstalar', 'lixo', 'Desinstalar');
+    }
+    const m = document.createElement('div');
+    m.id = 'menu-app';
+    m.className = 'menu menu-app';
+    m.setAttribute('role', 'menu');
+    m.innerHTML = `${instalado ? item('', 'abrir', 'abrir', 'Abrir') : ''}${item('', 'novidades', 'novidades', 'Ver novidades')}${des ? `<hr>${des}` : ''}`;
+    document.body.appendChild(m);
+    const r = botao.getBoundingClientRect();
+    m.style.top = `${Math.max(8, Math.min(r.bottom + 4, window.innerHeight - m.offsetHeight - 8))}px`;
+    m.style.left = `${Math.max(8, Math.min(r.left, 236 - m.offsetWidth - 8))}px`;
+    m.querySelector('.menu-item:not(.off)')?.focus();
+  }
+  document.addEventListener('click', (e) => {
+    const acao = e.target.closest('#menu-app [data-mais-acao]');
+    if (acao) {
+      const id = menuApp;
+      fecharMenuApp();
+      if (acao.dataset.maisAcao === 'abrir') return clicarApp(id);
+      irParaSecao('apps');
+      if (acao.dataset.maisAcao === 'desinstalar') LOJA.desinstalar = id;
+      return abrirDetalheApp(id);
+    }
+    if (!e.target.closest('#menu-app') && !e.target.closest('[data-mais]')) fecharMenuApp();
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && menuApp) { const b = document.querySelector('.sub-linha.aberto .mais'); fecharMenuApp(); b?.focus(); } });
+  window.addEventListener('blur', fecharMenuApp);
+
   $('#side').addEventListener('click', (e) => {
+    const mais = e.target.closest('[data-mais]');
+    if (mais) { const mesmo = menuApp === mais.dataset.mais; fecharMenuApp(); if (!mesmo) abrirMenuApp(mais.dataset.mais, mais); return; }
     const sec = e.target.closest('[data-sec]');
     if (sec) return irParaSecao(sec.dataset.sec);
     const app = e.target.closest('[data-app]');

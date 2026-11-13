@@ -8,6 +8,12 @@ Histórico legível do que foi desenvolvido, alterado ou corrigido. Uma entrada 
 
 ## 2026-11-13
 
+**TASK-033 — Menu "⋯" dos apps na barra lateral** (DEV1)
+
+- Pedido do usuário: o Desinstalar não aparecia no Hub (ele é escondido quando o Termix roda da pasta de desenvolvimento, caso desta máquina). Cada app da barra lateral ganhou o botão "⋯" com Abrir, Ver novidades e Desinstalar (desativado com explicação quando não dá). Fecha com Esc, clique fora ou no "⋯" de novo; o menu cabe na barra lateral (a tela do app fica por cima de qualquer coisa fora dela).
+- `tools/verificar-menu-app.js` 10/10 no app real; `HUB_DADOS` (só testes) separa os dados e a instância única. 105 testes.
+- Decisões da conversa em `docs/DECISOES.md` §18 (repositórios públicos até depois do MVP; TASK-035) e abertura da TASK-034 (atualização automática do Hub).
+
 **TASK-014 e TASK-016 — Instalador do Hub e instalar/atualizar apps pelo Hub** (DEV1)
 
 - Instalador: `electron-builder` (NSIS por usuário, sem administrador), `npm run empacotar`. Ícone vem de `assets/icone.png`.

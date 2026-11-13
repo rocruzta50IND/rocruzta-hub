@@ -8,9 +8,19 @@ Formato do ID: `TASK-XXX` — numeração sequencial, sem reuso, livre em todas 
 
 ## Em andamento
 
-_Nenhuma no momento._
+### TASK-034 — Atualização automática do Hub (releases públicas do GitHub)
+
+- **Responsável:** DEV1
+- **Status:** EM ANDAMENTO
+- **Objetivo:** o Hub confere a última release de `rocruzta50IND/rocruzta-hub` (sem token, repositório público), baixa o instalador em segundo plano, confere o hash, mostra "Reiniciar e atualizar" e, ao confirmar, instala por cima em modo silencioso e reabre sozinho. A versão do rodapé passa a ser a real. Decisão em `docs/DECISOES.md` §18.
 
 ## Aguardando validação DEV1
+
+### TASK-033 — Menu "⋯" dos apps na barra lateral
+
+- **Responsável:** DEV1
+- **Status:** VALIDADA EM DEV1 (10 verificações no app real; falta o usuário testar o Desinstalar de verdade)
+- **Feito:** botão "⋯" em cada app da barra lateral com Abrir, Ver novidades (página do app na loja) e Desinstalar (leva à confirmação da página do app; desativado com o app aberto, rodando da pasta de desenvolvimento ou sem desinstalador). `tools/verificar-menu-app.js`; `HUB_DADOS` (só testes) abre uma segunda instância. "Fixar" ficou de fora (sem efeito com um app só).
 
 ### TASK-014 — Empacotar o instalador do Hub
 
@@ -171,6 +181,13 @@ Fora da v1. O DEV1 promove para "Prontas" quando decidir.
 - **Status:** BACKLOG
 - **Prioridade:** Baixa
 - **Objetivo:** experimento descartável, só se o usuário voltar a querer isso. Motivos do descarte atual em `docs/DECISOES.md`.
+
+### TASK-035 — Repositórios privados e atualização com acesso controlado (pós-MVP)
+
+- **Responsável:** A definir
+- **Status:** BACKLOG (pós-MVP)
+- **Prioridade:** Média
+- **Objetivo:** hoje os repositórios do Hub e do Termix são públicos de propósito. Depois do MVP: código-fonte privado e instaladores num repositório de releases separado e, com o backend e o login único (TASK-019), servidor de atualização que exige login por pessoa. Opções e custos em `docs/DECISOES.md` §18.
 
 ## Concluídas
 

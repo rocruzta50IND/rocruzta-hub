@@ -14,7 +14,7 @@ Registro do que foi decidido e do que se sabe. Leia só a seção que a tarefa e
 ## 2. Repositório
 
 - O Hub tem repositório próprio desde o início, com o fluxo DEV2 → DEV1 → MAIN (`WORKFLOW.md`).
-- **No GitHub desde 2026-11-09 (TASK-015).** `origin` = `https://github.com/rocruzta50IND/rocruzta-hub` (privado, conta `rocruzta50IND`), com as branches `main`, `dev1` e `dev2`. Antes disso o `origin` era um repositório local em `D:\Termix\_origins\rocruzta-hub.git` (agora só um backup antigo). Em outra máquina: `git clone` do endereço acima, `npm install` e `/fluxo:papel` para criar o `CLAUDE.local.md`, que não é versionado.
+- **No GitHub desde 2026-11-09 (TASK-015).** `origin` = `https://github.com/rocruzta50IND/rocruzta-hub` (**público**, conta `rocruzta50IND`; ver §18), com as branches `main`, `dev1` e `dev2`. Antes disso o `origin` era um repositório local em `D:\Termix\_origins\rocruzta-hub.git` (agora só um backup antigo). Em outra máquina: `git clone` do endereço acima, `npm install` e `/fluxo:papel` para criar o `CLAUDE.local.md`, que não é versionado.
 - Identidade de commit local: `Rocruzta DEV1 <dev1@rocruzta.com.br>` (trocar com `git config --local` se quiser outro nome).
 
 ## 3. Termix (primeiro app)
@@ -191,3 +191,9 @@ Instalar ou atualizar apps pelo GitHub, login, backend, API real de notícias, a
 
 **Teste:** `npm run empacotar` e `powershell -File tools\sandboxodar.ps1` (feche qualquer Sandbox aberto antes; o Sandbox às vezes não executa o script se reaberto logo após fechar, espere ~20 s). O `.wsb` não pode ter BOM.
 
+## 18. Repositórios públicos e atualização do Hub (decidido em 2026-11-13)
+
+- Os repositórios `rocruzta-hub` e `termix` são **públicos** (conferido pela API do GitHub sem token). Decisão do usuário: manter assim até depois do MVP; a documentação antiga que dizia "privado" estava desatualizada.
+- Por isso a atualização automática do Hub (TASK-034) lê as releases públicas, sem token, igual ao Termix.
+- Fatos que guiaram a decisão: um instalador Electron leva o JavaScript do app em `app.asar`, que qualquer pessoa extrai e lê (Slack, VS Code e Discord também); o que protege o negócio é o que fica no servidor, atrás de login. Quem tem só o instalador não recebe o histórico do git, os docs, os testes nem as ferramentas.
+- **Pós-MVP (TASK-035):** (1) código-fonte privado e instaladores num repositório de releases separado (sem token em lugar nenhum); (2) com o backend e o login único (TASK-019), servidor de atualização que exige login por pessoa; (3) alternativa descartada por ora: token somente leitura embutido no instalador (extraível por quem tiver o arquivo, e a rotação cortaria a atualização dos Hubs já instalados). Privar o Termix exige antes um token ou outro lugar para as releases dele, senão o Termix instalado deixa de se atualizar.

@@ -40,6 +40,10 @@ const ICONES = {
   panel: '<rect x="3.5" y="4.5" width="17" height="15" rx="3"/><path d="M9.5 4.5v15"/>',
   square: '<rect x="4" y="4" width="16" height="16" rx="2"/>',
   x: '<path d="M18 6 6 18M6 6l12 12"/>',
+  mais: '<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>',
+  lixo: '<path d="M4 7h16M9 7V4h6v3M6.5 7l1 13h9l1-13M10 11v6M14 11v6"/>',
+  novidades: '<path d="M12 3l2.2 5.3 5.8.5-4.4 3.8 1.4 5.6L12 15l-5 3.2 1.4-5.6L4 8.8l5.8-.5z"/>',
+  abrir: '<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
 };
 
 const ic = (nome) => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${ICONES[nome]}</svg>`;
