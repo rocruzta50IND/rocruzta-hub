@@ -152,4 +152,4 @@ async function instalarApp(app, estado, { pastaTemp = path.join(os.tmpdir(), 'ro
   }
 }
 
-module.exports = { pedir, ultimaRelease, escolherInstalador, lerSha512, baixar, argumentosInstalacao, removerAtalhos, pastasAreaDeTrabalho, instalarApp };
+module.exports = { pedir, lerTexto, ultimaRelease, escolherInstalador, lerSha512, baixar, argumentosInstalacao, removerAtalhos, pastasAreaDeTrabalho, instalarApp };

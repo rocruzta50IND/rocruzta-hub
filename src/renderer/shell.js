@@ -561,6 +561,31 @@ function iniciarShell() {
     else if (e.target.closest('[data-aa-fechar]')) { if (atuDe(id)) atuDe(id).avisoFechado = true; window.hub.fecharAvisoAtualizacao(id); atualizarBannerAtt(); }
   });
   window.hub.onAtualizacoesMudou(carregarAtualizacoes);
+
+  // ---- Atualização do próprio Hub (TASK-034): baixa sozinho em segundo plano; a faixa só aparece com o instalador pronto ----
+  const HUB_ATU = { fase: 'nenhuma', versao: null, dispensada: false };
+  const appsEmbutidosAbertos = () => APPS.filter((a) => ESTADOS[a.id]?.embutido === 'rodando');
+  function atualizarFaixaHub() {
+    const faixa = $('#aviso-hub');
+    const mostrar = HUB_ATU.fase === 'pronta' && !HUB_ATU.dispensada;
+    faixa.hidden = !mostrar;
+    if (!mostrar) return;
+    const abertos = appsEmbutidosAbertos();
+    $('#ah-texto').innerHTML = `<b>Hub v${HUB_ATU.versao}</b> pronto para instalar${abertos.length ? ` · vai fechar ${abertos.map((a) => a.nome).join(', ')}` : ''}`;
+    $('#ah-aplicar').disabled = false;
+    $('#ah-aplicar').textContent = 'Reiniciar e atualizar';
+  }
+  const definirHubAtu = (estado) => { if (!estado) return; if (estado.versao !== HUB_ATU.versao) HUB_ATU.dispensada = false; Object.assign(HUB_ATU, estado); atualizarFaixaHub(); };
+  window.hub.hubAtualizacao().then(definirHubAtu).catch(() => {});
+  window.hub.onHubAtualizacaoMudou(definirHubAtu);
+  $('#ah-fechar').addEventListener('click', () => { HUB_ATU.dispensada = true; atualizarFaixaHub(); });
+  $('#ah-aplicar').addEventListener('click', async () => {
+    const b = $('#ah-aplicar');
+    b.disabled = true; b.textContent = 'Atualizando…';
+    const r = await window.hub.aplicarHubAtualizacao().catch(() => ({ ok: false }));
+    if (!r.ok) { avisar('Não foi possível iniciar a atualização do Hub.'); atualizarFaixaHub(); }
+  });
+  setInterval(atualizarFaixaHub, 20000); // o texto acompanha os apps abertos
   setInterval(atualizarBannerAtt, 30000); // a faixa some sozinha depois da janela de 15 minutos
 
   // Histórico de telas do Hub (setas ‹ › do cabeçalho).

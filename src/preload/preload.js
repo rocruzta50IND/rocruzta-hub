@@ -37,6 +37,10 @@ const CH = {
   atualizacoesChecar: 'atu:checar',
   atualizacoesVisto: 'atu:visto',
   atualizacoesFechar: 'atu:fechar',
+  hubAtualizacao: 'hubatu:estado',
+  hubAtualizacaoMudou: 'hubatu:mudou',
+  hubAtualizacaoChecar: 'hubatu:checar',
+  hubAtualizacaoAplicar: 'hubatu:aplicar',
   desinstalar: 'apps:desinstalar',
   instalar: 'apps:instalar',
   instalacaoMudou: 'apps:instalacao-mudou',
@@ -90,6 +94,15 @@ contextBridge.exposeInMainWorld('hub', {
     const listener = () => cb();
     ipcRenderer.on(CH.atualizacoesMudou, listener);
     return () => ipcRenderer.removeListener(CH.atualizacoesMudou, listener);
+  },
+  // Atualização do próprio Hub (TASK-034).
+  hubAtualizacao: () => ipcRenderer.invoke(CH.hubAtualizacao),
+  verificarHubAtualizacao: () => ipcRenderer.invoke(CH.hubAtualizacaoChecar),
+  aplicarHubAtualizacao: () => ipcRenderer.invoke(CH.hubAtualizacaoAplicar),
+  onHubAtualizacaoMudou: (cb) => {
+    const listener = (_e, estado) => cb(estado);
+    ipcRenderer.on(CH.hubAtualizacaoMudou, listener);
+    return () => ipcRenderer.removeListener(CH.hubAtualizacaoMudou, listener);
   },
   // Notificações dos apps embutidos (quem mostra é o Hub).
   notificacoes: () => ipcRenderer.invoke(CH.notificacoes),

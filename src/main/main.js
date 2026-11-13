@@ -6,6 +6,7 @@ const { app, BrowserWindow, ipcMain, shell, Notification } = require('electron')
 const { carregarCatalogo, urlReleases } = require('./apps');
 const { detectarApps } = require('./deteccao');
 const { criarAtualizacoes } = require('./atualizacoes');
+const { criarAutoAtualizacao } = require('./autoatualizacao');
 const { anexarExecucao, abrirApp, desinstalarApp } = require('./execucao');
 const { instalarApp } = require('./instalacao');
 const { localizarDev, localizarInstalado, criarEmbutidos } = require('./embutido');
@@ -85,6 +86,13 @@ const instaladasAgora = async () => {
   }
   return saida;
 };
+// Atualização do próprio Hub (TASK-034): só no app instalado (ou com HUB_AUTOATUALIZAR=1, para testes).
+const autoAtualizar = app.isPackaged || process.env.HUB_AUTOATUALIZAR === '1';
+const hubAtualizacao = criarAutoAtualizacao({
+  versaoAtual: app.getVersion(),
+  aoMudar: (estado) => { if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send(CHANNELS.hubAtualizacaoMudou, estado); },
+});
+const verificarHub = async () => { if (autoAtualizar) { try { await hubAtualizacao.checar(); } catch { /* sem checagem desta vez */ } } };
 const avisarAtualizacoes = () => { if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send(CHANNELS.atualizacoesMudou); };
 async function verificarAtualizacoes() {
   try { if (await atualizacoes.checar(appsReais(), await instaladasAgora())) avisarAtualizacoes(); } catch { /* sem checagem desta vez */ }
@@ -251,6 +259,15 @@ ipcMain.handle(CHANNELS.instalar, async (e, id) => {
     return r;
   } catch { avisar({ fase: 'erro', motivo: 'falha' }); return { ok: false, motivo: 'falha' }; } finally { instalando.delete(id); }
 });
+ipcMain.handle(CHANNELS.hubAtualizacao, (e) => (windowFrom(e) ? hubAtualizacao.estado() : { fase: 'nenhuma' }));
+ipcMain.handle(CHANNELS.hubAtualizacaoChecar, async (e) => { if (!windowFrom(e)) return { fase: 'nenhuma' }; await verificarHub(); return hubAtualizacao.estado(); });
+// Aplicar: lança o instalador baixado e fecha o Hub (o instalador espera o Hub sair, instala por cima e o reabre).
+ipcMain.handle(CHANNELS.hubAtualizacaoAplicar, (e) => {
+  if (!windowFrom(e)) return { ok: false, motivo: 'janela' };
+  const r = hubAtualizacao.aplicar();
+  if (r.ok) setTimeout(() => app.quit(), 300);
+  return r;
+});
 ipcMain.handle(CHANNELS.atualizacoes, async (e) => (windowFrom(e) ? atualizacoes.listar(await instaladasAgora()) : {}));
 ipcMain.handle(CHANNELS.atualizacoesChecar, async (e) => {
   if (!windowFrom(e)) return {};
@@ -280,7 +297,7 @@ if (!app.requestSingleInstanceLock()) {
     mainWindow.show();
     mainWindow.focus();
   });
-  app.whenReady().then(() => { createWindow(); setTimeout(verificarAtualizacoes, 4000); setInterval(verificarAtualizacoes, 3 * 60 * 60 * 1000); }); // confere ao abrir e a cada 3 h
+  app.whenReady().then(() => { createWindow(); setTimeout(verificarAtualizacoes, 4000); setInterval(verificarAtualizacoes, 3 * 60 * 60 * 1000); setTimeout(verificarHub, 6000); setInterval(verificarHub, 3 * 60 * 60 * 1000); }); // confere ao abrir e a cada 3 h
   app.on('before-quit', () => { embutidos.pararTodos(); conversa.nova(); }); // encerra os apps embutidos e os processos que eles abriram
   app.on('window-all-closed', () => app.quit());
 }
